@@ -13,6 +13,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/url"
 	"time"
 
@@ -81,12 +82,24 @@ func (s *Source) Fetch(ctx context.Context, since time.Time) ([]source.Item, err
 			}
 			return nil, fmt.Errorf("openfda: %s: %s", resp.Error.Code, resp.Error.Message)
 		}
+		var skipped int
 		for _, raw := range resp.Results {
 			it, err := Map(raw)
 			if err != nil {
-				return nil, err
+				// openFDA really does return rows the schema cannot carry, such as
+				// an enforcement report with no recall_number. One unusable row
+				// must not discard the whole page: skip it, count it, and keep the
+				// notices we can act on.
+				skipped++
+				slog.Warn("skipping unmappable record", "source", s.Name(), "page", page, "err", err)
+				continue
 			}
 			items = append(items, it)
+		}
+		if skipped > 0 && skipped == len(resp.Results) {
+			// A whole page failing is a schema break or an outage, not a stray
+			// row, and it should be loud.
+			return nil, fmt.Errorf("openfda: all %d records on page %d were unmappable", skipped, page)
 		}
 		if len(resp.Results) < pageSize || resp.Meta.Results.Skip+len(resp.Results) >= resp.Meta.Results.Total {
 			break
