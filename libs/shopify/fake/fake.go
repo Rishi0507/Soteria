@@ -6,6 +6,7 @@ package fake
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -67,6 +68,7 @@ func (s *Store) AddVariant(v shopify.Variant) {
 	c := v
 	c.Tags = append([]string(nil), v.Tags...)
 	c.Inventory = append([]shopify.InventoryLevel(nil), v.Inventory...)
+	c.Lots = append([]shopify.Lot(nil), v.Lots...)
 	s.variants[v.ID] = &c
 }
 
@@ -115,6 +117,7 @@ func copyVariant(v *shopify.Variant) shopify.Variant {
 	c := *v
 	c.Tags = append([]string(nil), v.Tags...)
 	c.Inventory = append([]shopify.InventoryLevel(nil), v.Inventory...)
+	c.Lots = append([]shopify.Lot(nil), v.Lots...)
 	return c
 }
 
@@ -351,6 +354,16 @@ func (s *Store) SetMetafields(_ context.Context, fields []shopify.Metafield) err
 		}
 		s.metafields[f.OwnerID+"|"+f.Namespace+"|"+f.Key] = f
 		s.record("SetMetafield(%s,%s.%s=%s)", f.OwnerID, f.Namespace, f.Key, f.Value)
+		// Mirror the lot ledger onto the variant like the real read path does.
+		if f.Namespace == shopify.MetafieldNamespace && f.Key == shopify.LotsKey {
+			if v, ok := s.variants[f.OwnerID]; ok {
+				var lots []shopify.Lot
+				if err := json.Unmarshal([]byte(f.Value), &lots); err != nil {
+					return &shopify.UserErrors{Mutation: "metafieldsSet", Errors: []shopify.UserError{{Message: "invalid json: " + err.Error(), Code: "INVALID_VALUE"}}}
+				}
+				v.Lots = lots
+			}
+		}
 	}
 	return nil
 }

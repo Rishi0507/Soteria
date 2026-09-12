@@ -2,6 +2,7 @@ package shopify
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strings"
@@ -41,6 +42,7 @@ func (c *Client) Locations(ctx context.Context) ([]Location, error) {
 const variantFields = `
   id title sku barcode price
   product { id title status handle vendor tags }
+  lots: metafield(namespace: "soteria", key: "lots") { value }
   inventoryItem {
     id
     inventoryLevels(first: 20) {
@@ -79,6 +81,9 @@ type variantNode struct {
 		Vendor string   `json:"vendor"`
 		Tags   []string `json:"tags"`
 	} `json:"product"`
+	Lots *struct {
+		Value string `json:"value"`
+	} `json:"lots"`
 	InventoryItem struct {
 		ID              string `json:"id"`
 		InventoryLevels struct {
@@ -101,6 +106,11 @@ func (n variantNode) toVariant() Variant {
 		ProductID: n.Product.ID, ProductTitle: n.Product.Title, ProductStatus: n.Product.Status,
 		ProductHandle: n.Product.Handle, Vendor: n.Product.Vendor, Tags: n.Product.Tags,
 		InventoryItemID: n.InventoryItem.ID,
+	}
+	if n.Lots != nil && n.Lots.Value != "" {
+		// A malformed ledger is not fatal for reads; containment refuses to
+		// act on a variant whose lots cannot be parsed (Lots stays nil).
+		_ = json.Unmarshal([]byte(n.Lots.Value), &v.Lots)
 	}
 	for _, l := range n.InventoryItem.InventoryLevels.Nodes {
 		lvl := InventoryLevel{LocationID: l.Location.ID}

@@ -60,8 +60,26 @@ go run ./cmd/shopctl move gid://shopify/InventoryItem/… gid://shopify/Location
 
 `shopctl` also reads a `.env` in the current directory. The token is never logged.
 
-## Notes for Person 3
+## `hold` — the containment seam (for Person 3)
 
-- Shopify has **no native lot tracking**. The quarantine primitive is *move N units of an inventory item to the Quarantine location*; which N belongs to which lot has to come from a lot ledger you own (variant metafield or your own table). Propose the shape in `/contracts`.
-- `ReplaceLineItem` only works on unfulfilled orders and must be called **after** the customer confirmed the substitute (PRD: never silently substitute).
-- API version defaults to `2026-01`; override with `shopify.WithAPIVersion` or `SHOPIFY_API_VERSION` for `shopctl`.
+`hold.Adapter` implements `libs/core/shopify.InventoryClient` (`HoldLots` / `ReleaseLots`), so the containment-service plugs the real store in with three lines:
+
+```go
+sel, quar, err := hold.ResolveLocations(ctx, client, "Quarantine")
+inv := hold.New(client, sel, quar)          // satisfies core/shopify.InventoryClient
+svc := containment.New(store, inv, bus, log)
+```
+
+How a hold is executed — Shopify has **no native lot tracking**, so:
+
+| Piece | Where it lives | What the adapter does |
+|---|---|---|
+| Lot ledger | variant metafield `soteria.lots` (JSON: `[{"code":"8H-1132","units":40,"expiry":"2027-03","held":false}]`) | reads it via `Variant.Lots`; marks `held` on hold/release |
+| Quarantine | second Shopify location named **Quarantine** | `inventoryMoveQuantities` selling → Quarantine for the held lots' units (capped at physical stock); reversed on release |
+| Storefront signal | product tags + `soteria.badge` metafield + status | partial hold: `RECALL_LOT:<code>` tags + "Verified Safe Lot" badge, product stays ACTIVE; full hold (all lots, or no ledger, or no `LotCodes`): `RECALL_HAZARD` + DRAFT; release reverses |
+
+Rules: unknown lot codes → error (never silently hold nothing); barcode matching multiple variants → error; unknown barcode → SKU fallback; a failed move leaves the ledger untouched; repeat holds are idempotent.
+
+**Person 2 seeding checklist:** every variant needs `barcode` (GTIN) and, for lot precision, the `soteria.lots` metafield; the store needs a location named `Quarantine`.
+
+Other notes: `ReplaceLineItem` only works on unfulfilled orders and must be called **after** the customer confirmed the substitute (PRD: never silently substitute). API version defaults to `2026-01`; override with `shopify.WithAPIVersion` or `SHOPIFY_API_VERSION`.

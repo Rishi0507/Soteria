@@ -34,6 +34,24 @@ type InventoryLevel struct {
 	Available  int    `json:"available"`
 }
 
+// Lot is one production lot of a variant as recorded in the variant's
+// soteria.lots metafield (JSON list). Shopify has no native lot tracking;
+// this metafield is Sotería's lot ledger, kept on the store so every
+// service and the storefront read the same truth.
+type Lot struct {
+	Code   string `json:"code"`
+	Units  int    `json:"units"`
+	Expiry string `json:"expiry,omitempty"` // free text, e.g. 2027-03
+	Held   bool   `json:"held,omitempty"`   // moved to Quarantine by a containment action
+}
+
+// LotsNamespace / LotsKey locate the lot ledger metafield on a variant.
+const (
+	MetafieldNamespace = "soteria"
+	LotsKey            = "lots"
+	BadgeKey           = "badge"
+)
+
 // Variant is a sellable SKU with the fields containment needs. Barcode is
 // the UPC/EAN/GTIN — the key the resolution-service matches recalls on.
 type Variant struct {
@@ -50,6 +68,17 @@ type Variant struct {
 	Price           string           `json:"price"`
 	InventoryItemID string           `json:"inventory_item_id"` // gid://shopify/InventoryItem/123
 	Inventory       []InventoryLevel `json:"inventory"`
+	Lots            []Lot            `json:"lots,omitempty"` // from metafield soteria.lots; nil when the store has no lot data
+}
+
+// AvailableAt returns available quantity at one location.
+func (v Variant) AvailableAt(locationID string) int {
+	for _, l := range v.Inventory {
+		if l.LocationID == locationID {
+			return l.Available
+		}
+	}
+	return 0
 }
 
 // Available sums available quantity across locations.
