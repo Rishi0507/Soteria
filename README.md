@@ -14,6 +14,7 @@ This is a contract-first, 3-person microservice build (Go services, RabbitMQ eve
 | `services/ingestion-fda/` | Person 1 | openFDA enforcement + FDA press RSS → `recall.raw.received.v1` |
 | `services/ingestion-usda/` | Person 1 | USDA FSIS recalls (meat/poultry/egg) → `recall.raw.received.v1` |
 | `services/ingestion-rasff/` | Person 1 | EU RASFF notifications → `recall.raw.received.v1` |
+| `services/ingestion-silent-diff/` | Person 1 | Python: diffs manufacturer catalogs (public Shopify `/products.json`) → `catalog.sku.vanished.v1` |
 | `services/notification-service/` | Person 1 | containment / rescue / evasion events → Slack + customer email, delivery ledger → `notification.delivered.v1` |
 | `automation/n8n-workflows/` | Person 1 | n8n glue: service health-check → Slack |
 | `libs/core/` | Person 3 | Shared Go module for the domain services: event bindings, RabbitMQ seam, matching confidence, commerce and enrichment interfaces |

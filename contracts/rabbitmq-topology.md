@@ -81,7 +81,7 @@ Each queue also has a `<queue>.dlq` bound to its owning context's dead-letter ex
 | Routing key | Schema | Producer(s) | Status |
 |---|---|---|---|
 | `ingestion.recall.raw.received.v1` | [`events/recall.raw.received.v1.json`](events/recall.raw.received.v1.json) | `ingestion-fda`, `ingestion-usda`, `ingestion-rasff` | live |
-| `ingestion.catalog.sku.vanished.v1` | [`events/catalog.sku.vanished.v1.json`](events/catalog.sku.vanished.v1.json) | `ingestion-silent-diff` | proposed, consumer ready |
+| `ingestion.catalog.sku.vanished.v1` | [`events/catalog.sku.vanished.v1.json`](events/catalog.sku.vanished.v1.json) | `ingestion-silent-diff` | live (envelope-wrapped) |
 | `resolution.lot.resolved.v1` | [`events/lot.resolved.v1.json`](events/lot.resolved.v1.json) | `resolution-service` | live |
 | `containment.action.proposed.v1` | [`events/containment.action.proposed.v1.json`](events/containment.action.proposed.v1.json) | `containment-service` | live |
 | `containment.action.taken.v1` | [`events/containment.action.taken.v1.json`](events/containment.action.taken.v1.json) | `containment-service` | live |

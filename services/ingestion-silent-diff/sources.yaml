@@ -1,0 +1,36 @@
+# Manufacturer catalogs to watch. Every entry is a real, public, keyless
+# endpoint verified on 2026-09-12. Add a brand by adding its Shopify
+# storefront URL; use kind: sitemap for non-Shopify brands.
+sources:
+  - name: shopify:lesserevil.com
+    kind: shopify
+    url: https://www.lesserevil.com
+    brand: LesserEvil
+  - name: shopify:purelyelizabeth.com
+    kind: shopify
+    url: https://www.purelyelizabeth.com
+    brand: Purely Elizabeth
+  - name: shopify:kodiakcakes.com
+    kind: shopify
+    url: https://www.kodiakcakes.com
+    brand: Kodiak Cakes
+  - name: shopify:hukitchen.com
+    kind: shopify
+    url: https://hukitchen.com
+    brand: Hu Kitchen
+  - name: shopify:perfectsnacks.com
+    kind: shopify
+    url: https://www.perfectsnacks.com
+    brand: Perfect Snacks
+  - name: shopify:thatsitfruit.com
+    kind: shopify
+    url: https://www.thatsitfruit.com
+    brand: That's it.
+  - name: shopify:chomps.com
+    kind: shopify
+    url: https://www.chomps.com
+    brand: Chomps
+  - name: shopify:pipsnacks.com
+    kind: shopify
+    url: https://www.pipsnacks.com
+    brand: Pipsnacks
