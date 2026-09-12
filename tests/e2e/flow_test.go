@@ -61,6 +61,13 @@ func newHarness(t *testing.T, cfg containment.Config) *harness {
 			ProductTitle: "Harvest Lane Oat and Honey Granola Bars 12 ct", LotCodes: []string{"K221"}},
 	)
 	resStore := resolver.NewStore()
+	resStore.SetLedger(func(ctx context.Context, gtin string) []string {
+		p, ok := cat.ByGTIN(ctx, gtin)
+		if !ok {
+			return nil
+		}
+		return p.LotCodes
+	})
 	res := resolver.New(cat, b, resStore, nil)
 
 	inv := shopify.NewFake(
@@ -215,10 +222,10 @@ func TestHighConfidenceFlowIsSurgicalAndRescuesOrders(t *testing.T) {
 	}
 
 	// 3. The storefront badge answers per lot, not per SKU.
-	if v := h.resStore.LotStatus("041196910537", "8H-1132").Verdict; v != resolver.VerdictAffected {
+	if v := h.resStore.LotStatus(context.Background(), "041196910537", "8H-1132").Verdict; v != resolver.VerdictAffected {
 		t.Fatalf("recalled lot verdict = %s, want AFFECTED", v)
 	}
-	if v := h.resStore.LotStatus("041196910537", "8H-2000").Verdict; v != resolver.VerdictSafe {
+	if v := h.resStore.LotStatus(context.Background(), "041196910537", "8H-2000").Verdict; v != resolver.VerdictSafe {
 		t.Fatalf("clean lot verdict = %s, want SAFE", v)
 	}
 
