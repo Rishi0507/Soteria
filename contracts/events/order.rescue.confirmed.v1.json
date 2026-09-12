@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://soteria.dev/contracts/events/order.rescue.confirmed.v1.json",
+  "title": "order.rescue.confirmed.v1",
+  "description": "The customer explicitly chose an option. Producer: storefront (via the order-rescue-service REST API). Consumer: order-rescue-service, audit-proof-service.",
+  "type": "object",
+  "required": ["incident_id", "rescue_id", "order_id", "option_id", "choice", "confirmed_at", "confirmed_by"],
+  "additionalProperties": false,
+  "properties": {
+    "incident_id":  { "type": "string" },
+    "rescue_id":    { "type": "string", "format": "uuid" },
+    "order_id":     { "type": "string" },
+    "option_id":    { "type": "string" },
+    "choice":       { "type": "string", "enum": ["SUBSTITUTE", "REFUND", "CANCEL"] },
+    "confirmed_at": { "type": "string", "format": "date-time" },
+    "confirmed_by": { "type": "string", "enum": ["CUSTOMER"], "description": "no other actor may confirm a rescue" },
+    "consent_token":{ "type": "string", "description": "opaque proof-of-click issued with the proposal; recorded in the audit dossier" }
+  }
+}

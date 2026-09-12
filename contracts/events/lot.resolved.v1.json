@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://soteria.dev/contracts/events/lot.resolved.v1.json",
+  "title": "lot.resolved.v1",
+  "description": "A recall signal resolved down to catalog identity (UPC/GTIN) and, where possible, specific lot codes. Producer: resolution-service. Consumers: containment-service, storefront.",
+  "type": "object",
+  "required": ["incident_id", "resolution_id", "signal", "resolved_at", "confidence", "scope", "matches"],
+  "additionalProperties": false,
+  "properties": {
+    "incident_id":   { "type": "string", "description": "stable id for the whole recall incident; equals envelope.correlation_id" },
+    "resolution_id": { "type": "string", "format": "uuid" },
+    "resolved_at":   { "type": "string", "format": "date-time" },
+    "confidence":    { "type": "number", "minimum": 0, "maximum": 1, "description": "overall confidence of the best match" },
+    "scope":         { "type": "string", "enum": ["LOT", "SKU"], "description": "LOT = surgical containment possible; SKU = no lot codes recoverable" },
+    "hazard":        { "type": "string", "description": "e.g. 'undeclared peanut'" },
+    "allergens":     { "type": "array", "items": { "type": "string" } },
+    "classification":{ "type": "string", "enum": ["CLASS_I", "CLASS_II", "CLASS_III", "UNCLASSIFIED"] },
+    "signal": {
+      "type": "object",
+      "required": ["kind", "source", "source_ref"],
+      "additionalProperties": false,
+      "properties": {
+        "kind":       { "type": "string", "enum": ["AGENCY_NOTICE", "SILENT_DIFF"] },
+        "source":     { "type": "string" },
+        "source_ref": { "type": "string" },
+        "source_url": { "type": "string" },
+        "published_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "matches": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["gtin", "confidence", "evidence"],
+        "additionalProperties": false,
+        "properties": {
+          "gtin":        { "type": "string", "description": "GTIN-14 normalized" },
+          "upc":         { "type": "string" },
+          "sku":         { "type": "string" },
+          "product_title": { "type": "string" },
+          "brand":       { "type": "string" },
+          "lot_codes":   { "type": "array", "items": { "type": "string" } },
+          "confidence":  { "type": "number", "minimum": 0, "maximum": 1 },
+          "evidence": {
+            "type": "array",
+            "description": "human-readable, audit-grade justification for this match",
+            "items": {
+              "type": "object",
+              "required": ["signal", "weight", "detail"],
+              "additionalProperties": false,
+              "properties": {
+                "signal": { "type": "string", "enum": ["EXACT_GTIN", "EXACT_UPC", "BRAND_MATCH", "TITLE_SIMILARITY", "LOT_CODE_EXTRACTED", "SKU_MATCH", "SILENT_DIFF_SIGNAL"] },
+                "weight": { "type": "number" },
+                "detail": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

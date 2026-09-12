@@ -1,0 +1,34 @@
+[
+  {
+    "gtin": "00041196910537",
+    "sku": "SF-GB-12",
+    "product_title": "Sunfield Farms Chewy Granola Bars 12 ct",
+    "category": "granola-bars",
+    "unit_price": { "amount_minor": 449, "currency": "USD" },
+    "in_stock": 0
+  },
+  {
+    "gtin": "00012345678905",
+    "sku": "HL-GB-12",
+    "product_title": "Harvest Lane Oat and Honey Granola Bars 12 ct",
+    "category": "granola-bars",
+    "unit_price": { "amount_minor": 449, "currency": "USD" },
+    "in_stock": 120
+  },
+  {
+    "gtin": "00073123456788",
+    "sku": "NT-GB-12",
+    "product_title": "Nutty Trail Peanut Crunch Granola Bars 12 ct",
+    "category": "granola-bars",
+    "unit_price": { "amount_minor": 449, "currency": "USD" },
+    "in_stock": 80
+  },
+  {
+    "gtin": "00099999999999",
+    "sku": "PR-GB-12",
+    "product_title": "Premium Seed Granola Bars 12 ct",
+    "category": "granola-bars",
+    "unit_price": { "amount_minor": 699, "currency": "USD" },
+    "in_stock": 40
+  }
+]

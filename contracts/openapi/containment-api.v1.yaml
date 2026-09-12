@@ -1,0 +1,171 @@
+openapi: 3.0.3
+info:
+  title: Sotería Containment API
+  version: 1.0.0
+  description: |
+    Read/act surface over containment decisions. Consumed by the ops console:
+    the review queue for below-threshold actions, and the threshold-tuning surface.
+    Owner: containment-service.
+servers:
+  - url: http://localhost:8082
+    description: local
+paths:
+  /healthz:
+    get:
+      operationId: containmentHealth
+      responses:
+        "200": { description: ok, content: { application/json: { schema: { $ref: "#/components/schemas/Health" } } } }
+  /v1/containment/actions:
+    get:
+      operationId: listContainmentActions
+      summary: Review queue + history
+      parameters:
+        - { name: status, in: query, schema: { type: string, enum: [PENDING_REVIEW, AUTO_HELD, HUMAN_CONFIRMED, HUMAN_REJECTED, FAILED] } }
+        - { name: incident_id, in: query, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, default: 50, maximum: 200 } }
+      responses:
+        "200":
+          description: matching actions, newest first
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/ContainmentAction" } }
+  /v1/containment/actions/{actionId}:
+    get:
+      operationId: getContainmentAction
+      parameters: [ { name: actionId, in: path, required: true, schema: { type: string } } ]
+      responses:
+        "200": { description: the action, content: { application/json: { schema: { $ref: "#/components/schemas/ContainmentAction" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /v1/containment/actions/{actionId}/confirm:
+    post:
+      operationId: confirmContainmentAction
+      summary: Human approves a below-threshold action; triggers the commerce-platform hold and emits containment.action.taken.v1
+      parameters: [ { name: actionId, in: path, required: true, schema: { type: string } } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [actor]
+              properties:
+                actor: { type: string, description: ops user id }
+                note:  { type: string }
+                lot_codes_override:
+                  type: array
+                  items: { type: string }
+                  description: reviewer may narrow (never widen) the held lots
+      responses:
+        "200": { description: action after confirmation, content: { application/json: { schema: { $ref: "#/components/schemas/ContainmentAction" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /v1/containment/actions/{actionId}/reject:
+    post:
+      operationId: rejectContainmentAction
+      parameters: [ { name: actionId, in: path, required: true, schema: { type: string } } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [actor, reason]
+              properties:
+                actor:  { type: string }
+                reason: { type: string }
+      responses:
+        "200": { description: action after rejection, content: { application/json: { schema: { $ref: "#/components/schemas/ContainmentAction" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+  /v1/containment/config:
+    get:
+      operationId: getContainmentConfig
+      summary: Current auto-hold threshold (ops console threshold-tuning UI)
+      responses:
+        "200": { description: config, content: { application/json: { schema: { $ref: "#/components/schemas/ContainmentConfig" } } } }
+    put:
+      operationId: updateContainmentConfig
+      description: Takes effect immediately, without redeploy. The change is itself an audited event.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [auto_hold_threshold, actor]
+              properties:
+                auto_hold_threshold: { type: number, minimum: 0, maximum: 1 }
+                sku_scope_threshold: { type: number, minimum: 0, maximum: 1, description: higher bar to hold a whole SKU when no lot codes were recovered }
+                actor: { type: string }
+      responses:
+        "200": { description: updated config, content: { application/json: { schema: { $ref: "#/components/schemas/ContainmentConfig" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+components:
+  responses:
+    NotFound:   { description: not found, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    BadRequest: { description: invalid request, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    Conflict:   { description: action is not in a state that allows this transition, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+  schemas:
+    Health:
+      type: object
+      required: [status, service]
+      properties:
+        status:  { type: string, enum: [ok, degraded] }
+        service: { type: string }
+        bus:     { type: string, enum: [up, down] }
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:    { type: string }
+        message: { type: string }
+    ContainmentTarget:
+      type: object
+      required: [gtin, scope]
+      properties:
+        gtin:          { type: string }
+        sku:           { type: string }
+        product_title: { type: string }
+        scope:         { type: string, enum: [LOT, SKU] }
+        lot_codes:     { type: array, items: { type: string } }
+        confidence:    { type: number }
+    ContainmentResult:
+      type: object
+      required: [gtin, status]
+      properties:
+        gtin:                 { type: string }
+        status:               { type: string, enum: [HELD, SKIPPED, FAILED, RELEASED] }
+        platform:             { type: string }
+        platform_ref:         { type: string }
+        units_held:           { type: integer }
+        units_left_sellable:  { type: integer }
+        error:                { type: string }
+    ContainmentAction:
+      type: object
+      required: [action_id, incident_id, status, confidence, threshold, targets, created_at]
+      properties:
+        action_id:   { type: string }
+        incident_id: { type: string }
+        status:      { type: string, enum: [PENDING_REVIEW, AUTO_HELD, HUMAN_CONFIRMED, HUMAN_REJECTED, FAILED] }
+        confidence:  { type: number }
+        threshold:   { type: number }
+        hazard:      { type: string }
+        reason:      { type: string }
+        actor:       { type: string }
+        note:        { type: string }
+        created_at:  { type: string, format: date-time }
+        decided_at:  { type: string, format: date-time }
+        targets:     { type: array, items: { $ref: "#/components/schemas/ContainmentTarget" } }
+        results:     { type: array, items: { $ref: "#/components/schemas/ContainmentResult" } }
+    ContainmentConfig:
+      type: object
+      required: [auto_hold_threshold, sku_scope_threshold, updated_at]
+      properties:
+        auto_hold_threshold: { type: number }
+        sku_scope_threshold: { type: number }
+        updated_by:          { type: string }
+        updated_at:          { type: string, format: date-time }

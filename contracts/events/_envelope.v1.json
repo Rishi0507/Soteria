@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://soteria.dev/contracts/events/_envelope.v1.json",
+  "title": "EventEnvelope.v1",
+  "description": "Every message on the Soteria bus is an envelope. Consumers route on event_type, never on queue name.",
+  "type": "object",
+  "required": ["event_id", "event_type", "event_version", "occurred_at", "producer", "payload"],
+  "additionalProperties": false,
+  "properties": {
+    "event_id":       { "type": "string", "format": "uuid" },
+    "event_type":     { "type": "string", "pattern": "^[a-z]+(\.[a-z_]+)+\.v[0-9]+$" },
+    "event_version":  { "type": "integer", "minimum": 1 },
+    "occurred_at":    { "type": "string", "format": "date-time" },
+    "producer":       { "type": "string", "description": "service name, e.g. resolution-service" },
+    "correlation_id": { "type": "string", "description": "incident id; stable across the whole causal chain" },
+    "causation_id":   { "type": "string", "format": "uuid", "description": "event_id of the event that caused this one" },
+    "payload":        { "type": "object" }
+  }
+}

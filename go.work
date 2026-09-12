@@ -1,8 +1,13 @@
 go 1.26.0
 
 use (
+	./libs/core
 	./libs/feedkit
+	./services/containment-service
 	./services/ingestion-fda
-	./services/ingestion-usda
 	./services/ingestion-rasff
+	./services/ingestion-usda
+	./services/order-rescue-service
+	./services/resolution-service
+	./tests/e2e
 )
