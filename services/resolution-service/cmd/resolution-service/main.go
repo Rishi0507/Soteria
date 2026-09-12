@@ -9,6 +9,8 @@
 //	                     live store; otherwise CATALOG_PATH is used
 //	CATALOG_REFRESH      snapshot lifetime, e.g. 5m (default 5m)
 //	CATALOG_PATH         JSON catalog snapshot for local work (default ./testdata/catalog.json)
+//	CORS_ALLOWED_ORIGINS  comma-separated origins allowed to call this API from a
+//	                      browser (e.g. http://localhost:5173); empty disables CORS
 //	PORT                 HTTP port (default 8081)
 package main
 
@@ -24,6 +26,7 @@ import (
 	"time"
 
 	"soteria/libs/core/bus"
+	"soteria/libs/core/httpmw"
 	"soteria/libs/shopify"
 	"soteria/services/resolution-service/api"
 	"soteria/services/resolution-service/catalog"
@@ -63,6 +66,15 @@ func main() {
 	}
 
 	store := resolver.NewStore()
+	// The badge endpoint needs the catalog's lot ledger to tell a clean lot from
+	// one nobody has heard of.
+	store.SetLedger(func(ctx context.Context, gtin string) []string {
+		p, ok := cat.ByGTIN(ctx, gtin)
+		if !ok {
+			return nil
+		}
+		return p.LotCodes
+	})
 	res := resolver.New(cat, publisher, store, logger)
 	if err := res.Register(consumer); err != nil {
 		logger.Error("cannot subscribe", "err", err)
@@ -71,7 +83,7 @@ func main() {
 
 	srv := &http.Server{
 		Addr:              ":" + env("PORT", "8081"),
-		Handler:           api.New(store, busUp).Routes(),
+		Handler:           httpmw.CORS(os.Getenv("CORS_ALLOWED_ORIGINS"), api.New(store, busUp).Routes()),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 	go func() {

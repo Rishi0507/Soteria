@@ -216,7 +216,7 @@ func (s *Service) buildOptions(ctx context.Context, line orders.LineItem, hazard
 		// Enrichment being down must not block containment follow-up; we simply
 		// cannot vouch for any substitute, so we offer refund/cancel only.
 		s.logger.Warn("allergen lookup failed for the recalled product", "gtin", line.GTIN, "err", err)
-		original = offacts.Product{GTIN: line.GTIN, Found: false}
+		original = offacts.Product{GTIN: line.GTIN, Coverage: offacts.CoverageAbsent}
 	}
 	candidates, err := s.substitutes.Alternatives(ctx, line.GTIN)
 	if err != nil {
@@ -262,11 +262,18 @@ func (s *Service) buildOptions(ctx context.Context, line orders.LineItem, hazard
 	return options, nil
 }
 
-// allergenSafe is deliberately conservative: unknown enrichment data is treated as
-// unsafe, and a substitute may not introduce any allergen the original did not have.
+// allergenSafe is deliberately conservative: anything short of a complete
+// allergen record is treated as unsafe, and a substitute may not introduce any
+// allergen the original did not have.
+//
+// The coverage check is what stops the dangerous case: Open Food Facts omits
+// allergen tags entirely for products nobody has annotated, so an untagged
+// product and a genuinely allergen-free product look identical in the data. Only
+// COMPLETE coverage with an empty allergen list means "allergen-free"; PARTIAL
+// and ABSENT mean "we do not know", and we never offer a substitute on a guess.
 func allergenSafe(original, sub offacts.Product, hazardAllergens []string) (bool, string) {
-	if !sub.Found {
-		return false, "no Open Food Facts allergen data for the substitute"
+	if !sub.Complete() {
+		return false, fmt.Sprintf("allergen data for the substitute is %s, not COMPLETE", coverageOf(sub))
 	}
 	subSet := sub.AllergenSet()
 	for _, h := range hazardAllergens {
@@ -274,7 +281,7 @@ func allergenSafe(original, sub offacts.Product, hazardAllergens []string) (bool
 			return false, fmt.Sprintf("substitute contains the recall hazard allergen %q", h)
 		}
 	}
-	if original.Found {
+	if original.Complete() {
 		origSet := original.AllergenSet()
 		for a := range subSet {
 			if !origSet[a] {
@@ -282,9 +289,16 @@ func allergenSafe(original, sub offacts.Product, hazardAllergens []string) (bool
 			}
 		}
 	} else if len(subSet) > 0 {
-		return false, "original product has no allergen data, so any allergen in the substitute is unverifiable"
+		return false, fmt.Sprintf("allergen data for the recalled product is %s, so any allergen in the substitute is unverifiable", coverageOf(original))
 	}
-	return true, "same price, no recall hazard allergen and no allergen the original did not already carry"
+	return true, "same price, complete allergen data, no recall hazard allergen and no allergen the original did not already carry"
+}
+
+func coverageOf(p offacts.Product) string {
+	if p.Coverage == "" {
+		return offacts.CoverageAbsent
+	}
+	return p.Coverage
 }
 
 // HandleConfirmation applies the customer's explicit choice.

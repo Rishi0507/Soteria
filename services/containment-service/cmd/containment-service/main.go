@@ -8,6 +8,8 @@
 //	                (default ./testdata/inventory.json). Replaced by the shared
 //	                Shopify client library once it lands, see pkg/shopify.
 //	AUTO_HOLD_THRESHOLD / SKU_SCOPE_THRESHOLD  initial thresholds
+//	CORS_ALLOWED_ORIGINS  comma-separated origins allowed to call this API from a
+//	                      browser (e.g. http://localhost:5173); empty disables CORS
 //	PORT            HTTP port (default 8082)
 package main
 
@@ -25,6 +27,7 @@ import (
 	"time"
 
 	"soteria/libs/core/bus"
+	"soteria/libs/core/httpmw"
 	coreshopify "soteria/libs/core/shopify"
 	"soteria/libs/shopify"
 	"soteria/libs/shopify/hold"
@@ -75,7 +78,7 @@ func main() {
 
 	srv := &http.Server{
 		Addr:              ":" + env("PORT", "8082"),
-		Handler:           api.New(svc, nil).Routes(),
+		Handler:           httpmw.CORS(os.Getenv("CORS_ALLOWED_ORIGINS"), api.New(svc, nil).Routes()),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 	go func() {

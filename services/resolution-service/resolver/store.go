@@ -1,6 +1,7 @@
 package resolver
 
 import (
+	"context"
 	"sort"
 	"strings"
 	"sync"
@@ -17,15 +18,28 @@ const (
 	VerdictUnknownLot = "UNKNOWN_LOT"
 )
 
+// LedgerFunc reports every lot code the catalog knows for a product. Without it
+// the store cannot tell a clean lot from a lot it has never seen, so it answers
+// UNKNOWN_LOT for both.
+type LedgerFunc func(ctx context.Context, gtin string) []string
+
 // Store holds resolutions and answers the storefront "Verified Safe Lot" query.
 // In-memory by design for v1; the interface is narrow enough to back with Postgres
 // without touching callers.
 type Store struct {
 	mu          sync.RWMutex
 	resolutions []events.LotResolved
+	ledger      LedgerFunc
 }
 
 func NewStore() *Store { return &Store{} }
+
+// SetLedger supplies the catalog lookup used to recognize unaffected lots.
+func (s *Store) SetLedger(f LedgerFunc) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.ledger = f
+}
 
 // Put records a resolution, replacing an earlier one for the same incident+GTIN set.
 func (s *Store) Put(r events.LotResolved) {
@@ -75,10 +89,11 @@ type LotStatus struct {
 // LotStatus answers: is this GTIN + printed lot code affected by a live incident?
 //
 // A SKU-scope resolution taints every unit. A LOT-scope resolution taints only the
-// listed lots - that is the surgical promise, and it is why an unrecognized lot
-// code returns UNKNOWN_LOT rather than SAFE: we will not vouch for a unit we
-// cannot identify.
-func (s *Store) LotStatus(gtin, lotCode string) LotStatus {
+// listed lots - that is the surgical promise. A lot the catalog does not recognize
+// returns UNKNOWN_LOT rather than SAFE: on a product with a live incident we will
+// not vouch for a unit we cannot identify, and a mistyped or unlisted code is
+// exactly the case where a false "safe" would be dangerous.
+func (s *Store) LotStatus(ctx context.Context, gtin, lotCode string) LotStatus {
 	norm := matching.NormalizeGTIN(gtin)
 	lot := strings.ToUpper(strings.TrimSpace(lotCode))
 	out := LotStatus{GTIN: defaultString(norm, gtin), LotCode: lot, Verdict: VerdictSafe, CheckedAt: time.Now().UTC()}
@@ -106,9 +121,29 @@ func (s *Store) LotStatus(gtin, lotCode string) LotStatus {
 			if known {
 				return withIncident(out, r, m, VerdictAffected)
 			}
+			// Not a recalled lot. Only the catalog can say whether it is a lot we
+			// actually carry (clean) or one we have never heard of.
+			if !s.knownToCatalog(ctx, norm, lot) {
+				return withIncident(out, r, m, VerdictUnknownLot)
+			}
 		}
 	}
 	return out
+}
+
+// knownToCatalog reports whether the product's lot ledger contains this code.
+// With no ledger configured we cannot confirm the lot, so we report false and let
+// the caller answer UNKNOWN_LOT.
+func (s *Store) knownToCatalog(ctx context.Context, gtin, lot string) bool {
+	if s.ledger == nil {
+		return false
+	}
+	for _, l := range s.ledger(ctx, gtin) {
+		if strings.EqualFold(strings.TrimSpace(l), lot) {
+			return true
+		}
+	}
+	return false
 }
 
 func withIncident(out LotStatus, r events.LotResolved, m events.Match, verdict string) LotStatus {

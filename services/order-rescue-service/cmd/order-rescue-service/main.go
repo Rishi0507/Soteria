@@ -15,6 +15,8 @@
 //	                   use ./testdata/allergens.json
 //	ALLERGENS_PATH     static allergen data (default ./testdata/allergens.json)
 //	CONSENT_SECRET     HMAC secret for consent tokens (required outside dev)
+//	CORS_ALLOWED_ORIGINS  comma-separated origins allowed to call this API from a
+//	                      browser (e.g. http://localhost:5173); empty disables CORS
 //	PORT               HTTP port (default 8083)
 package main
 
@@ -31,6 +33,7 @@ import (
 	"time"
 
 	"soteria/libs/core/bus"
+	"soteria/libs/core/httpmw"
 	"soteria/libs/core/offacts"
 	"soteria/libs/shopify"
 	"soteria/services/order-rescue-service/api"
@@ -99,7 +102,7 @@ func main() {
 
 	srv := &http.Server{
 		Addr:              ":" + env("PORT", "8083"),
-		Handler:           api.New(svc, nil).Routes(),
+		Handler:           httpmw.CORS(os.Getenv("CORS_ALLOWED_ORIGINS"), api.New(svc, nil).Routes()),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 	go func() {

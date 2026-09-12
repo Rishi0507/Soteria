@@ -45,7 +45,7 @@ func (s *Server) lotStatus(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "missing_gtin", "gtin query parameter is required")
 		return
 	}
-	writeJSON(w, http.StatusOK, s.store.LotStatus(gtin, r.URL.Query().Get("lot_code")))
+	writeJSON(w, http.StatusOK, s.store.LotStatus(r.Context(), gtin, r.URL.Query().Get("lot_code")))
 }
 
 func (s *Server) listResolutions(w http.ResponseWriter, r *http.Request) {
