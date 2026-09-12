@@ -121,6 +121,7 @@ func run(producer string, build Builder) error {
 	}
 	defer store.Close()
 
+	tracker := health.New(producer)
 	var pub publish.Publisher
 	if cfg.DryRun {
 		pub = publish.NewDryRun(os.Stdout)
@@ -131,13 +132,15 @@ func run(producer string, build Builder) error {
 		}
 		log.Info("dry-run: printing events, not publishing, not marking seen")
 	} else {
-		if pub, err = publish.NewAMQP(cfg.RabbitURL, event.Exchange, log); err != nil {
+		amqpPub, err := publish.NewAMQP(cfg.RabbitURL, event.Exchange, log)
+		if err != nil {
 			return err
 		}
+		tracker.SetBrokerCheck(amqpPub.Connected)
+		pub = amqpPub
 	}
 	defer pub.Close()
 
-	tracker := health.New(producer)
 	pollers := make([]*poller.Poller, 0, len(specs))
 	for _, s := range specs {
 		iv := s.Interval

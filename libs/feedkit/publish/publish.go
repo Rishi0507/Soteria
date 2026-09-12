@@ -60,14 +60,21 @@ func (d *DryRun) Close() error { return nil }
 // ---- AMQP ------------------------------------------------------------------
 
 // AMQP publishes to a durable topic exchange with confirms enabled.
+//
+// Connection loss is detected two ways: a failed Publish reconnects inline,
+// and a background watcher reacts to the broker closing the connection so an
+// idle service (nothing to publish) still notices an outage — Connected()
+// feeds /healthz — and reconnects before the next item arrives.
 type AMQP struct {
 	url      string
 	exchange string
 	log      *slog.Logger
 
-	mu   sync.Mutex
-	conn *amqp.Connection
-	ch   *amqp.Channel
+	mu     sync.Mutex
+	conn   *amqp.Connection
+	ch     *amqp.Channel
+	gen    uint64 // bumped on every successful connect; identifies which watcher is current
+	closed bool   // Close() called; watcher must stop reconnecting
 
 	// MaxAttempts is how many times a single Publish will (re)connect and
 	// retry before failing (default 3).
@@ -83,13 +90,23 @@ func NewAMQP(url, exchange string, log *slog.Logger) (*AMQP, error) {
 		log = slog.Default()
 	}
 	p := &AMQP{url: url, exchange: exchange, log: log, MaxAttempts: 3, ConfirmTimeout: 10 * time.Second}
+	p.mu.Lock()
+	defer p.mu.Unlock()
 	if err := p.connect(); err != nil {
 		return nil, err
 	}
 	return p, nil
 }
 
-// connect (re)establishes the connection and a confirm-mode channel. Caller holds mu.
+// Connected reports whether the broker connection is currently up.
+func (p *AMQP) Connected() bool {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	return p.healthy()
+}
+
+// connect (re)establishes the connection and a confirm-mode channel and
+// starts a watcher for the new connection. Caller holds mu.
 func (p *AMQP) connect() error {
 	p.teardown()
 	conn, err := amqp.DialConfig(p.url, amqp.Config{
@@ -115,8 +132,37 @@ func (p *AMQP) connect() error {
 		return fmt.Errorf("amqp: confirm mode: %w", err)
 	}
 	p.conn, p.ch = conn, ch
+	p.gen++
 	p.log.Info("amqp connected", "exchange", p.exchange)
+	go p.watch(p.gen, conn.NotifyClose(make(chan *amqp.Error, 1)))
 	return nil
+}
+
+// watch waits for the broker to close the connection of generation gen,
+// then reconnects with backoff until it succeeds, Close() is called, or a
+// Publish has already established a newer generation (which has its own
+// watcher). A failed attempt does not advance the generation, so the loop
+// keeps trying through a long broker outage.
+func (p *AMQP) watch(gen uint64, closed <-chan *amqp.Error) {
+	err, ok := <-closed
+	if !ok || err == nil {
+		return // closed by us
+	}
+	p.log.Warn("amqp connection lost", "err", err)
+	for attempt := 1; ; attempt++ {
+		p.mu.Lock()
+		if p.closed || p.gen != gen {
+			p.mu.Unlock()
+			return
+		}
+		cerr := p.connect()
+		p.mu.Unlock()
+		if cerr == nil {
+			return
+		}
+		p.log.Warn("amqp background reconnect failed", "attempt", attempt, "err", cerr)
+		time.Sleep(backoff(attempt))
+	}
 }
 
 func (p *AMQP) teardown() {
@@ -195,6 +241,7 @@ func (p *AMQP) publishOnce(ctx context.Context, m Message) error {
 func (p *AMQP) Close() error {
 	p.mu.Lock()
 	defer p.mu.Unlock()
+	p.closed = true
 	p.teardown()
 	return nil
 }

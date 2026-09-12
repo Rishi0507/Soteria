@@ -1,0 +1,39 @@
+# CI for Person 1's ingestion services. Person 3 owns the shared CI/CD
+# templates (PRD §7 P3.C); this job is scoped to these folders so it can be
+# folded into those templates later without touching other services.
+name: ingestion
+
+on:
+  push:
+    paths: ["go.work", "libs/feedkit/**", "services/ingestion-*/**", "contracts/**", ".github/workflows/ingestion.yml"]
+  pull_request:
+    paths: ["go.work", "libs/feedkit/**", "services/ingestion-*/**", "contracts/**", ".github/workflows/ingestion.yml"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        module: [libs/feedkit, services/ingestion-fda, services/ingestion-usda, services/ingestion-rasff]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: ${{ matrix.module }}/go.mod
+          cache-dependency-path: ${{ matrix.module }}/go.sum
+      - name: gofmt
+        run: test -z "$(gofmt -l ${{ matrix.module }})" || (gofmt -l ${{ matrix.module }}; exit 1)
+      - name: vet + test (includes contract tests against /contracts)
+        working-directory: ${{ matrix.module }}
+        run: go vet ./... && go test ./...
+
+  docker:
+    runs-on: ubuntu-latest
+    needs: test
+    strategy:
+      matrix:
+        svc: [ingestion-fda, ingestion-usda, ingestion-rasff]
+    steps:
+      - uses: actions/checkout@v4
+      - name: build image
+        run: docker build -f services/${{ matrix.svc }}/Dockerfile -t soteria/${{ matrix.svc }}:ci .

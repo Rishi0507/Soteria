@@ -56,6 +56,21 @@ func TestStalenessAndFailureThresholds(t *testing.T) {
 	}
 }
 
+func TestBrokerCheckAffectsHealth(t *testing.T) {
+	now := time.Now()
+	tr := newTracker(&now)
+	tr.RecordSuccess("fda_press", 1, 1, time.Second)
+	connected := true
+	tr.SetBrokerCheck(func() bool { return connected })
+	if _, ok := tr.Snapshot(); !ok {
+		t.Fatal("healthy with broker connected")
+	}
+	connected = false
+	if _, ok := tr.Snapshot(); ok {
+		t.Fatal("a lost broker connection must make the service unhealthy even when every feed poll succeeds")
+	}
+}
+
 func TestEndpoints(t *testing.T) {
 	now := time.Now()
 	tr := newTracker(&now)

@@ -46,6 +46,7 @@ type Tracker struct {
 	mu      sync.RWMutex
 	sources map[string]*SourceState
 	ready   bool
+	broker  func() bool // nil → no broker (dry-run)
 }
 
 // New returns a tracker for the named producer.
@@ -58,6 +59,14 @@ func (t *Tracker) Register(source string, interval time.Duration) {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	t.sources[source] = &SourceState{Interval: interval, IntervalSeconds: interval.Seconds()}
+}
+
+// SetBrokerCheck registers a probe for the message-bus connection so an
+// idle service still reports a broker outage.
+func (t *Tracker) SetBrokerCheck(connected func() bool) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	t.broker = connected
 }
 
 // SetReady flips /readyz (true once the store and publisher are up).
@@ -116,8 +125,20 @@ func (t *Tracker) AddPublished(source string, n int) {
 	t.state(source).ItemsPublishedTotal += int64(n)
 }
 
-// Snapshot evaluates health for every source.
+// Snapshot evaluates health for every source; ok is false if any source or
+// the broker connection is unhealthy.
 func (t *Tracker) Snapshot() (map[string]SourceState, bool) {
+	sources, _, ok := t.snapshot()
+	return sources, ok
+}
+
+// BrokerState is the message-bus connection as seen by /healthz.
+type BrokerState struct {
+	Monitored bool `json:"monitored"`
+	Connected bool `json:"connected"`
+}
+
+func (t *Tracker) snapshot() (map[string]SourceState, BrokerState, bool) {
 	t.mu.RLock()
 	defer t.mu.RUnlock()
 	now := t.now()
@@ -129,7 +150,12 @@ func (t *Tracker) Snapshot() (map[string]SourceState, bool) {
 		all = all && c.Healthy
 		out[name] = c
 	}
-	return out, all
+	b := BrokerState{Monitored: t.broker != nil, Connected: true}
+	if t.broker != nil {
+		b.Connected = t.broker()
+		all = all && b.Connected
+	}
+	return out, b, all
 }
 
 func evaluate(s *SourceState, now, started time.Time) (bool, string) {
@@ -163,7 +189,7 @@ func (t *Tracker) Handler() http.Handler {
 }
 
 func (t *Tracker) healthz(w http.ResponseWriter, _ *http.Request) {
-	sources, ok := t.Snapshot()
+	sources, broker, ok := t.snapshot()
 	w.Header().Set("Content-Type", "application/json")
 	if !ok {
 		w.WriteHeader(http.StatusServiceUnavailable)
@@ -172,6 +198,7 @@ func (t *Tracker) healthz(w http.ResponseWriter, _ *http.Request) {
 		"producer":       t.producer,
 		"healthy":        ok,
 		"uptime_seconds": t.now().Sub(t.started).Seconds(),
+		"broker":         broker,
 		"sources":        sources,
 	})
 }
@@ -189,7 +216,7 @@ func (t *Tracker) readyz(w http.ResponseWriter, _ *http.Request) {
 
 // metrics writes Prometheus text exposition format (no client library needed).
 func (t *Tracker) metrics(w http.ResponseWriter, _ *http.Request) {
-	sources, ok := t.Snapshot()
+	sources, broker, ok := t.snapshot()
 	names := make([]string, 0, len(sources))
 	for n := range sources {
 		names = append(names, n)
@@ -197,7 +224,8 @@ func (t *Tracker) metrics(w http.ResponseWriter, _ *http.Request) {
 	sort.Strings(names)
 
 	w.Header().Set("Content-Type", "text/plain; version=0.0.4; charset=utf-8")
-	fmt.Fprintf(w, "# HELP soteria_ingestion_up 1 if every source is healthy.\n# TYPE soteria_ingestion_up gauge\nsoteria_ingestion_up{producer=%q} %d\n", t.producer, b2i(ok))
+	fmt.Fprintf(w, "# HELP soteria_ingestion_up 1 if every source and the broker connection are healthy.\n# TYPE soteria_ingestion_up gauge\nsoteria_ingestion_up{producer=%q} %d\n", t.producer, b2i(ok))
+	fmt.Fprintf(w, "# HELP soteria_ingestion_broker_connected 1 if the message bus connection is up (always 1 when not monitored, e.g. dry-run).\n# TYPE soteria_ingestion_broker_connected gauge\nsoteria_ingestion_broker_connected{producer=%q} %d\n", t.producer, b2i(broker.Connected))
 	gauge := func(name, help string, f func(SourceState) float64) {
 		fmt.Fprintf(w, "# HELP %s %s\n# TYPE %s gauge\n", name, help, name)
 		for _, n := range names {
