@@ -3,7 +3,13 @@
 // Env:
 //
 //	RABBITMQ_URL       amqp URL; empty runs with the in-process bus
-//	ORDERS_PATH        JSON in-flight order snapshot (default ./testdata/orders.json)
+//	SHOPIFY_SHOP         myshopify.com domain; set together with SHOPIFY_ACCESS_TOKEN
+//	SHOPIFY_ACCESS_TOKEN Admin API token. With both set, orders are read from and
+//	                     swapped in the live store
+//	ORDER_CURRENCY       currency for line prices read from the store (default USD)
+//	ORDER_LOOKBACK       how far back the affected-order scan reaches (default 720h)
+//	ORDERS_PATH          JSON in-flight order snapshot used when no store is
+//	                     configured (default ./testdata/orders.json)
 //	SUBSTITUTES_PATH   JSON substitute catalog (default ./testdata/substitutes.json)
 //	OFF_MODE           "http" to call Open Food Facts live, "static" (default) to
 //	                   use ./testdata/allergens.json
@@ -16,6 +22,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -25,6 +32,7 @@ import (
 
 	"soteria/libs/core/bus"
 	"soteria/libs/core/offacts"
+	"soteria/libs/shopify"
 	"soteria/services/order-rescue-service/api"
 	"soteria/services/order-rescue-service/orders"
 	"soteria/services/order-rescue-service/rescue"
@@ -34,9 +42,9 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	slog.SetDefault(logger)
 
-	repo, err := orders.LoadFile(env("ORDERS_PATH", "testdata/orders.json"))
+	repo, err := openOrders(logger)
 	if err != nil {
-		logger.Error("cannot load orders", "err", err)
+		logger.Error("cannot open orders", "err", err)
 		os.Exit(1)
 	}
 	subs, err := rescue.LoadCatalog(env("SUBSTITUTES_PATH", "testdata/substitutes.json"))
@@ -112,6 +120,37 @@ func main() {
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	_ = srv.Shutdown(shutdownCtx)
+}
+
+// openOrders returns the live store when configured, and the file snapshot
+// otherwise. A half-configured store fails startup rather than quietly rescuing
+// fixture orders while real customers keep their recalled line.
+func openOrders(logger *slog.Logger) (orders.Repository, error) {
+	shop, token := os.Getenv("SHOPIFY_SHOP"), os.Getenv("SHOPIFY_ACCESS_TOKEN")
+	switch {
+	case shop != "" && token != "":
+		client, err := shopify.New(shop, token)
+		if err != nil {
+			return nil, fmt.Errorf("shopify client: %w", err)
+		}
+		lookback := orders.DefaultLookback
+		if v := os.Getenv("ORDER_LOOKBACK"); v != "" {
+			d, err := time.ParseDuration(v)
+			if err != nil {
+				return nil, fmt.Errorf("ORDER_LOOKBACK %q: %w", v, err)
+			}
+			lookback = d
+		}
+		currency := env("ORDER_CURRENCY", "USD")
+		logger.Info("order source: live store", "shop", shop, "lookback", lookback, "currency", currency)
+		return orders.NewStore(client, currency, lookback, logger), nil
+	case shop != "" || token != "":
+		return nil, fmt.Errorf("SHOPIFY_SHOP and SHOPIFY_ACCESS_TOKEN must be set together")
+	default:
+		path := env("ORDERS_PATH", "testdata/orders.json")
+		logger.Warn("order source: file snapshot, no store configured", "path", path)
+		return orders.LoadFile(path)
+	}
 }
 
 func loadAllergens(path string) (*offacts.Static, error) {

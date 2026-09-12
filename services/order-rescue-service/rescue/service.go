@@ -8,6 +8,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"log/slog"
 	"sort"
@@ -48,10 +49,10 @@ var (
 )
 
 var (
-	ErrNotFound      = fmt.Errorf("rescue not found")
-	ErrConflict      = fmt.Errorf("rescue is no longer open")
-	ErrBadConsent    = fmt.Errorf("invalid consent token")
-	ErrUnknownOption = fmt.Errorf("unknown option")
+	ErrNotFound      = errors.New("rescue not found")
+	ErrConflict      = errors.New("rescue is no longer open")
+	ErrBadConsent    = errors.New("invalid consent token")
+	ErrUnknownOption = errors.New("unknown option")
 )
 
 // Record is a proposal plus its lifecycle.
@@ -318,7 +319,14 @@ func (s *Service) HandleConfirmation(ctx context.Context, env events.Envelope) e
 		}
 	case events.OptionCancel:
 		if err := s.orders.Cancel(ctx, rec.OrderID); err != nil {
-			return fmt.Errorf("rescue: cancel order: %w", err)
+			if !errors.Is(err, orders.ErrUnsupported) {
+				return fmt.Errorf("rescue: cancel order: %w", err)
+			}
+			// The platform client cannot cancel yet. Retrying forever would only
+			// dead-letter the customer's decision, so we record it and say plainly
+			// that a human has to finish it.
+			s.logger.Warn("cancellation recorded but not executed on the platform",
+				"rescue_id", rec.RescueID, "order_id", rec.OrderID, "err", err)
 		}
 	case events.OptionRefund:
 		// Refund execution is the retailer's payment flow (out of scope for v1);
