@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://soteria.dev/contracts/events/notification.delivered.v1.json",
+  "title": "notification.delivered.v1",
+  "description": "Proof that one party was (or could not be) notified about an incident. Producer: notification-service. Consumers: audit-proof-service (dossier: 'customer notified at T via email, provider ref X'), ops console. Wrapped in _envelope.v1.json; correlation_id is the incident, causation_id is the event that triggered the notification. Exchange notification.x, routing key notification.delivered.v1.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["incident_id", "source_event_id", "source_event_type", "channel", "recipient", "status", "attempts", "sent_at"],
+  "properties": {
+    "incident_id":       { "type": "string", "minLength": 1 },
+    "source_event_id":   { "type": "string", "format": "uuid", "description": "event_id of the containment/rescue/evasion event that was notified" },
+    "source_event_type": { "type": "string", "enum": ["containment.action.taken.v1", "rescue.order.proposed.v1", "evasion.flagged.v1"] },
+    "channel":           { "type": "string", "enum": ["slack", "email", "sms"] },
+    "recipient":         { "type": "string", "minLength": 1, "description": "email, phone, or a logical name such as 'ops'. PII: the audit service decides retention." },
+    "status":            { "type": "string", "enum": ["SENT", "FAILED"], "description": "FAILED is terminal (permanent provider rejection or no contact details); transient failures are retried and never emitted." },
+    "provider":          { "type": "string", "description": "e.g. slack, resend; absent on FAILED before a provider was reached" },
+    "provider_ref":      { "type": "string", "description": "provider message id, for tracing a delivery with the provider" },
+    "attempts":          { "type": "integer", "minimum": 1 },
+    "sent_at":           { "type": "string", "format": "date-time", "description": "when the terminal status was reached" },
+    "error":             { "type": "string" }
+  }
+}

@@ -8,6 +8,7 @@ use (
 	./services/ingestion-fda
 	./services/ingestion-rasff
 	./services/ingestion-usda
+	./services/notification-service
 	./services/order-rescue-service
 	./services/resolution-service
 	./tests/e2e

@@ -89,6 +89,7 @@ Each queue also has a `<queue>.dlq` bound to its owning context's dead-letter ex
 | `rescue.order.confirmed.v1` | [`events/order.rescue.confirmed.v1.json`](events/order.rescue.confirmed.v1.json) | `order-rescue-service`, on behalf of the storefront | live |
 | `evasion.flagged.v1` | [`events/evasion.flagged.v1.json`](events/evasion.flagged.v1.json) | `anti-evasion-service` | proposed |
 | `audit.dossier.generated.v1` | [`events/audit.dossier.generated.v1.json`](events/audit.dossier.generated.v1.json) | `audit-proof-service` | proposed |
+| `notification.delivered.v1` | [`events/notification.delivered.v1.json`](events/notification.delivered.v1.json) | `notification-service` | live — on `notification.x`; proposed consumer binding: `audit.ledger` (add `notification.x` / `#`) so the dossier can cite deliveries |
 
 ## Message formats
 
