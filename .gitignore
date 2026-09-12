@@ -25,3 +25,9 @@ go.work.sum
 
 # node
 node_modules/
+
+# python
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
