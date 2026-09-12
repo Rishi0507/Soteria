@@ -1,0 +1,62 @@
+[
+  {
+    "reference": "2026.5412",
+    "date": "2026-09-08",
+    "notifyingCountry": "Germany",
+    "classification": "alert",
+    "notificationType": "food",
+    "subject": "Salmonella Typhimurium in sesame seeds from India",
+    "productCategory": "nuts, nut products and seeds",
+    "product": "hulled sesame seeds, 25 kg bags, lot SES-2607-A/B",
+    "hazards": "Salmonella Typhimurium (presence /25g)",
+    "riskDecision": "serious",
+    "distributionStatus": "distribution to other member countries",
+    "origin": "India",
+    "distribution": "Germany, Netherlands, Poland, United States"
+  },
+  {
+    "reference": "2026.5433",
+    "date": "2026-09-09",
+    "notifyingCountry": "Italy",
+    "classification": "border rejection",
+    "notificationType": "food",
+    "subject": "aflatoxins in pistachio kernels from Iran",
+    "productCategory": "nuts, nut products and seeds",
+    "product": "pistachio kernels",
+    "hazards": "aflatoxins (B1 = 48; Tot. = 52 µg/kg)",
+    "riskDecision": "serious",
+    "distributionStatus": "product not (yet) placed on the market",
+    "origin": "Iran",
+    "distribution": ""
+  },
+  {
+    "reference": "2026.5460",
+    "date": "2026-09-10",
+    "notifyingCountry": "Belgium",
+    "classification": "alert",
+    "notificationType": "food",
+    "subject": "undeclared peanut in hazelnut cocoa spread from Germany",
+    "productCategory": "cocoa and cocoa preparations, coffee and tea",
+    "product": "hazelnut cocoa spread 400 g jars, best before 03/2027",
+    "hazards": "undeclared peanut",
+    "riskDecision": "serious",
+    "distributionStatus": "distribution to other member countries",
+    "origin": "Germany",
+    "distribution": "Belgium, France, Luxembourg, Netherlands"
+  },
+  {
+    "reference": "2026.5471",
+    "date": "2026-09-11",
+    "notifyingCountry": "France",
+    "classification": "information for attention",
+    "notificationType": "food",
+    "subject": "Listeria monocytogenes in cold-smoked salmon from Poland",
+    "productCategory": "fish and fish products",
+    "product": "cold-smoked salmon slices 100 g, lot L26248",
+    "hazards": "Listeria monocytogenes (presence /25g)",
+    "riskDecision": "serious",
+    "distributionStatus": "distribution restricted to notifying country",
+    "origin": "Poland",
+    "distribution": "France"
+  }
+]

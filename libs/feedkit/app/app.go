@@ -31,17 +31,17 @@ import (
 
 // Config is the resolved runtime configuration.
 type Config struct {
-	Producer     string
-	RabbitURL    string
-	DBPath       string
-	HTTPAddr     string
-	Backfill     time.Duration
-	Interval     time.Duration // default cadence; a SourceSpec may override
-	Once         bool
-	DryRun       bool
-	Contact      string // goes into the User-Agent
-	Log          *slog.Logger
-	HTTP         *httpx.Client
+	Producer  string
+	RabbitURL string
+	DBPath    string
+	HTTPAddr  string
+	Backfill  time.Duration
+	Interval  time.Duration // default cadence; a SourceSpec may override
+	Once      bool
+	DryRun    bool
+	Contact   string // goes into the User-Agent
+	Log       *slog.Logger
+	HTTP      *httpx.Client
 	// Env returns a raw environment value (after .env loading) for
 	// service-specific settings such as OPENFDA_API_KEY or RASFF_MODE.
 	Env func(key, def string) string
