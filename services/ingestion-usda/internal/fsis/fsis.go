@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html"
+	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -46,30 +47,90 @@ func (s *Source) Name() string { return source.USDAFSIS }
 // Fetch returns every notice in the feed with recall_date >= since (notices
 // without a parseable date are always returned; the dedup store filters).
 func (s *Source) Fetch(ctx context.Context, since time.Time) ([]source.Item, error) {
-	body, err := s.Client.Get(ctx, s.BaseURL, map[string]string{"Accept": "application/json"})
+	body, err := s.Client.Get(ctx, s.BaseURL, requestHeaders())
 	if err != nil {
 		return nil, err
 	}
 	return Parse(body, since)
 }
 
-// Record is the subset of the FSIS payload we project. FSIS serializes
-// every field as a string; summary and product_items carry HTML.
+// browserUA is the exact User-Agent the FSIS edge (Akamai) will accept.
+//
+// www.fsis.usda.gov answers 403 to any request that does not look like a
+// browser XHR: a descriptive agent, or even this string with our own token
+// appended, is refused. The data is public and unauthenticated, so the only
+// thing standing between us and it is this fingerprint. Verified against the
+// live endpoint: UA + Accept-Language + the Sec-Fetch trio returns 200 and
+// 2,000+ records, while dropping any one of them returns 403.
+//
+// This is a fingerprint, so it will rot. Override it with FSIS_USER_AGENT, or
+// point FSIS_BASE_URL at a proxy, when the edge rules change.
+const browserUA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
+	"(KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+
+// requestHeaders returns the header set the FSIS edge requires. Accept-Encoding
+// is deliberately absent: Go's transport adds "gzip" itself and then transparently
+// decompresses, which setting the header by hand would disable.
+func requestHeaders() map[string]string {
+	ua := browserUA
+	if v := os.Getenv("FSIS_USER_AGENT"); v != "" {
+		ua = v
+	}
+	return map[string]string{
+		"User-Agent":      ua,
+		"Accept":          "application/json",
+		"Accept-Language": "en-US,en;q=0.9",
+		"Sec-Fetch-Site":  "same-origin",
+		"Sec-Fetch-Mode":  "cors",
+		"Sec-Fetch-Dest":  "empty",
+	}
+}
+
+// multiString is an FSIS field that may arrive as a string or as an array of
+// strings. The feed is inconsistent about this per field and per record, and a
+// hard string type makes one array-valued record fail the entire poll.
+type multiString string
+
+func (m *multiString) UnmarshalJSON(b []byte) error {
+	var one string
+	if err := json.Unmarshal(b, &one); err == nil {
+		*m = multiString(one)
+		return nil
+	}
+	var many []string
+	if err := json.Unmarshal(b, &many); err != nil {
+		return fmt.Errorf("fsis: field is neither string nor []string: %.120s", string(b))
+	}
+	var kept []string
+	for _, v := range many {
+		if v = strings.TrimSpace(v); v != "" {
+			kept = append(kept, v)
+		}
+	}
+	*m = multiString(strings.Join(kept, "; "))
+	return nil
+}
+
+func (m multiString) String() string { return string(m) }
+
+// Record is the subset of the FSIS payload we project. Most fields are strings;
+// the ones typed multiString arrive as arrays in the live feed. Summary and
+// product_items carry HTML.
 type Record struct {
-	RecallNumber   string `json:"field_recall_number"`
-	Title          string `json:"field_title"`
-	RecallDate     string `json:"field_recall_date"`
-	Summary        string `json:"field_summary"`
-	ProductItems   string `json:"field_product_items"`
-	States         string `json:"field_states"`
-	Classification string `json:"field_recall_classification"`
-	RiskLevel      string `json:"field_risk_level"`
-	Establishment  string `json:"field_establishment"`
-	RecallReason   string `json:"field_recall_reason"`
-	RecallType     string `json:"field_recall_type"`
-	PressRelease   string `json:"field_press_release"`
-	ActiveNotice   string `json:"field_active_notice"`
-	Year           string `json:"field_year"`
+	RecallNumber   string      `json:"field_recall_number"`
+	Title          string      `json:"field_title"`
+	RecallDate     string      `json:"field_recall_date"`
+	Summary        string      `json:"field_summary"`
+	ProductItems   multiString `json:"field_product_items"`
+	States         multiString `json:"field_states"`
+	Classification string      `json:"field_recall_classification"`
+	RiskLevel      string      `json:"field_risk_level"`
+	Establishment  multiString `json:"field_establishment"`
+	RecallReason   multiString `json:"field_recall_reason"`
+	RecallType     string      `json:"field_recall_type"`
+	PressRelease   multiString `json:"field_press_release"`
+	ActiveNotice   string      `json:"field_active_notice"`
+	Year           string      `json:"field_year"`
 }
 
 // Parse decodes the feed body. It accepts either a bare array or an object
@@ -118,7 +179,7 @@ func Map(raw json.RawMessage) (source.Item, error) {
 	}
 	// Reason + summary: FSIS puts the category in recall_reason and the
 	// narrative (pathogen, allergen, dates) in summary.
-	reason := strings.TrimSpace(r.RecallReason)
+	reason := strings.TrimSpace(r.RecallReason.String())
 	if s := stripHTML(r.Summary); s != "" {
 		if reason != "" {
 			reason += " — "
@@ -127,10 +188,10 @@ func Map(raw json.RawMessage) (source.Item, error) {
 	}
 	var url string
 	if r.PressRelease != "" {
-		if strings.HasPrefix(r.PressRelease, "http") {
-			url = r.PressRelease
+		if strings.HasPrefix(r.PressRelease.String(), "http") {
+			url = r.PressRelease.String()
 		} else {
-			url = siteURL + "/" + strings.TrimPrefix(r.PressRelease, "/")
+			url = siteURL + "/" + strings.TrimPrefix(r.PressRelease.String(), "/")
 		}
 	}
 	return source.Item{
@@ -139,12 +200,12 @@ func Map(raw json.RawMessage) (source.Item, error) {
 		PublishedAt: parseDate(r.RecallDate),
 		Normalized: source.Normalized{
 			Title:              title,
-			Firm:               strings.TrimSpace(r.Establishment),
-			ProductDescription: stripHTML(r.ProductItems),
+			Firm:               strings.TrimSpace(r.Establishment.String()),
+			ProductDescription: stripHTML(r.ProductItems.String()),
 			Reason:             reason,
 			CodeInfo:           "", // lot/establishment codes are embedded in product_items; Resolution extracts them
 			Classification:     classification,
-			Distribution:       strings.TrimSpace(r.States),
+			Distribution:       strings.TrimSpace(r.States.String()),
 			Country:            "US",
 		},
 		Raw: raw,

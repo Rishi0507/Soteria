@@ -7,7 +7,7 @@ Ingests EU RASFF (Rapid Alert System for Food and Feed) notifications and publis
 | `RASFF_MODE` | Status | How |
 |---|---|---|
 | `file` (default) | **working** | Reads every `*.json` / `*.csv` in `RASFF_FILE_DIR` (default `fixtures/`) on each poll. Drop the RASFF Window search export into the folder; old files can stay (dedup on `reference`). |
-| `http` | **not implemented — refuses to start** | Reserved for a verified portal-backend adapter (see below). |
+| `http` | **working** | Polls the portal's public RSS feed, `GET /rasff-window/backend/public/consumer/rss/all/en/` (trailing slash required). Live and unattended, but carries fewer fields than an export: reference, subject, notifying country, date, and hazard/product/origin split out of the subject. |
 
 Accepted columns (any casing/spacing; portal export headers and common variants are aliased): `reference`, `date`, `notifying country`, `classification`, `type`, `subject`, `product category`, `product`, `hazards`, `risk decision`, `distribution status`, `origin`, `distribution`, `url`. CSV may be comma or semicolon separated, with or without a BOM. Dates: `YYYY-MM-DD`, `DD/MM/YYYY`, `DD-MM-YYYY`, `2 Jan 2006`.
 
@@ -16,8 +16,20 @@ make dry-run                         # 4 sample notifications from fixtures/
 RASFF_FILE_DIR=/path/to/exports make run
 ```
 
-## Why no API adapter yet
+## Which mode to use
 
-There is no official public RASFF API. The RASFF Window portal (`https://webgate.ec.europa.eu/rasff-window/screen/search`) is an Angular SPA over an internal backend at `/rasff-window/backend`. Probing on 2026-09-12 found the client calls `/consumer/search` and `/notification/search/consolidated` (plus `/notification/search/export`), but the full path, request body and pagination live in a lazy-loaded bundle; the obvious candidates (`backend/public/consumer/search`, `backend/consumer/search`) return 404.
+Both, for different jobs. `http` is the unattended live signal; `file` is the richer record.
 
-To implement `http` mode: open the portal with browser devtools, run a search, copy the request (URL, method, JSON body, headers) into `internal/rasff/http`, and reuse `rasff.ParseJSON` / `rasff.ToItem` for the response. Treat it as best-effort: it is undocumented and may change without notice, which is exactly why `file` mode exists.
+There is still no documented RASFF API. The search endpoints the portal's own table uses are unreachable without a session, but the SPA also links a **public RSS feed**, and that is what `http` mode polls:
+
+```
+GET https://webgate.ec.europa.eu/rasff-window/backend/public/consumer/rss/{market}/{lang}/
+    market: "all" (every single-market country) or a numeric organization id
+    lang:   "en"
+```
+
+The trailing slash is required; without it the gateway answers a 404 HTML page. The path was read out of the SPA's lazy-loaded chunk, which builds it as `./backend/public/consumer/rss/${market}/${lang}/`. Verified against the live feed on 2026-09-12: 70 notifications.
+
+The feed gives reference, subject, notifying country and date; hazard, product and origin are split out of the subject, which follows the portal's own `<hazard> in <product> from <origin>` convention (a subject that does not fit is kept verbatim and simply not split). Fields an export carries and the feed does not — classification, risk decision, distribution, product category — stay empty, which is why `file` mode remains the fuller source for an incident someone is actually working.
+
+It is an undocumented endpoint, so treat it as best-effort and expect it to change without notice.
