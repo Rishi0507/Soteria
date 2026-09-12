@@ -9,8 +9,8 @@
 //     location to the Quarantine location, so unaffected lots stay sellable
 //     and the movement is reversible;
 //   - product tags and the soteria.badge metafield tell the storefront what
-//     happened ("RECALL_HAZARD" + DRAFT for a full hold, "RECALL_LOT:<code>"
-//   - "Verified Safe Lot" badge for a partial one).
+//     happened: RECALL_HAZARD tag and DRAFT status for a full hold; a
+//     RECALL_LOT:<code> tag and the "Verified Safe Lot" badge for a partial one.
 //
 // A variant with no lot data is held as a whole SKU. Lot codes are compared
 // case-insensitively after trimming, matching core/shopify.Fake.
