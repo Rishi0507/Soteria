@@ -10,6 +10,7 @@ This is a contract-first, 3-person microservice build (Go services, RabbitMQ eve
 |---|---|---|
 | `contracts/` | Person 3 (all review) | Event JSON Schemas, OpenAPI specs, RabbitMQ topology registry |
 | `libs/feedkit/` | Person 1 | Shared Go module for feed connectors: poll loop, dedup store, AMQP publisher, health/metrics |
+| `libs/shopify/` | Person 1 | Shared Shopify Admin GraphQL client (+ in-memory fake) used by containment / order rescue |
 | `services/ingestion-fda/` | Person 1 | openFDA enforcement + FDA press RSS → `recall.raw.received.v1` |
 | `services/ingestion-usda/` | Person 1 | USDA FSIS recalls (meat/poultry/egg) → `recall.raw.received.v1` |
 | `services/ingestion-rasff/` | Person 1 | EU RASFF notifications → `recall.raw.received.v1` |
@@ -46,7 +47,7 @@ Configuration is environment-driven; see [`.env.example`](.env.example). Every s
 Each module is independent (`go.work` ties them together for local builds):
 
 ```sh
-for m in libs/feedkit libs/core services/ingestion-fda services/ingestion-usda services/ingestion-rasff services/resolution-service services/containment-service services/order-rescue-service tests/e2e; do
+for m in libs/feedkit libs/shopify libs/core services/ingestion-fda services/ingestion-usda services/ingestion-rasff services/resolution-service services/containment-service services/order-rescue-service tests/e2e; do
   (cd $m && go vet ./... && go test ./...)
 done
 ```
