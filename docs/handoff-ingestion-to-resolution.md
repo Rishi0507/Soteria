@@ -33,5 +33,5 @@ cd services/ingestion-rasff && go run ./cmd --once --dry-run
 
 ## Open items on my side
 
-- `usda_fsis` field names need one verification from a US network (the site 403s from here).
+- `usda_fsis` field names need one verification from a US network (the site 403s from here). **Deploy `ingestion-usda` in a US region** (or behind a US egress proxy); it will 403 elsewhere.
 - `eu_rasff` runs on exported files; a portal-backend adapter is documented but unimplemented.

@@ -5,16 +5,16 @@ name: ingestion
 
 on:
   push:
-    paths: ["go.work", "libs/feedkit/**", "services/ingestion-*/**", "contracts/**", ".github/workflows/ingestion.yml"]
+    paths: ["go.work", "libs/**", "services/ingestion-*/**", "contracts/**", ".github/workflows/ingestion.yml"]
   pull_request:
-    paths: ["go.work", "libs/feedkit/**", "services/ingestion-*/**", "contracts/**", ".github/workflows/ingestion.yml"]
+    paths: ["go.work", "libs/**", "services/ingestion-*/**", "contracts/**", ".github/workflows/ingestion.yml"]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        module: [libs/feedkit, services/ingestion-fda, services/ingestion-usda, services/ingestion-rasff]
+        module: [libs/feedkit, libs/shopify, services/ingestion-fda, services/ingestion-usda, services/ingestion-rasff]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5

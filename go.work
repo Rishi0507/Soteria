@@ -3,6 +3,7 @@ go 1.26.0
 use (
 	./libs/core
 	./libs/feedkit
+	./libs/shopify
 	./services/containment-service
 	./services/ingestion-fda
 	./services/ingestion-rasff
