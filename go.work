@@ -10,6 +10,7 @@ use (
 	./services/ingestion-usda
 	./services/notification-service
 	./services/order-rescue-service
+	./services/recall-extractor
 	./services/resolution-service
 	./tests/e2e
 )
