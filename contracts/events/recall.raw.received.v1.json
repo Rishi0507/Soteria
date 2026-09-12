@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://soteria.dev/contracts/events/recall.raw.received.v1.json",
+  "title": "recall.raw.received.v1",
+  "description": "A recall notice as received from an external agency feed, lightly normalized. Producer: ingestion services (Person 1). Consumer: resolution-service (Person 3). The `raw` object is the untouched source record; all parsing intelligence (lot extraction, product resolution) belongs downstream.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "event_type",
+    "version",
+    "occurred_at",
+    "producer",
+    "source",
+    "source_id",
+    "published_at",
+    "normalized",
+    "raw"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique per event; also set as the AMQP message_id. Consumers dedupe on this."
+    },
+    "event_type": { "const": "recall.raw.received" },
+    "version": { "const": 1 },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the ingestion service observed the notice (RFC 3339, UTC)."
+    },
+    "producer": {
+      "type": "string",
+      "pattern": "^ingestion-[a-z0-9-]+$",
+      "description": "Service name that emitted the event, e.g. ingestion-fda."
+    },
+    "source": {
+      "type": "string",
+      "enum": ["fda_enforcement", "fda_press", "usda_fsis", "eu_rasff"],
+      "description": "Which upstream feed the record came from."
+    },
+    "source_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The feed's own identifier for the notice (openFDA recall_number, FSIS field_recall_number, RASFF reference, RSS guid). Unique within `source`."
+    },
+    "source_url": {
+      "type": ["string", "null"],
+      "description": "Human-readable page for the notice, when the feed provides one."
+    },
+    "published_at": {
+      "type": ["string", "null"],
+      "format": "date-time",
+      "description": "The feed's own timestamp for the notice (report_date, recall_date, pubDate, notification date). Null if the feed does not provide one."
+    },
+    "normalized": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "country"],
+      "properties": {
+        "title":               { "type": "string", "minLength": 1 },
+        "firm":                { "type": ["string", "null"] },
+        "product_description": { "type": ["string", "null"] },
+        "reason":              { "type": ["string", "null"] },
+        "code_info":           { "type": ["string", "null"], "description": "Lot / batch / date-code text verbatim from the feed. Not parsed here." },
+        "classification":      { "type": ["string", "null"], "description": "Feed's own severity label verbatim (e.g. 'Class I', 'High - Class I', 'alert')." },
+        "distribution":        { "type": ["string", "null"], "description": "Distribution / affected-states / notifying-country text verbatim." },
+        "country":             { "type": "string", "enum": ["US", "EU"] }
+      }
+    },
+    "raw": {
+      "type": "object",
+      "description": "The untouched upstream record (JSON object as returned by the API, or the RSS item fields)."
+    }
+  }
+}

@@ -1,0 +1,8 @@
+go 1.26.0
+
+use (
+	./libs/feedkit
+	./services/ingestion-fda
+	./services/ingestion-usda
+	./services/ingestion-rasff
+)
