@@ -7,6 +7,12 @@ COPY libs/feedkit/go.mod libs/feedkit/go.sum libs/feedkit/
 COPY services/ingestion-fda/go.mod services/ingestion-fda/go.sum services/ingestion-fda/
 COPY services/ingestion-usda/go.mod services/ingestion-usda/go.sum services/ingestion-usda/
 COPY services/ingestion-rasff/go.mod services/ingestion-rasff/go.sum services/ingestion-rasff/
+# every module listed in go.work must be present before go mod download
+COPY libs/core/go.mod libs/core/go.sum libs/core/
+COPY services/resolution-service/go.mod services/resolution-service/go.sum services/resolution-service/
+COPY services/containment-service/go.mod services/containment-service/go.sum services/containment-service/
+COPY services/order-rescue-service/go.mod services/order-rescue-service/go.sum services/order-rescue-service/
+COPY tests/e2e/go.mod tests/e2e/go.sum tests/e2e/
 RUN go mod download
 COPY libs/ libs/
 COPY services/ services/

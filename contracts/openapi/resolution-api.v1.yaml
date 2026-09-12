@@ -1,0 +1,107 @@
+openapi: 3.0.3
+info:
+  title: Soteria Resolution API
+  version: 1.0.0
+  description: |
+    Read surface over resolved lots. Powers the storefront "Verified Safe Lot" badge:
+    given a GTIN and the lot code printed on the pack, is this unit affected by a live incident?
+    Owner: resolution-service.
+servers:
+  - url: http://localhost:8081
+    description: local
+paths:
+  /healthz:
+    get:
+      operationId: resolutionHealth
+      responses:
+        "200": { description: ok, content: { application/json: { schema: { $ref: "#/components/schemas/Health" } } } }
+  /v1/lots/status:
+    get:
+      operationId: getLotStatus
+      summary: Verified Safe Lot check
+      parameters:
+        - { name: gtin, in: query, required: true, schema: { type: string } }
+        - name: lot_code
+          in: query
+          description: omit to get the SKU-level verdict
+          schema: { type: string }
+      responses:
+        "200": { description: verdict, content: { application/json: { schema: { $ref: "#/components/schemas/LotStatus" } } } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+  /v1/resolutions:
+    get:
+      operationId: listResolutions
+      parameters:
+        - { name: incident_id, in: query, schema: { type: string } }
+        - { name: gtin, in: query, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, default: 50, maximum: 200 } }
+      responses:
+        "200":
+          description: resolutions, newest first
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/Resolution" } }
+components:
+  responses:
+    BadRequest: { description: invalid request, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+  schemas:
+    Health:
+      type: object
+      required: [status, service]
+      properties:
+        status:  { type: string, enum: [ok, degraded] }
+        service: { type: string }
+        bus:     { type: string, enum: [up, down] }
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:    { type: string }
+        message: { type: string }
+    LotStatus:
+      type: object
+      required: [gtin, verdict]
+      properties:
+        gtin:        { type: string }
+        lot_code:    { type: string }
+        verdict:     { type: string, enum: [SAFE, AFFECTED, UNKNOWN_LOT] }
+        incident_id: { type: string }
+        hazard:      { type: string }
+        confidence:  { type: number }
+        checked_at:  { type: string, format: date-time }
+    MatchEvidence:
+      type: object
+      required: [signal, weight, detail]
+      properties:
+        signal: { type: string }
+        weight: { type: number }
+        detail: { type: string }
+    Match:
+      type: object
+      required: [gtin, confidence]
+      properties:
+        gtin:          { type: string }
+        upc:           { type: string }
+        sku:           { type: string }
+        product_title: { type: string }
+        brand:         { type: string }
+        lot_codes:     { type: array, items: { type: string } }
+        confidence:    { type: number }
+        evidence:      { type: array, items: { $ref: "#/components/schemas/MatchEvidence" } }
+    Resolution:
+      type: object
+      required: [resolution_id, incident_id, resolved_at, confidence, scope, matches]
+      properties:
+        resolution_id:  { type: string }
+        incident_id:    { type: string }
+        resolved_at:    { type: string, format: date-time }
+        confidence:     { type: number }
+        scope:          { type: string, enum: [LOT, SKU] }
+        hazard:         { type: string }
+        allergens:      { type: array, items: { type: string } }
+        classification: { type: string }
+        matches:        { type: array, items: { $ref: "#/components/schemas/Match" } }

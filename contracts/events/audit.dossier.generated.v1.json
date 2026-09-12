@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://soteria.dev/contracts/events/audit.dossier.generated.v1.json",
+  "title": "audit.dossier.generated.v1",
+  "description": "A tamper-evident incident dossier was produced. Producer: audit-proof-service. Consumer: ops-console.",
+  "type": "object",
+  "required": ["incident_id", "dossier_id", "generated_at", "content_hash", "hash_algorithm", "event_count"],
+  "additionalProperties": false,
+  "properties": {
+    "incident_id":    { "type": "string" },
+    "dossier_id":     { "type": "string", "format": "uuid" },
+    "generated_at":   { "type": "string", "format": "date-time" },
+    "content_hash":   { "type": "string" },
+    "hash_algorithm": { "type": "string", "enum": ["sha256"] },
+    "timestamp_proof":{ "type": "string", "description": "base64 RFC 3161 token or anchor reference" },
+    "pdf_url":        { "type": "string" },
+    "event_count":    { "type": "integer", "minimum": 1 }
+  }
+}

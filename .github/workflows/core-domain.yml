@@ -1,0 +1,32 @@
+# CI for the core domain services. Mirrors the ingestion workflow's shape so both
+# can fold into one shared template later.
+name: core-domain
+
+on:
+  push:
+    paths:
+      ["go.work", "libs/core/**", "services/resolution-service/**", "services/containment-service/**", "services/order-rescue-service/**", "tests/e2e/**", "contracts/**", ".github/workflows/core-domain.yml"]
+  pull_request:
+    paths:
+      ["go.work", "libs/core/**", "services/resolution-service/**", "services/containment-service/**", "services/order-rescue-service/**", "tests/e2e/**", "contracts/**", ".github/workflows/core-domain.yml"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        module:
+          [libs/core, services/resolution-service, services/containment-service, services/order-rescue-service, tests/e2e]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: ${{ matrix.module }}/go.mod
+          cache-dependency-path: ${{ matrix.module }}/go.sum
+      - name: gofmt
+        run: test -z "$(gofmt -l ${{ matrix.module }})" || (gofmt -l ${{ matrix.module }}; exit 1)
+      - name: vet + test
+        working-directory: ${{ matrix.module }}
+        env:
+          GOWORK: "off"
+        run: go vet ./... && go test ./...

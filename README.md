@@ -13,7 +13,12 @@ This is a contract-first, 3-person microservice build (Go services, RabbitMQ eve
 | `services/ingestion-fda/` | Person 1 | openFDA enforcement + FDA press RSS → `recall.raw.received.v1` |
 | `services/ingestion-usda/` | Person 1 | USDA FSIS recalls (meat/poultry/egg) → `recall.raw.received.v1` |
 | `services/ingestion-rasff/` | Person 1 | EU RASFF notifications → `recall.raw.received.v1` |
-| `docs/` | — | PRD and design notes |
+| `libs/core/` | Person 3 | Shared Go module for the domain services: event bindings, RabbitMQ seam, matching confidence, commerce and enrichment interfaces |
+| `services/resolution-service/` | Person 3 | Recall text → GTIN + lot codes with confidence and evidence → `resolution.lot.resolved.v1` |
+| `services/containment-service/` | Person 3 | Auto-hold threshold, lot-level inventory hold, ops review queue |
+| `services/order-rescue-service/` | Person 3 | In-flight order rescue with allergen-safe substitutes and explicit customer consent |
+| `tests/e2e/` | Person 3 | Cross-service flow tests over an in-process bus |
+| `docs/` | — | PRD and design notes, including [core domain services](docs/core-domain-services.md) |
 
 ## Quick start (ingestion services)
 
@@ -41,18 +46,32 @@ Configuration is environment-driven; see [`.env.example`](.env.example). Every s
 Each module is independent (`go.work` ties them together for local builds):
 
 ```sh
-for m in libs/feedkit services/ingestion-fda services/ingestion-usda services/ingestion-rasff; do (cd $m && go vet ./... && go test ./...); done
+for m in libs/feedkit libs/core services/ingestion-fda services/ingestion-usda services/ingestion-rasff services/resolution-service services/containment-service services/order-rescue-service tests/e2e; do
+  (cd $m && go vet ./... && go test ./...)
+done
 ```
 
 Every service has a **contract test** that validates fixture-derived events against `contracts/events/recall.raw.received.v1.json`, so schema drift fails in CI ([`.github/workflows/ingestion.yml`](.github/workflows/ingestion.yml)).
 
 ## Event flow
 
+```mermaid
+flowchart LR
+    openfda["openFDA"] --> fda["ingestion-fda"]
+    rss["FDA press RSS"] --> fda
+    fsis["FSIS"] --> usda["ingestion-usda"]
+    rasff["RASFF"] --> eu["ingestion-rasff"]
+    fda --> ingx{{"ingestion.x"}}
+    usda --> ingx
+    eu --> ingx
+    ingx -- "ingestion.recall.raw.received.v1" --> res["resolution-service"]
+    res -- "resolution.lot.resolved.v1" --> con["containment-service"]
+    con -- "containment.action.taken.v1" --> resc["order-rescue-service"]
+    con -.-> shop["Shopify: hold only the affected lots"]
+    resc -.-> cust["Customer: confirm a substitute"]
 ```
-openFDA ─┐
-FDA RSS ─┤ ingestion-fda ──┐
-FSIS ────── ingestion-usda ─┼─▶ exchange ingestion.x ──▶ resolution-service (P3)
-RASFF ───── ingestion-rasff ┘   key ingestion.recall.raw.received.v1
-```
+
+The containment and rescue half of that flow is documented in
+[`docs/core-domain-services.md`](docs/core-domain-services.md).
 
 See [`contracts/rabbitmq-topology.md`](contracts/rabbitmq-topology.md) for message properties and delivery semantics (at-least-once; consumers dedupe on `event_id` or `(source, source_id)`).
