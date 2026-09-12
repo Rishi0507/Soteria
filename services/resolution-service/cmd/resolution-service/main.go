@@ -2,15 +2,20 @@
 //
 // Env:
 //
-//	RABBITMQ_URL  amqp URL; when empty the service runs with an in-process bus
-//	              (useful for local UI work without a broker)
-//	CATALOG_PATH  JSON catalog snapshot (default ./testdata/catalog.json)
-//	PORT          HTTP port (default 8081)
+//	RABBITMQ_URL         amqp URL; when empty the service runs with an in-process
+//	                     bus (useful for local UI work without a broker)
+//	SHOPIFY_SHOP         myshopify.com domain; set together with SHOPIFY_ACCESS_TOKEN
+//	SHOPIFY_ACCESS_TOKEN Admin API token. With both set the catalog comes from the
+//	                     live store; otherwise CATALOG_PATH is used
+//	CATALOG_REFRESH      snapshot lifetime, e.g. 5m (default 5m)
+//	CATALOG_PATH         JSON catalog snapshot for local work (default ./testdata/catalog.json)
+//	PORT                 HTTP port (default 8081)
 package main
 
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -19,6 +24,7 @@ import (
 	"time"
 
 	"soteria/libs/core/bus"
+	"soteria/libs/shopify"
 	"soteria/services/resolution-service/api"
 	"soteria/services/resolution-service/catalog"
 	"soteria/services/resolution-service/resolver"
@@ -28,9 +34,9 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	slog.SetDefault(logger)
 
-	cat, err := catalog.LoadFile(env("CATALOG_PATH", "testdata/catalog.json"))
+	cat, err := openCatalog(logger)
 	if err != nil {
-		logger.Error("cannot load catalog", "err", err)
+		logger.Error("cannot open catalog", "err", err)
 		os.Exit(1)
 	}
 
@@ -86,6 +92,37 @@ func main() {
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	_ = srv.Shutdown(shutdownCtx)
+}
+
+// openCatalog prefers the live store and falls back to a file snapshot. It never
+// guesses: a half-configured store is an error, because scoring recalls against a
+// stale fixture while believing it is the real catalog is how a recalled product
+// stays on sale.
+func openCatalog(logger *slog.Logger) (catalog.Catalog, error) {
+	shop, token := os.Getenv("SHOPIFY_SHOP"), os.Getenv("SHOPIFY_ACCESS_TOKEN")
+	switch {
+	case shop != "" && token != "":
+		client, err := shopify.New(shop, token)
+		if err != nil {
+			return nil, fmt.Errorf("shopify client: %w", err)
+		}
+		refresh := catalog.DefaultRefresh
+		if v := os.Getenv("CATALOG_REFRESH"); v != "" {
+			d, err := time.ParseDuration(v)
+			if err != nil {
+				return nil, fmt.Errorf("CATALOG_REFRESH %q: %w", v, err)
+			}
+			refresh = d
+		}
+		logger.Info("catalog source: live store", "shop", shop, "refresh", refresh)
+		return catalog.NewStore(client, refresh, logger), nil
+	case shop != "" || token != "":
+		return nil, fmt.Errorf("SHOPIFY_SHOP and SHOPIFY_ACCESS_TOKEN must be set together")
+	default:
+		path := env("CATALOG_PATH", "testdata/catalog.json")
+		logger.Warn("catalog source: file snapshot, no store configured", "path", path)
+		return catalog.LoadFile(path)
+	}
 }
 
 func env(key, fallback string) string {

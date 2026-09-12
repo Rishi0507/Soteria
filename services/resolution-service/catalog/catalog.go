@@ -56,8 +56,13 @@ func LoadFile(path string) (*Static, error) {
 func (s *Static) Candidates(ctx context.Context) ([]matching.Candidate, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	out := make([]matching.Candidate, 0, len(s.products))
-	for _, p := range s.products {
+	return toCandidates(s.products), nil
+}
+
+// toCandidates maps catalog products onto scoring candidates.
+func toCandidates(products []Product) []matching.Candidate {
+	out := make([]matching.Candidate, 0, len(products))
+	for _, p := range products {
 		out = append(out, matching.Candidate{
 			GTIN:         matching.NormalizeGTIN(firstNonEmpty(p.GTIN, p.UPC)),
 			UPC:          p.UPC,
@@ -67,7 +72,7 @@ func (s *Static) Candidates(ctx context.Context) ([]matching.Candidate, error) {
 			LotCodes:     p.LotCodes,
 		})
 	}
-	return out, nil
+	return out
 }
 
 func (s *Static) ByGTIN(ctx context.Context, gtin string) (Product, bool) {

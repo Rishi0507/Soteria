@@ -17,10 +17,11 @@ and a rescued order.
 4. [Services](#services)
 5. [Shared libraries](#shared-libraries)
 6. [Messaging](#messaging)
-7. [Design rules](#design-rules)
-8. [Running locally](#running-locally)
-9. [Testing](#testing)
-10. [Repository layout](#repository-layout)
+7. [Connecting a real store](#connecting-a-real-store)
+8. [Design rules](#design-rules)
+9. [Running locally](#running-locally)
+10. [Testing](#testing)
+11. [Repository layout](#repository-layout)
 
 ## Scope
 
@@ -35,8 +36,8 @@ and a rescued order.
 **Deliberately elsewhere**
 
 - Recall feed ingestion, silent catalog diffing, anti-evasion monitoring, customer notification
-  delivery, and the production Shopify client. These are owned by the integrations workstream and
-  reach this layer purely as events, or through the interfaces declared in `libs/core/`.
+  delivery, and the shared Shopify client (`libs/shopify`). These are owned by the integrations
+  workstream and reach this layer as events, or through the client this layer consumes.
 - The storefront, the ops console, and the Open Food Facts integration layer. These are owned by the
   customer-facing workstream and consume the APIs specified in `contracts/openapi`.
 - The audit dossier service and infrastructure as code. These are follow-on work in this same layer
@@ -184,7 +185,7 @@ consent token.
 | `libs/core/events` | Go binding of `contracts/events/*.json`: envelope, routing keys, payload types, validation |
 | `libs/core/bus` | Publish and consume seam, with a RabbitMQ implementation (topic exchanges, per-queue dead-letter exchange, publisher confirms, manual acknowledgement, bounded retries) and an in-process implementation used by tests |
 | `libs/core/matching` | Shared matching-confidence library: identifier normalization, lot code extraction, text similarity, weighted scoring with evidence |
-| `libs/core/shopify` | The `InventoryClient` interface containment writes through, plus a lot-level fake store |
+| `libs/core/shopify` | The `InventoryClient` interface containment writes through, plus a lot-level fake store. Implemented for the real platform by `libs/shopify/hold` |
 | `libs/core/offacts` | Open Food Facts provider interface (HTTP and static), allergen normalization, hazard allergen parsing |
 
 `libs/core/matching` is shared with anti-evasion monitoring so that "confident" has exactly one definition
@@ -220,6 +221,55 @@ flowchart LR
 The full registry of exchanges, queues, bindings and dead-letter routing is
 `contracts/rabbitmq-topology.md`.
 
+## Connecting a real store
+
+Each of the three services runs against either the live commerce platform or a local fixture, chosen
+by environment variables. The shared client is `libs/shopify`; the containment seam is
+`libs/shopify/hold`, which implements `libs/core/shopify.InventoryClient`.
+
+| Variable | Used by | Effect |
+|---|---|---|
+| `SHOPIFY_SHOP`, `SHOPIFY_ACCESS_TOKEN` | all three | Set together to use the live store. Set neither to use fixtures. Setting only one is a startup error |
+| `QUARANTINE_LOCATION` | containment | Location that affected lots are moved to (default `Quarantine`) |
+| `CATALOG_REFRESH` | resolution | Catalog snapshot lifetime (default 5m) |
+| `ORDER_LOOKBACK` | order rescue | How far back the affected-order scan reaches (default 720h) |
+| `ORDER_CURRENCY` | order rescue | Currency for line prices read from the store (default USD) |
+| `CATALOG_PATH`, `INVENTORY_PATH`, `ORDERS_PATH` | respective service | Fixture paths used only when no store is configured |
+
+**A half-configured store fails startup rather than falling back.** Quietly running on fixtures while
+believing the store is connected would publish `containment.action.taken.v1` events describing holds
+that never happened, which corrupts the audit dossier at its foundation. Fixture mode is always
+logged at warning level, and containment says outright that its holds are not real.
+
+How each service uses the store:
+
+- **resolution-service** pulls the catalog snapshot (`Catalog`), including each variant's lot ledger,
+  so matches carry real lot codes. The snapshot is cached for `CATALOG_REFRESH`; a refresh failure
+  reuses the last good snapshot and logs it, because an empty catalog would resolve every notice to
+  "we do not carry this". With no snapshot at all the message is retried instead.
+- **containment-service** holds through `hold.Adapter`, which moves only the affected lots' units from
+  the selling location to Quarantine, marks them in the `soteria.lots` ledger, and tags the product
+  for the storefront badge. The move is reversible, and unaffected lots stay sellable.
+- **order-rescue-service** scans orders (`OrdersSince`) for in-flight lines on the recalled variant
+  and applies a confirmed swap with `ReplaceLineItem`.
+
+### Two gaps, stated rather than papered over
+
+- **No cancellation or refund operation exists in the shared client yet.** A customer who chooses
+  cancel or refund still has that decision recorded and published as `rescue.order.confirmed.v1`, and
+  the service logs a warning naming the order; the retailer completes it in their payment flow. The
+  error is typed (`orders.ErrUnsupported`) so it is never retried into a dead-letter queue.
+- **Order lines carry no lot code.** The platform records a variant per line, not the lot picked for
+  it. When the held lots are only part of a variant's ledger, the affected lot cannot be proven per
+  order, so every in-flight line for that variant is included and labelled `UNATTRIBUTED`. Customer
+  copy and the audit dossier must read that as "one of the recalled lots", never as a specific one.
+  Over-inclusion offers a substitute someone can decline; under-inclusion leaves a recalled product
+  in a customer's hands.
+
+Substitute candidates still come from a fixture catalog. Sourcing them from the store needs a
+merchandising rule for what counts as an acceptable replacement, which is a retailer decision, not a
+technical one.
+
 ## Design rules
 
 - **Lot scope is the product.** A `SKU` scope resolution faces a higher threshold
@@ -236,6 +286,9 @@ The full registry of exchanges, queues, bindings and dead-letter routing is
   allergen the original did not, is refused. Refund and cancel are always offered.
 - **At-least-once delivery is assumed.** Handlers deduplicate on `event_id` and incidents deduplicate
   on a deterministic `incident_id`, so a replayed notice cannot hold twice or propose twice.
+- **Fixture mode is never silent.** Every service logs which backend it is using at startup, and a
+  partially configured store refuses to boot. An event claiming a hold that never happened is worse
+  than a service that will not start.
 - **Contact details stay on the notification path.** Customer email and phone travel in the rescue
   event for delivery, but are excluded from API responses and from anything intended for an audit
   record.
@@ -251,10 +304,10 @@ cd services/order-rescue-service && go run ./cmd/order-rescue-service
 
 Without `RABBITMQ_URL`, each service runs on its own in-process bus, which is convenient when working
 against a single service. With `RABBITMQ_URL=amqp://guest:guest@localhost:5672/` the services declare
-their queues per the topology registry and exchange events for real.
-
-Seed fixtures live in each service's `testdata/` directory. Every path and threshold is overridable
-by environment variable, documented in the header comment of each `cmd/*/main.go`.
+their queues per the topology registry and exchange events for real. Without `SHOPIFY_SHOP` and
+`SHOPIFY_ACCESS_TOKEN` they read the fixtures in each service's `testdata/` directory; see
+[connecting a real store](#connecting-a-real-store). Every path and threshold is overridable by
+environment variable, documented in the header comment of each `cmd/*/main.go`.
 
 Example requests:
 
@@ -276,7 +329,10 @@ required. It covers the surgical hold (65 units of the recalled lots held while 
 lot stay sellable), the review queue path including reviewer narrowing and rejection, live threshold
 tuning, redelivery idempotence, refusal of a forged consent token, and reporting of a commerce
 platform failure. `libs/core/matching` carries unit tests for barcode validation, lot extraction and
-scoring bands.
+scoring bands, and each store-backed adapter is tested against the in-memory shop in
+`libs/shopify/fake`: the catalog snapshot and its stale-snapshot fallback, the affected-order scan and
+its lot-attribution rule, and containment driving the real `hold.Adapter` end to end (65 units moved
+to Quarantine, 60 left sellable, product left published).
 
 ## Repository layout
 

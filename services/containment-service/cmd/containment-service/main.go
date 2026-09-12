@@ -15,6 +15,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -24,7 +25,9 @@ import (
 	"time"
 
 	"soteria/libs/core/bus"
-	"soteria/libs/core/shopify"
+	coreshopify "soteria/libs/core/shopify"
+	"soteria/libs/shopify"
+	"soteria/libs/shopify/hold"
 	"soteria/services/containment-service/api"
 	"soteria/services/containment-service/containment"
 )
@@ -33,18 +36,18 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
 	slog.SetDefault(logger)
 
-	inv, err := loadInventory(env("INVENTORY_PATH", "testdata/inventory.json"))
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	inv, err := openInventory(ctx, logger)
 	if err != nil {
-		logger.Error("cannot load inventory snapshot", "err", err)
+		logger.Error("cannot open inventory", "err", err)
 		os.Exit(1)
 	}
 
 	cfg := containment.DefaultConfig()
 	cfg.AutoHoldThreshold = envFloat("AUTO_HOLD_THRESHOLD", cfg.AutoHoldThreshold)
 	cfg.SKUScopeThreshold = envFloat("SKU_SCOPE_THRESHOLD", cfg.SKUScopeThreshold)
-
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
 
 	var (
 		publisher bus.Publisher
@@ -96,16 +99,49 @@ func main() {
 	_ = srv.Shutdown(shutdownCtx)
 }
 
-func loadInventory(path string) (*shopify.Fake, error) {
+// openInventory returns the live store when it is configured, and the in-memory
+// fake otherwise.
+//
+// The distinction has to be loud: every hold this service performs is published as
+// containment.action.taken.v1 and lands in the audit dossier, so running against
+// the fake while believing the store is wired would put holds on the record that
+// never happened. A half-configured store is therefore a startup failure, not a
+// silent downgrade.
+func openInventory(ctx context.Context, logger *slog.Logger) (coreshopify.InventoryClient, error) {
+	shop, token := os.Getenv("SHOPIFY_SHOP"), os.Getenv("SHOPIFY_ACCESS_TOKEN")
+	switch {
+	case shop != "" && token != "":
+		client, err := shopify.New(shop, token)
+		if err != nil {
+			return nil, fmt.Errorf("shopify client: %w", err)
+		}
+		quarantine := env("QUARANTINE_LOCATION", "Quarantine")
+		selling, quarantined, err := hold.ResolveLocations(ctx, client, quarantine)
+		if err != nil {
+			return nil, fmt.Errorf("resolve store locations (need a %q location): %w", quarantine, err)
+		}
+		logger.Info("inventory target: live store",
+			"shop", shop, "selling_location", selling, "quarantine_location", quarantined)
+		return hold.New(client, selling, quarantined), nil
+	case shop != "" || token != "":
+		return nil, fmt.Errorf("SHOPIFY_SHOP and SHOPIFY_ACCESS_TOKEN must be set together")
+	default:
+		path := env("INVENTORY_PATH", "testdata/inventory.json")
+		logger.Warn("inventory target: in-memory fake, no store configured. Holds are not real", "path", path)
+		return loadInventory(path)
+	}
+}
+
+func loadInventory(path string) (*coreshopify.Fake, error) {
 	raw, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
-	var lots []shopify.InventoryLot
+	var lots []coreshopify.InventoryLot
 	if err := json.Unmarshal(raw, &lots); err != nil {
 		return nil, err
 	}
-	return shopify.NewFake(lots...), nil
+	return coreshopify.NewFake(lots...), nil
 }
 
 func env(key, fallback string) string {
