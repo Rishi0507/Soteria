@@ -22,3 +22,6 @@ data/
 
 # workspace sums (regenerated)
 go.work.sum
+
+# node
+node_modules/
