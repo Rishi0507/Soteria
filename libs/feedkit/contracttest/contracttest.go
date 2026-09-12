@@ -34,12 +34,27 @@ func SchemaPath(t testing.TB, name string) string {
 	}
 }
 
-// Compile loads and compiles a schema file.
+// Compile loads and compiles a schema file. The file is read here and
+// registered under a synthetic URL so repo paths with spaces or non-ASCII
+// characters never reach the library's file-URL loader.
 func Compile(t testing.TB, path string) *jsonschema.Schema {
 	t.Helper()
+	f, err := os.Open(path)
+	if err != nil {
+		t.Fatalf("contracttest: open %s: %v", path, err)
+	}
+	defer f.Close()
+	doc, err := jsonschema.UnmarshalJSON(f)
+	if err != nil {
+		t.Fatalf("contracttest: parse %s: %v", path, err)
+	}
+	url := "https://soteria.dev/contracts/events/" + filepath.Base(path)
 	c := jsonschema.NewCompiler()
 	c.AssertFormat()
-	s, err := c.Compile(filepath.ToSlash(path))
+	if err := c.AddResource(url, doc); err != nil {
+		t.Fatalf("contracttest: add resource: %v", err)
+	}
+	s, err := c.Compile(url)
 	if err != nil {
 		t.Fatalf("contracttest: compile %s: %v", path, err)
 	}
