@@ -1,130 +1,186 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useEffect, useRef, useState } from 'react'
+import { AllergenPanel } from './features/allergens/AllergenPanel'
+import { useProductAllergens } from './features/allergens/useProductAllergens'
+import { SafeLotBadge } from './features/badge/SafeLotBadge'
+import { useLotStatus } from './features/badge/useLotStatus'
+import { RecallBanner } from './features/banner/RecallBanner'
+import { RescuePanel } from './features/rescue/RescuePanel'
+import { useRescue } from './features/rescue/useRescue'
+import { BackendStatus } from './features/status/BackendStatus'
 
-import { useEffect } from 'react'
-import { ping } from './lib/ping'
-
-// inside App():
-
-function App() {
-  const [count, setCount] = useState(0)
-  useEffect(() => { ping().catch(console.error) }, [])
-
-
-
-  return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+/**
+ * The product this demo shop sells. The GTIN matches the seeded catalog, so the
+ * lot codes below exercise each verdict against the running resolution-service.
+ */
+const PRODUCT = {
+    gtin: '041196910537',
+    title: 'Sunfield Farms Chewy Granola Bars',
+    variant: '12 ct',
+    price: '$4.49',
+    lots: [
+        { code: '8H-1132', hint: 'recalled lot' },
+        { code: '8H-2000', hint: 'clean lot' },
+        { code: 'ZZ-0000', hint: 'lot we don’t carry' },
+    ],
 }
 
-export default App
+/**
+ * Query parameters let the emailed link land straight on the customer's choice:
+ *   ?rescue=<id>&token=<consent token>   the link we send
+ *   ?order=ORD-1001                      lookup by order, for the account page
+ *   ?lot=8H-1132                         preselect the lot on the pack
+ */
+function useQuery() {
+    const params = new URLSearchParams(window.location.search)
+    return {
+        rescueId: params.get('rescue') ?? undefined,
+        orderId: params.get('order') ?? undefined,
+        consentToken: params.get('token') ?? undefined,
+        lot: params.get('lot') ?? undefined,
+    }
+}
+
+export default function App() {
+    const query = useQuery()
+    const [lot, setLot] = useState(query.lot ?? PRODUCT.lots[0].code)
+    const [input, setInput] = useState(lot)
+    const rescueRef = useRef<HTMLDivElement>(null)
+
+    const { status, loading, error } = useLotStatus(PRODUCT.gtin, lot)
+    const allergens = useProductAllergens(PRODUCT.gtin)
+    const rescue = useRescue({
+        rescueId: query.rescueId,
+        orderId: query.orderId ?? 'ORD-1001',
+        consentToken: query.consentToken,
+    })
+
+    useEffect(() => {
+        document.title = `${PRODUCT.title} — Sotería`
+    }, [])
+
+    return (
+        <div className="min-h-screen bg-neutral-50 text-neutral-900">
+            <RecallBanner
+                status={status}
+                onReview={() => rescueRef.current?.scrollIntoView({ behavior: 'smooth' })}
+            />
+
+            <header className="border-b border-neutral-200 bg-white">
+                <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
+                    <div>
+                        <p className="text-lg font-semibold tracking-tight">Sotería Market</p>
+                        <p className="text-xs text-neutral-500">
+                            Every lot checked against live recall feeds
+                        </p>
+                    </div>
+                    <BackendStatus />
+                </div>
+            </header>
+
+            <main className="mx-auto max-w-5xl space-y-8 px-4 py-8">
+                <section className="grid gap-8 md:grid-cols-2">
+                    <div className="flex items-center justify-center rounded-xl border border-neutral-200 bg-white p-10">
+                        <div className="text-center">
+                            <div className="mx-auto h-32 w-32 rounded-2xl bg-gradient-to-br from-amber-200 to-amber-400" />
+                            <p className="mt-4 text-xs uppercase tracking-wide text-neutral-500">
+                                GTIN {PRODUCT.gtin}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h1 className="text-2xl font-semibold tracking-tight">{PRODUCT.title}</h1>
+                        <p className="mt-1 text-neutral-600">
+                            {PRODUCT.variant} · {PRODUCT.price}
+                        </p>
+
+                        <div className="mt-4">
+                            <SafeLotBadge status={status} loading={loading} error={error} />
+                        </div>
+
+                        <form
+                            className="mt-5"
+                            onSubmit={(e) => {
+                                e.preventDefault()
+                                setLot(input.trim())
+                            }}
+                        >
+                            <label
+                                htmlFor="lot"
+                                className="block text-sm font-medium text-neutral-800"
+                            >
+                                Check the lot code on your pack
+                            </label>
+                            <div className="mt-1 flex gap-2">
+                                <input
+                                    id="lot"
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    placeholder="e.g. 8H-1132"
+                                    className="w-48 rounded-lg border border-neutral-300 px-3 py-2 text-sm"
+                                />
+                                <button
+                                    type="submit"
+                                    className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
+                                >
+                                    Check
+                                </button>
+                            </div>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                                {PRODUCT.lots.map((l) => (
+                                    <button
+                                        key={l.code}
+                                        type="button"
+                                        onClick={() => {
+                                            setInput(l.code)
+                                            setLot(l.code)
+                                        }}
+                                        className="rounded-full border border-neutral-300 px-3 py-1 text-xs text-neutral-700 hover:bg-white"
+                                    >
+                                        {l.code}
+                                        <span className="ml-1 text-neutral-500">({l.hint})</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </form>
+
+                        <div className="mt-6">
+                            <h2 className="text-sm font-semibold text-neutral-900">
+                                Ingredients and allergens
+                            </h2>
+                            <div className="mt-2">
+                                <AllergenPanel data={allergens.data} loading={allergens.loading} />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div ref={rescueRef}>
+                    <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-neutral-500">
+                        Your order
+                    </h2>
+                    <RescuePanel
+                        rescue={rescue.rescue}
+                        loading={rescue.loading}
+                        error={rescue.error}
+                        confirming={rescue.confirming}
+                        message={rescue.message}
+                        onConfirm={rescue.confirm}
+                    />
+                    {!query.consentToken && rescue.rescue?.status === 'PROPOSED' && (
+                        <p className="mt-2 text-xs text-neutral-500">
+                            Confirming requires the token from your email link
+                            (<code>?rescue=…&amp;token=…</code>). Without it the service refuses
+                            the change, by design.
+                        </p>
+                    )}
+                </div>
+            </main>
+
+            <footer className="mx-auto max-w-5xl px-4 pb-10 text-xs text-neutral-500">
+                Lot verdicts come from the resolution service; rescue options from the order
+                rescue service. Allergen data is Open Food Facts.
+            </footer>
+        </div>
+    )
+}
