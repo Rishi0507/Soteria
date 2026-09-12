@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { SafeLotBadge } from './SafeLotBadge'
+import { useLotStatus } from './useLotStatus'
 
 const meta: Meta<typeof SafeLotBadge> = {
     title: 'Storefront/SafeLotBadge',
@@ -8,6 +9,11 @@ const meta: Meta<typeof SafeLotBadge> = {
 export default meta
 
 type Story = StoryObj<typeof SafeLotBadge>
+
+function LiveBadge({ gtin, lotCode }: { gtin: string; lotCode?: string }) {
+    const { status, loading, error } = useLotStatus(gtin, lotCode)
+    return <SafeLotBadge status={status} loading={loading} error={error} />
+}
 
 export const Safe: Story = {
     args: {
@@ -51,4 +57,20 @@ export const Loading: Story = {
 
 export const Unavailable: Story = {
     args: { status: null, error: true },
+}
+
+export const LiveSafe: Story = {
+    render: () => <LiveBadge gtin="00012345678905" lotCode="L2408A" />,
+}
+
+export const LiveAffected: Story = {
+    render: () => <LiveBadge gtin="00012345678905" lotCode="L2408B" />,
+}
+
+export const LiveUnknown: Story = {
+    render: () => <LiveBadge gtin="00012345678905" lotCode="L9999Z" />,
+}
+
+export const LiveServerError: Story = {
+    render: () => <LiveBadge gtin="00012345678905" lotCode="BOOM" />,
 }

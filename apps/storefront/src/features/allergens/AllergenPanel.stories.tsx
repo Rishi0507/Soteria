@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { AllergenPanel } from './AllergenPanel'
+import { useProductAllergens } from './useProductAllergens'
 
 const meta: Meta<typeof AllergenPanel> = {
     title: 'Storefront/AllergenPanel',
@@ -79,4 +80,20 @@ export const Absent: Story = {
 
 export const Loading: Story = {
     args: { data: null, loading: true },
+}
+function LivePanel({ gtin }: { gtin: string }) {
+    const { data, loading } = useProductAllergens(gtin)
+    return <AllergenPanel data={data} loading={loading} />
+}
+
+export const LiveComplete: Story = {
+    render: () => <LivePanel gtin="3017620422003" />,
+}
+
+export const LivePartial: Story = {
+    render: () => <LivePanel gtin="1111111111111" />,
+}
+
+export const LiveAbsent: Story = {
+    render: () => <LivePanel gtin="0000000000000" />,
 }
