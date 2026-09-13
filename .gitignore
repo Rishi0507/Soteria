@@ -1,0 +1,33 @@
+# binaries / build
+bin/
+dist/
+*.exe
+*.test
+*.out
+
+# local state
+data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+.env
+.env.*
+!.env.example
+
+# editor
+.idea/
+.vscode/
+*.swp
+
+# workspace sums (regenerated)
+go.work.sum
+
+# node
+node_modules/
+
+# python
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
