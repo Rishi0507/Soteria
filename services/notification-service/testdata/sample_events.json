@@ -1,0 +1,61 @@
+[
+  {
+    "event_type": "containment.action.taken.v1",
+    "producer": "containment-service",
+    "correlation_id": "inc-2026-0912-001",
+    "payload": {
+      "incident_id": "inc-2026-0912-001",
+      "action_id": "act-7f3a",
+      "taken_at": "2026-09-12T08:41:12Z",
+      "decision": "AUTO_HOLD",
+      "actor": "soteria",
+      "confidence": 0.97,
+      "threshold": 0.9,
+      "hazard": "Listeria monocytogenes",
+      "targets": [
+        {"gtin": "041196910537", "sku": "SF-GB-12", "product_title": "Sunfield Farms Chewy Granola Bars 12 ct", "scope": "LOT", "lot_codes": ["8H-1132", "8H-1133"], "confidence": 0.97}
+      ],
+      "results": [
+        {"gtin": "041196910537", "status": "HELD", "platform": "shopify", "platform_ref": "gid://shopify/InventoryItem/1", "units_held": 75, "units_left_sellable": 25}
+      ]
+    }
+  },
+  {
+    "event_type": "rescue.order.proposed.v1",
+    "producer": "order-rescue-service",
+    "correlation_id": "inc-2026-0912-001",
+    "payload": {
+      "incident_id": "inc-2026-0912-001",
+      "rescue_id": "rsc-01J9",
+      "order_id": "#1001",
+      "proposed_at": "2026-09-12T08:41:20Z",
+      "expires_at": "2026-09-14T08:41:20Z",
+      "hazard": "Listeria monocytogenes",
+      "customer": {"customer_id": "gid://shopify/Customer/7", "email": "customer@example.com"},
+      "affected_line": {"line_item_id": "gid://shopify/LineItem/100", "gtin": "041196910537", "sku": "SF-GB-12", "product_title": "Sunfield Farms Chewy Granola Bars 12 ct", "lot_code": "8H-1132", "quantity": 2, "unit_price": {"amount_minor": 599, "currency": "USD"}},
+      "options": [
+        {"option_id": "opt-sub", "kind": "SUBSTITUTE", "gtin": "012345678905", "sku": "HL-GB-12", "product_title": "Harvest Lane Oat and Honey Granola Bars 12 ct", "unit_price": {"amount_minor": 599, "currency": "USD"}, "allergen_safe": true, "rationale": "same category, same size, no shared allergens"},
+        {"option_id": "opt-refund", "kind": "REFUND"},
+        {"option_id": "opt-cancel", "kind": "CANCEL"}
+      ]
+    }
+  },
+  {
+    "event_type": "evasion.flagged.v1",
+    "producer": "anti-evasion-service",
+    "correlation_id": "inc-2026-0912-001",
+    "payload": {
+      "incident_id": "inc-2026-0912-001",
+      "flag_id": "flg-22",
+      "marketplace": "liquidation-example",
+      "listing_url": "https://liquidation.example/listing/8841",
+      "listing_title": "Sunfield Farms granola bars – 40 cases – short dated",
+      "seller": "bulkfoodsdeals",
+      "gtin": "041196910537",
+      "lot_code": "8H-1132",
+      "observed_at": "2026-09-13T15:02:00Z",
+      "confidence": 0.88,
+      "evidence": ["date code 8H-1132 visible in listing photo", "listed 26h after recall notice"]
+    }
+  }
+]
