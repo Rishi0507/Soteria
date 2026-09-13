@@ -1,4 +1,4 @@
-import { http, HttpResponse, passthrough } from 'msw'
+import { http, HttpResponse } from 'msw'
 
 const RESOLUTION = 'http://localhost:8081'
 const RESCUE = 'http://localhost:8083'
