@@ -1,0 +1,86 @@
+{
+  "generated_at": "2026-09-13T04:15:39.5957105Z",
+  "source": "openFDA food enforcement reports",
+  "products": [
+    {
+      "title": "Sura Tanmen Hot and Sour Flavor Premium Japanese Noodles \u0026 Soup Base",
+      "vendor": "H \u0026 U Inc. dba Sun Noodle",
+      "sku": "SOT-054108",
+      "barcode": "085315054108",
+      "price": "4.99",
+      "lots": [
+        {
+          "code": "1226183",
+          "units": 40
+        },
+        {
+          "code": "CLEAN-A",
+          "units": 35
+        },
+        {
+          "code": "CLEAN-B",
+          "units": 25
+        }
+      ],
+      "provenance": "openFDA H-1258-2026 (Class I): Soba sauce packet, which contains bonito, sardine, and mackerel (fish…"
+    },
+    {
+      "title": "Gifford's HomeMaine ice cream brand POWER PLAY FUDGE; ONE QUART (946 mL); UPC: 8 60864 00…",
+      "vendor": "Gifford's Dairy, Inc.",
+      "sku": "SOT-000307",
+      "barcode": "860864000307",
+      "price": "4.99",
+      "lots": [
+        {
+          "code": "26184",
+          "units": 40
+        },
+        {
+          "code": "CLEAN-A",
+          "units": 35
+        },
+        {
+          "code": "CLEAN-B",
+          "units": 25
+        }
+      ],
+      "provenance": "openFDA H-1245-2026 (Class II): Potential foreign object contamination: rubber pieces"
+    },
+    {
+      "title": "Mellish Island Super Skin; Dietary Supplement; 60 Capsules, 2 per day; Distributed by Mel…",
+      "vendor": "Mellish Island Corp",
+      "sku": "SOT-003323",
+      "barcode": "858792003323",
+      "price": "4.99",
+      "lots": [
+        {
+          "code": "CA1G24",
+          "units": 40
+        },
+        {
+          "code": "CLEAN-A",
+          "units": 35
+        },
+        {
+          "code": "CLEAN-B",
+          "units": 25
+        }
+      ],
+      "provenance": "openFDA H-1190-2026 (Class II): Firm's finished product label does not declare the source of marine c…"
+    },
+    {
+      "title": "Soteria Pantry Substitute Pack",
+      "vendor": "Soteria Pantry",
+      "sku": "SOT-SUB-01",
+      "barcode": "012345678905",
+      "price": "4.99",
+      "lots": [
+        {
+          "code": "SUB-2026-01",
+          "units": 120
+        }
+      ],
+      "provenance": "not under recall; the same-price option the rescue flow offers"
+    }
+  ]
+}
