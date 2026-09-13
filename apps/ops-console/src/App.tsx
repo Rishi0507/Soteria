@@ -1,11 +1,14 @@
+import { ThresholdPanel } from './features/thresholds/ThresholdPanel'
+import { useThresholds } from './features/thresholds/useThresholds'
+
 /**
- * Scaffold shell. This is deliberately the whole app: enough chrome to confirm
- * the toolchain runs, and no feature surface yet.
+ * The ops console shell. One screen so far: threshold tuning.
  *
- * The three screens this console is for — the below-threshold review queue, the
- * confidence-threshold tuning surface, and the dossier archive — are not built.
+ * The review queue and the dossier archive are not built.
  */
 export default function App() {
+    const thresholds = useThresholds()
+
     return (
         <div className="min-h-screen bg-neutral-50 text-neutral-900">
             <header className="border-b border-neutral-200 bg-white">
@@ -17,10 +20,16 @@ export default function App() {
                 </div>
             </header>
 
-            <main className="mx-auto max-w-5xl px-4 py-8">
-                <p className="text-sm text-neutral-600">
-                    Scaffold only — no screens yet.
-                </p>
+            <main className="mx-auto max-w-5xl space-y-8 px-4 py-8">
+                <ThresholdPanel
+                    config={thresholds.config}
+                    loading={thresholds.loading}
+                    loadError={thresholds.loadError}
+                    saving={thresholds.saving}
+                    notice={thresholds.notice}
+                    onSave={thresholds.save}
+                    onReload={thresholds.reload}
+                />
             </main>
         </div>
     )
