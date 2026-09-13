@@ -17,7 +17,7 @@ export function VolatileLedgerNote({
 }) {
     if (context === 'list') {
         return (
-            <p className="text-xs text-neutral-500">
+            <p className="text-caption text-ash-gray">
                 The audit ledger is held in memory and does not survive a restart. This list
                 shows what this process has recorded since it started — not necessarily
                 everything that has ever happened.
@@ -27,8 +27,8 @@ export function VolatileLedgerNote({
 
     if (context === 'missing') {
         return (
-            <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
-                <span className="font-medium">
+            <p className="mt-2 rounded-3xl px-3 py-2 text-ui text-saffron-spark">
+                <span className="font-normal">
                     This may mean the incident was never recorded, or that its record was
                     lost.
                 </span>{' '}
@@ -40,8 +40,8 @@ export function VolatileLedgerNote({
     }
 
     return (
-        <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
-            <span className="font-medium">
+        <p className="mt-2 rounded-3xl px-3 py-2 text-ui text-saffron-spark">
+            <span className="font-normal">
                 An empty archive is not evidence that nothing happened.
             </span>{' '}
             The audit ledger is held in memory and is emptied by a restart. If this service

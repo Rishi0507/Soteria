@@ -20,7 +20,6 @@ export const Affected: Story = {
             confidence: 0.99,
             checked_at: '2026-09-12T10:00:00Z',
         },
-        onReview: () => {},
     },
 }
 

@@ -11,12 +11,12 @@ function label(tag: string) {
 
 export function AllergenPanel({ data, loading }: Props) {
     if (loading) {
-        return <p className="text-sm text-neutral-500">Loading ingredient data…</p>
+        return <p className="text-ui text-ash-gray">Loading ingredient data…</p>
     }
 
     if (!data || data.coverage === 'ABSENT') {
         return (
-            <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-3 text-sm text-neutral-700">
+            <div className="block text-ui text-silver-mist">
                 No ingredient data available for this product. Check the packaging.
             </div>
         )
@@ -24,29 +24,29 @@ export function AllergenPanel({ data, loading }: Props) {
 
     if (data.coverage === 'PARTIAL') {
         return (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-                <p className="font-medium">Allergen information incomplete</p>
+            <div className="rounded-3xl border border-transparent p-3 text-ui text-saffron-spark">
+                <p className="font-normal">Allergen information incomplete</p>
                 <p>
                     We don't have allergen data for this product. Check the packaging
                     before consuming.
                 </p>
                 {data.ingredients_text && (
-                    <p className="mt-2 text-amber-800">{data.ingredients_text}</p>
+                    <p className="mt-2 text-saffron-spark">{data.ingredients_text}</p>
                 )}
             </div>
         )
     }
 
     return (
-        <div className="rounded-lg border border-neutral-200 p-3 text-sm">
+        <div className="block text-ui">
             {data.allergens.length > 0 ? (
                 <>
-                    <p className="font-medium text-neutral-900">Contains</p>
+                    <p className="font-normal text-bone-white">Contains</p>
                     <ul className="mt-1 flex flex-wrap gap-2">
                         {data.allergens.map((tag) => (
                             <li
                                 key={tag}
-                                className="rounded-full bg-red-50 px-2 py-0.5 capitalize text-red-900"
+                                className="rounded-full px-2 py-0.5 capitalize text-saffron-spark"
                             >
                                 {label(tag)}
                             </li>
@@ -54,17 +54,17 @@ export function AllergenPanel({ data, loading }: Props) {
                     </ul>
                 </>
             ) : (
-                <p className="text-neutral-700">No allergens declared.</p>
+                <p className="text-silver-mist">No allergens declared.</p>
             )}
 
             {data.traces && data.traces.length > 0 && (
-                <p className="mt-2 text-neutral-600">
+                <p className="mt-2 text-ash-gray">
                     May contain: {data.traces.map(label).join(', ')}
                 </p>
             )}
 
             {data.ingredients_text && (
-                <p className="mt-2 text-neutral-600">{data.ingredients_text}</p>
+                <p className="mt-2 text-ash-gray">{data.ingredients_text}</p>
             )}
         </div>
     )
