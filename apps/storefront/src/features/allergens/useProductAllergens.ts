@@ -3,36 +3,46 @@ import { getProductAllergens } from '../../api/openFoodFacts'
 import type { ProductAllergens } from '../../api/allergens'
 
 export function useProductAllergens(gtin?: string) {
-    const [data, setData] = useState<ProductAllergens | null>(null)
-    const [loading, setLoading] = useState(Boolean(gtin))
+    const [result, setResult] = useState<{
+        gtin: string
+        data: ProductAllergens
+    } | null>(null)
 
     useEffect(() => {
-        if (!gtin) {
-            setData(null)
-            setLoading(false)
-            return
-        }
+        if (!gtin) return
 
         let cancelled = false
-        setLoading(true)
 
         getProductAllergens(gtin)
-            .then((r) => { if (!cancelled) { setData(r); setLoading(false) } })
+            .then((r) => {
+                if (!cancelled) setResult({ gtin, data: r })
+            })
             .catch(() => {
                 if (!cancelled) {
-                    setData({
+                    setResult({
                         gtin,
-                        source: 'OPEN_FOOD_FACTS',
-                        fetched_at: new Date().toISOString(),
-                        coverage: 'ABSENT',
-                        allergens: [],
+                        data: {
+                            gtin,
+                            source: 'OPEN_FOOD_FACTS',
+                            fetched_at: new Date().toISOString(),
+                            coverage: 'ABSENT',
+                            allergens: [],
+                        },
                     })
-                    setLoading(false)
                 }
             })
 
-        return () => { cancelled = true }
+        return () => {
+            cancelled = true
+        }
     }, [gtin])
+
+    // Storing the gtin alongside the result means loading is derived, not a
+    // second piece of state that can disagree with it. A result for a previous
+    // gtin reads as loading, which is what it is — not stale data presented
+    // as current.
+    const data = result && result.gtin === gtin ? result.data : null
+    const loading = Boolean(gtin) && data === null
 
     return { data, loading }
 }
