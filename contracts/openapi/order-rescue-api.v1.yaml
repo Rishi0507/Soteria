@@ -1,0 +1,128 @@
+openapi: 3.0.3
+info:
+  title: Soteria Order Rescue API
+  version: 1.0.0
+  description: |
+    Customer-facing rescue surface. Consumed by the storefront.
+    Hard rule: a substitute is NEVER applied without an explicit customer confirmation,
+    and never across an allergen line. Owner: order-rescue-service.
+servers:
+  - url: http://localhost:8083
+    description: local
+paths:
+  /healthz:
+    get:
+      operationId: rescueHealth
+      responses:
+        "200": { description: ok, content: { application/json: { schema: { $ref: "#/components/schemas/Health" } } } }
+  /v1/rescues:
+    get:
+      operationId: listRescues
+      parameters:
+        - { name: order_id, in: query, schema: { type: string } }
+        - { name: incident_id, in: query, schema: { type: string } }
+        - { name: status, in: query, schema: { type: string, enum: [PROPOSED, CONFIRMED, EXPIRED] } }
+      responses:
+        "200":
+          description: rescues
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items: { type: array, items: { $ref: "#/components/schemas/Rescue" } }
+  /v1/rescues/{rescueId}:
+    get:
+      operationId: getRescue
+      description: Storefront loads this from the link in the customer email/SMS.
+      parameters: [ { name: rescueId, in: path, required: true, schema: { type: string } } ]
+      responses:
+        "200": { description: the rescue, content: { application/json: { schema: { $ref: "#/components/schemas/Rescue" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /v1/rescues/{rescueId}/confirm:
+    post:
+      operationId: confirmRescue
+      summary: Explicit customer click-to-confirm; emits order.rescue.confirmed.v1
+      parameters: [ { name: rescueId, in: path, required: true, schema: { type: string } } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [option_id, consent_token]
+              properties:
+                option_id: { type: string }
+                consent_token:
+                  type: string
+                  description: issued with the proposal, proves the click came from the notified customer
+      responses:
+        "200": { description: rescue after confirmation, content: { application/json: { schema: { $ref: "#/components/schemas/Rescue" } } } }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+components:
+  responses:
+    NotFound:  { description: not found, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    Forbidden: { description: invalid consent token, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+    Conflict:  { description: already confirmed or expired, content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } } }
+  schemas:
+    Health:
+      type: object
+      required: [status, service]
+      properties:
+        status:  { type: string, enum: [ok, degraded] }
+        service: { type: string }
+        bus:     { type: string, enum: [up, down] }
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:    { type: string }
+        message: { type: string }
+    Money:
+      type: object
+      required: [amount_minor, currency]
+      properties:
+        amount_minor: { type: integer }
+        currency:     { type: string }
+    AffectedLine:
+      type: object
+      required: [line_item_id, gtin, lot_code, quantity, unit_price]
+      properties:
+        line_item_id:  { type: string }
+        gtin:          { type: string }
+        sku:           { type: string }
+        product_title: { type: string }
+        lot_code:      { type: string }
+        quantity:      { type: integer }
+        unit_price:    { $ref: "#/components/schemas/Money" }
+    RescueOption:
+      type: object
+      required: [option_id, kind]
+      properties:
+        option_id:     { type: string }
+        kind:          { type: string, enum: [SUBSTITUTE, REFUND, CANCEL] }
+        gtin:          { type: string }
+        sku:           { type: string }
+        product_title: { type: string }
+        unit_price:    { $ref: "#/components/schemas/Money" }
+        allergen_safe: { type: boolean }
+        allergens:     { type: array, items: { type: string } }
+        rationale:     { type: string }
+    Rescue:
+      type: object
+      required: [rescue_id, incident_id, order_id, status, proposed_at, expires_at, affected_line, options]
+      properties:
+        rescue_id:        { type: string }
+        incident_id:      { type: string }
+        order_id:         { type: string }
+        status:           { type: string, enum: [PROPOSED, CONFIRMED, EXPIRED] }
+        hazard:           { type: string }
+        proposed_at:      { type: string, format: date-time }
+        expires_at:       { type: string, format: date-time }
+        confirmed_at:     { type: string, format: date-time }
+        chosen_option_id: { type: string }
+        affected_line:    { $ref: "#/components/schemas/AffectedLine" }
+        options:          { type: array, items: { $ref: "#/components/schemas/RescueOption" } }
