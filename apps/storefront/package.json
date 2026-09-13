@@ -13,8 +13,9 @@
     "codegen:resolution": "openapi-typescript ../../contracts/openapi/resolution-api.v1.yaml -o src/api/resolution.types.ts",
     "codegen:rescue": "openapi-typescript ../../contracts/openapi/order-rescue-api.v1.yaml -o src/api/rescue.types.ts",
     "codegen:containment": "openapi-typescript ../../contracts/openapi/containment-api.v1.yaml -o src/api/containment.types.ts",
-    "codegen": "npm run codegen:resolution && npm run codegen:rescue && npm run codegen:containment",
-    "codegen:check": "npm run codegen && git diff --exit-code src/api/*.types.ts"
+    "codegen:audit": "openapi-typescript ../../contracts/openapi/audit-api.v1.yaml -o src/api/audit.types.ts",
+    "codegen": "npm run codegen:resolution && npm run codegen:rescue && npm run codegen:containment && npm run codegen:audit",
+    "codegen:check": "npm run codegen && git add -N src/api/ && git diff --exit-code src/api/"
   },
   "dependencies": {
     "graphql": "^16.14.2",
