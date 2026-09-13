@@ -1,4 +1,10 @@
-import { formatMoney, LOT_UNATTRIBUTED, type Rescue, type RescueOption } from '../../api/rescue'
+import {
+    formatMoney,
+    LOT_UNATTRIBUTED,
+    type Money,
+    type Rescue,
+    type RescueOption,
+} from '../../api/rescue'
 
 type Props = {
     rescue: Rescue | null
@@ -43,8 +49,21 @@ export function RescuePanel({
     }
 
     const line = rescue.affected_line
-    const substitutes = rescue.options.filter((o) => o.kind === 'SUBSTITUTE')
+
+    // allergen_safe is optional in the contract, so the three states are
+    // meaningfully different and must not collapse into a truthiness check:
+    //   true      → cleared against the recall hazard; offered normally.
+    //   false     → a positive finding of danger; withheld, but counted so the
+    //               customer knows something existed rather than nothing.
+    //   undefined → nobody checked. Shown, because silently dropping it looks
+    //               identical to "no near match exists", but never as a
+    //               one-click green choice.
+    const allSubstitutes = rescue.options.filter((o) => o.kind === 'SUBSTITUTE')
+    const substitutes = allSubstitutes.filter((o) => o.allergen_safe === true)
+    const unverified = allSubstitutes.filter((o) => o.allergen_safe === undefined)
+    const withheldUnsafe = allSubstitutes.length - substitutes.length - unverified.length
     const others = rescue.options.filter((o) => o.kind !== 'SUBSTITUTE')
+
     const closed = rescue.status !== 'PROPOSED'
     const busy = Boolean(confirming)
 
@@ -90,6 +109,7 @@ export function RescuePanel({
                                 <li key={option.option_id}>
                                     <SubstituteOption
                                         option={option}
+                                        original={line.unit_price}
                                         pending={confirming === option.option_id}
                                         disabled={busy}
                                         onConfirm={onConfirm}
@@ -102,6 +122,42 @@ export function RescuePanel({
                             We could not find a replacement we are confident is safe for you,
                             so we are not offering one.
                         </p>
+                    )}
+
+                    {withheldUnsafe > 0 && (
+                        <p className="mt-3 text-sm text-neutral-600">
+                            {withheldUnsafe === 1
+                                ? 'One other replacement was not offered because it carries an allergen linked to this recall.'
+                                : `${withheldUnsafe} other replacements were not offered because they carry an allergen linked to this recall.`}
+                        </p>
+                    )}
+
+                    {unverified.length > 0 && (
+                        <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-4">
+                            <p className="text-sm font-semibold text-amber-900">
+                                Not checked for allergens
+                            </p>
+                            <p className="mt-1 text-sm text-amber-900">
+                                We could not verify{' '}
+                                {unverified.length === 1 ? 'this product' : 'these products'}{' '}
+                                against the allergen in this recall. We are not recommending
+                                {unverified.length === 1 ? ' it' : ' them'}. Choose only if you
+                                are confident it is safe for you.
+                            </p>
+                            <ul className="mt-3 space-y-3">
+                                {unverified.map((option) => (
+                                    <li key={option.option_id}>
+                                        <UnverifiedOption
+                                            option={option}
+                                            original={line.unit_price}
+                                            pending={confirming === option.option_id}
+                                            disabled={busy}
+                                            onConfirm={onConfirm}
+                                        />
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
                     )}
 
                     <ul className="mt-4 space-y-2 border-t border-neutral-100 pt-4">
@@ -143,13 +199,35 @@ export function RescuePanel({
     )
 }
 
+/**
+ * "same price" was hardcoded, so a dearer substitute displayed its own price
+ * next to a claim that it cost the same. Compare against the affected line.
+ */
+function priceNote(option: RescueOption, original?: Money): string {
+    if (!option.unit_price) return ''
+    const price = formatMoney(option.unit_price)
+    if (!original || original.currency !== option.unit_price.currency) return price
+
+    const diff = option.unit_price.amount_minor - original.amount_minor
+    if (diff === 0) return `${price} · same price`
+
+    const delta = formatMoney({
+        amount_minor: Math.abs(diff),
+        currency: option.unit_price.currency,
+    })
+    return `${price} · ${diff > 0 ? `${delta} more` : `${delta} less`}`
+}
+
+/** Only ever receives substitutes with allergen_safe === true. */
 function SubstituteOption({
     option,
+    original,
     pending,
     disabled,
     onConfirm,
 }: {
     option: RescueOption
+    original?: Money
     pending: boolean
     disabled: boolean
     onConfirm: (optionId: string) => void
@@ -160,19 +238,17 @@ function SubstituteOption({
                 <div>
                     <p className="font-medium text-neutral-900">{option.product_title}</p>
                     <p className="mt-0.5 text-sm text-neutral-700">
-                        {formatMoney(option.unit_price)} · same price
+                        {priceNote(option, original)}
                     </p>
                     <p className="mt-1 text-sm text-neutral-700">
                         {option.allergens && option.allergens.length > 0
                             ? `Contains: ${option.allergens.join(', ')}`
-                            : 'No allergens declared'}
+                            : 'No allergens found in this product’s data'}
                     </p>
-                    {option.allergen_safe && (
-                        <p className="mt-1 text-xs text-emerald-800">
-                            Checked against the recall hazard and against the allergens of your
-                            original item.
-                        </p>
-                    )}
+                    <p className="mt-1 text-xs text-emerald-800">
+                        Checked against the recall hazard and against the allergens of your
+                        original item.
+                    </p>
                 </div>
                 <button
                     type="button"
@@ -183,6 +259,43 @@ function SubstituteOption({
                     {pending ? 'Confirming…' : 'Send me this instead'}
                 </button>
             </div>
+        </div>
+    )
+}
+
+/**
+ * A substitute the service returned without an allergen verdict. Deliberately
+ * not styled as an endorsement, and the button does not read like the safe one.
+ */
+function UnverifiedOption({
+    option,
+    original,
+    pending,
+    disabled,
+    onConfirm,
+}: {
+    option: RescueOption
+    original?: Money
+    pending: boolean
+    disabled: boolean
+    onConfirm: (optionId: string) => void
+}) {
+    return (
+        <div className="rounded-lg border border-amber-300 bg-white p-4">
+            <p className="font-medium text-neutral-900">{option.product_title}</p>
+            <p className="mt-0.5 text-sm text-neutral-700">{priceNote(option, original)}</p>
+            <p className="mt-1 text-sm text-amber-900">
+                Allergen information for this product is unavailable. It has not been checked
+                against this recall.
+            </p>
+            <button
+                type="button"
+                disabled={disabled}
+                onClick={() => onConfirm(option.option_id)}
+                className="mt-3 rounded-lg border border-neutral-400 px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-50 disabled:opacity-50"
+            >
+                {pending ? 'Confirming…' : 'Send this anyway'}
+            </button>
         </div>
     )
 }
@@ -209,8 +322,8 @@ function Outcome({ rescue }: { rescue: Rescue }) {
                 {chosen?.kind === 'SUBSTITUTE'
                     ? `We are sending ${chosen.product_title} instead.`
                     : chosen?.kind === 'REFUND'
-                      ? 'We are refunding this item and leaving the rest of your order as it is.'
-                      : 'We are cancelling this order.'}
+                        ? 'We are refunding this item and leaving the rest of your order as it is.'
+                        : 'We are cancelling this order.'}
             </p>
             {confirmed && <p className="mt-1 text-neutral-600">Confirmed {confirmed}.</p>}
         </div>
