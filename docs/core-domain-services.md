@@ -40,8 +40,8 @@ and a rescued order.
   workstream and reach this layer as events, or through the client this layer consumes.
 - The storefront, the ops console, and the Open Food Facts integration layer. These are owned by the
   customer-facing workstream and consume the APIs specified in `contracts/openapi`.
-- The audit dossier service and infrastructure as code. These are follow-on work in this same layer
-  and are not part of this delivery.
+(The audit dossier service and infrastructure as code were follow-on work in this layer and have
+since landed; see [audit-proof-service](#audit-proof-service) and `infra/`.)
 
 ## System architecture
 
@@ -150,6 +150,7 @@ stateDiagram-v2
 | `resolution-service` | 8081 | Resolves recall text to GTIN and lot codes, scores confidence with evidence, answers the Verified Safe Lot query | `contracts/openapi/resolution-api.v1.yaml` |
 | `containment-service` | 8082 | Applies the auto-hold threshold, writes the inventory hold, serves the review queue and live threshold tuning | `contracts/openapi/containment-api.v1.yaml` |
 | `order-rescue-service` | 8083 | Finds affected in-flight orders, proposes same-price allergen-safe substitutes, applies a swap only after customer consent | `contracts/openapi/order-rescue-api.v1.yaml` |
+| `audit-proof-service` | 8084 | Hash-chains every event of an incident, timestamps the chain head, renders the dossier | `contracts/openapi/audit-api.v1.yaml` |
 
 ### resolution-service
 
@@ -177,6 +178,26 @@ carrying an affected lot and proposes options: substitutes at the identical pric
 profile is verified against Open Food Facts, plus a refund and a cancel option. Nothing is swapped
 until `rescue.order.confirmed.v1` is produced from an explicit customer confirmation carrying a valid
 consent token.
+
+### audit-proof-service
+
+Binds with `#` to every exchange that carries incident activity, because a dossier assembled from a
+subset is evidence of nothing. Each event is appended to a per-incident hash chain: a record's hash
+covers its position, identity, timestamp, producer and payload hash, plus its predecessor's hash, so
+altering, reordering, inserting or deleting a record breaks every hash after it and `Verify` names
+the first one that fails.
+
+Customer contact details are stripped before recording, and the dossier declares what it withheld.
+The hash is taken over the original payload, so redaction cannot be used to alter history undetected.
+
+The chain head is submitted to an RFC 3161 timestamp authority, which turns "internally consistent"
+into "existed by this date". If the authority is unreachable the dossier still generates and says on
+its face that it is unanchored, because an unreachable third party must not stop containment evidence
+from existing.
+
+A dossier is generated automatically when containment completes, and refreshed on read when the
+ledger has moved on since, so a document never omits the end of its own story. The timeline is
+ordered causally: earliest first, but never before the event that caused it.
 
 ## Shared libraries
 

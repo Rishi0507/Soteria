@@ -7,7 +7,8 @@
 // storefront can develop against live APIs. It is a demo harness, not a
 // deployment target: state is in memory and dies with the process.
 //
-// Ports: 8081 resolution, 8082 containment, 8083 order rescue, 8090 harness.
+// Ports: 8081 resolution, 8082 containment, 8083 order rescue, 8084 audit,
+// 8090 harness.
 //
 //	POST /demo/notice   inject a recall.raw.received.v1 message (flat ingestion shape)
 //	GET  /demo/state    inventory, events and rescues, for verification
@@ -33,6 +34,8 @@ import (
 	"soteria/libs/shopify/fake"
 	"soteria/libs/shopify/hold"
 
+	auditapi "soteria/services/audit-proof-service/api"
+	"soteria/services/audit-proof-service/audit"
 	containmentapi "soteria/services/containment-service/api"
 	"soteria/services/containment-service/containment"
 	rescueapi "soteria/services/order-rescue-service/api"
@@ -51,6 +54,7 @@ const (
 
 type harness struct {
 	bus       *bus.InMem
+	audit     *audit.Service
 	shop      *fake.Store
 	resolve   *resolver.Resolver
 	resStore  *resolver.Store
@@ -71,12 +75,14 @@ func main() {
 		serve(":8081", resolutionapi.New(h.resStore, nil).Routes(), "resolution-service", logger),
 		serve(":8082", containmentapi.New(h.contain, nil).Routes(), "containment-service", logger),
 		serve(":8083", rescueapi.New(h.rescue, nil).Routes(), "order-rescue-service", logger),
+		serve(":8084", auditapi.New(h.audit).Routes(), "audit-proof-service", logger),
 		serve(":8090", h.routes(), "demo-harness", logger),
 	}
 
 	logger.Info("Soteria demo running",
 		"resolution", "http://localhost:8081", "containment", "http://localhost:8082",
-		"rescue", "http://localhost:8083", "harness", "http://localhost:8090")
+		"rescue", "http://localhost:8083", "audit", "http://localhost:8084",
+		"harness", "http://localhost:8090")
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -116,14 +122,18 @@ func build(logger *slog.Logger) *harness {
 	ord := seedOrders()
 	resc := rescue.New(ord, seedSubstitutes(), seedAllergens(), b, consentKey, logger)
 
-	for _, register := range []func(bus.Consumer) error{res.Register, con.Register, resc.Register} {
+	// No timestamper in the demo: anchoring every run against a public authority
+	// would be rude to it, and the dossier says plainly when it is unanchored.
+	aud := audit.New(b, nil, logger)
+
+	for _, register := range []func(bus.Consumer) error{res.Register, con.Register, resc.Register, aud.Register} {
 		if err := register(b); err != nil {
 			logger.Error("cannot subscribe", "err", err)
 			os.Exit(1)
 		}
 	}
 	return &harness{
-		bus: b, shop: shop, resolve: res, resStore: resStore,
+		bus: b, shop: shop, resolve: res, resStore: resStore, audit: aud,
 		contain: con, rescue: resc, orders: ord, logger: logger, startedAt: time.Now(),
 	}
 }

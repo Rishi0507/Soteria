@@ -1,0 +1,202 @@
+openapi: 3.0.3
+info:
+  title: Soteria Audit and Proof API
+  version: 1.0.0
+  description: |
+    The incident dossier: what was recalled, what was held, when, on whose
+    authority, who was told, and proof that none of it was edited afterwards.
+
+    Every event of an incident is recorded in a hash chain. Each record's hash
+    covers its position, identity, timestamp, producer and payload, together with
+    the previous record's hash, so altering, reordering, inserting or removing
+    any record breaks every hash after it. The chain head is submitted to an
+    RFC 3161 timestamp authority, which anchors the content in time.
+
+    Customer contact details are stripped before recording and the dossier
+    declares what it withheld. Owner: audit-proof-service.
+servers:
+  - url: http://localhost:8084
+    description: local
+paths:
+  /healthz:
+    get:
+      operationId: auditHealth
+      responses:
+        "200": { description: ok, content: { application/json: { schema: { $ref: "#/components/schemas/Health" } } } }
+
+  /v1/dossiers:
+    get:
+      operationId: listDossiers
+      summary: Incidents recorded, most recently updated first
+      responses:
+        "200":
+          description: incidents
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required: [incident_id, has_dossier, event_count]
+                      properties:
+                        incident_id:  { type: string }
+                        has_dossier:  { type: boolean }
+                        event_count:  { type: integer }
+                        content_hash: { type: string }
+
+  /v1/dossiers/{incidentId}:
+    get:
+      operationId: getDossier
+      description: |
+        Returns the dossier as JSON. Append `.pdf` to the incident id to receive
+        the rendered document instead.
+      parameters: [ { name: incidentId, in: path, required: true, schema: { type: string } } ]
+      responses:
+        "200":
+          description: the dossier
+          content:
+            application/json: { schema: { $ref: "#/components/schemas/Dossier" } }
+            application/pdf:  { schema: { type: string, format: binary } }
+        "404": { $ref: "#/components/responses/NotFound" }
+    post:
+      operationId: generateDossier
+      summary: Generate (or regenerate) the dossier for an incident
+      description: |
+        Generation is automatic when containment completes. This endpoint is for
+        regenerating after later events, such as a customer answering.
+      parameters: [ { name: incidentId, in: path, required: true, schema: { type: string } } ]
+      responses:
+        "201": { description: generated, content: { application/json: { schema: { $ref: "#/components/schemas/Dossier" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/dossiers/{incidentId}/verify:
+    get:
+      operationId: verifyChain
+      summary: Recompute the hash chain
+      description: |
+        Answers "is this still intact?" without re-reading the document. A broken
+        chain returns 200 with `verified: false` and names the first bad record,
+        because an auditor needs the detail, not an error code.
+      parameters: [ { name: incidentId, in: path, required: true, schema: { type: string } } ]
+      responses:
+        "200":
+          description: verification result
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [incident_id, verified, events]
+                properties:
+                  incident_id:    { type: string }
+                  verified:       { type: boolean }
+                  events:         { type: integer }
+                  content_hash:   { type: string }
+                  hash_algorithm: { type: string }
+                  problem:        { type: string, description: present when verified is false }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/dossiers/{incidentId}/chain:
+    get:
+      operationId: getChain
+      summary: The raw hash chain
+      description: |
+        Hands over the records so a recipient can verify with their own code
+        rather than taking this service's word for it.
+      parameters: [ { name: incidentId, in: path, required: true, schema: { type: string } } ]
+      responses:
+        "200": { description: the chain, content: { application/json: { schema: { $ref: "#/components/schemas/Chain" } } } }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+components:
+  responses:
+    NotFound:
+      description: no such incident, or no dossier generated for it
+      content: { application/json: { schema: { $ref: "#/components/schemas/Error" } } }
+  schemas:
+    Health:
+      type: object
+      required: [status, service]
+      properties:
+        status:  { type: string, enum: [ok, degraded] }
+        service: { type: string }
+        bus:     { type: string, enum: [up, down] }
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:    { type: string }
+        message: { type: string }
+    Record:
+      type: object
+      required: [seq, event_id, event_type, occurred_at, payload_hash, prev_hash, record_hash]
+      properties:
+        seq:             { type: integer }
+        event_id:        { type: string }
+        event_type:      { type: string }
+        occurred_at:     { type: string, format: date-time }
+        recorded_at:     { type: string, format: date-time }
+        producer:        { type: string }
+        causation_id:    { type: string }
+        payload:         { type: object, description: redacted payload }
+        payload_hash:    { type: string, description: hash of the original, unredacted payload }
+        prev_hash:       { type: string }
+        record_hash:     { type: string }
+        redacted_fields: { type: array, items: { type: string } }
+    Chain:
+      type: object
+      required: [incident_id, records, head]
+      properties:
+        incident_id: { type: string }
+        head:        { type: string }
+        opened_at:   { type: string, format: date-time }
+        updated_at:  { type: string, format: date-time }
+        records:     { type: array, items: { $ref: "#/components/schemas/Record" } }
+    Summary:
+      type: object
+      properties:
+        hazard:              { type: string }
+        classification:      { type: string }
+        sources:             { type: array, items: { type: string } }
+        products:            { type: array, items: { type: string } }
+        lots_held:           { type: array, items: { type: string } }
+        scope:               { type: string, enum: [LOT, SKU] }
+        decision:            { type: string }
+        decided_by:          { type: string }
+        confidence:          { type: number }
+        threshold:           { type: number }
+        units_held:          { type: integer }
+        units_left_sellable: { type: integer }
+        customers_offered:   { type: integer }
+        customers_answered:  { type: integer }
+        notifications_sent:  { type: integer }
+        evasion_flags:       { type: integer }
+        redacted_fields:     { type: array, items: { type: string } }
+    TimelineEntry:
+      type: object
+      properties:
+        seq:    { type: integer }
+        at:     { type: string, format: date-time }
+        actor:  { type: string }
+        event:  { type: string }
+        detail: { type: string }
+    Dossier:
+      type: object
+      required: [dossier_id, incident_id, generated_at, content_hash, hash_algorithm, event_count]
+      properties:
+        dossier_id:      { type: string }
+        incident_id:     { type: string }
+        generated_at:    { type: string, format: date-time }
+        content_hash:    { type: string, description: the chain head }
+        hash_algorithm:  { type: string, enum: [sha256] }
+        timestamp_proof: { type: string, description: base64 RFC 3161 token over the chain head }
+        timestamp_note:  { type: string, description: why no proof is present, when it is absent }
+        event_count:     { type: integer }
+        opened_at:       { type: string, format: date-time }
+        closed_at:       { type: string, format: date-time }
+        summary:         { $ref: "#/components/schemas/Summary" }
+        timeline:        { type: array, items: { $ref: "#/components/schemas/TimelineEntry" } }
+        chain:           { type: array, items: { $ref: "#/components/schemas/Record" } }

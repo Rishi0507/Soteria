@@ -1,0 +1,111 @@
+# Soteria, whole system, one command:
+#
+#   cd infra && docker compose up -d
+#
+# The broker imports contracts/rabbitmq-topology.md as definitions.json on boot,
+# so the exchanges, queues, dead-letter pairs and bindings exist before any
+# service connects. Services still declare their own queues idempotently, which
+# means a service can be deployed without an infra change and the two
+# declarations must agree — infra/rabbitmq/topology_test.go checks exactly that.
+#
+# Everything runs against fixtures unless credentials are supplied. Nothing here
+# will touch a real store or send a real email without an explicit .env.
+name: soteria
+
+services:
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    container_name: soteria-rabbitmq
+    ports:
+      - "5672:5672"    # amqp
+      - "15672:15672"  # management UI; credentials from infra/.env
+    environment:
+      # Credentials come from infra/.env so none live in the repository. The
+      # fallbacks are development-only and documented as such; a deployment sets
+      # real values, and docs/security-review.md lists this as an open item.
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-soteria}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-change-me-locally}
+    volumes:
+      - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+      - ./rabbitmq/rabbitmq.conf:/etc/rabbitmq/conf.d/10-soteria.conf:ro
+      - rabbit-data:/var/lib/rabbitmq
+    healthcheck:
+      # The topology is imported at boot; waiting for "running" alone would let
+      # services connect before their bindings exist.
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "check_running", "&&", "rabbitmq-diagnostics", "-q", "check_local_alarms"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 20s
+
+  resolution-service:
+    build:
+      context: ..
+      dockerfile: services/resolution-service/Dockerfile
+    environment:
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-soteria}:${RABBITMQ_PASSWORD:-change-me-locally}@rabbitmq:5672/
+      CORS_ALLOWED_ORIGINS: http://localhost:5173
+      SHOPIFY_SHOP: ${SHOPIFY_SHOP:-}
+      SHOPIFY_ACCESS_TOKEN: ${SHOPIFY_ACCESS_TOKEN:-}
+      PORT: "8081"
+    ports: ["8081:8081"]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  containment-service:
+    build:
+      context: ..
+      dockerfile: services/containment-service/Dockerfile
+    environment:
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-soteria}:${RABBITMQ_PASSWORD:-change-me-locally}@rabbitmq:5672/
+      CORS_ALLOWED_ORIGINS: http://localhost:5173
+      SHOPIFY_SHOP: ${SHOPIFY_SHOP:-}
+      SHOPIFY_ACCESS_TOKEN: ${SHOPIFY_ACCESS_TOKEN:-}
+      QUARANTINE_LOCATION: ${QUARANTINE_LOCATION:-Quarantine}
+      AUTO_HOLD_THRESHOLD: ${AUTO_HOLD_THRESHOLD:-0.85}
+      SKU_SCOPE_THRESHOLD: ${SKU_SCOPE_THRESHOLD:-0.95}
+      PORT: "8082"
+    ports: ["8082:8082"]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  order-rescue-service:
+    build:
+      context: ..
+      dockerfile: services/order-rescue-service/Dockerfile
+    environment:
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-soteria}:${RABBITMQ_PASSWORD:-change-me-locally}@rabbitmq:5672/
+      CORS_ALLOWED_ORIGINS: http://localhost:5173
+      SHOPIFY_SHOP: ${SHOPIFY_SHOP:-}
+      SHOPIFY_ACCESS_TOKEN: ${SHOPIFY_ACCESS_TOKEN:-}
+      # Without this the service starts with a development secret and says so.
+      CONSENT_SECRET: ${CONSENT_SECRET:-}
+      PORT: "8083"
+    ports: ["8083:8083"]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+  audit-proof-service:
+    build:
+      context: ..
+      dockerfile: services/audit-proof-service/Dockerfile
+    environment:
+      RABBITMQ_URL: amqp://${RABBITMQ_USER:-soteria}:${RABBITMQ_PASSWORD:-change-me-locally}@rabbitmq:5672/
+      CORS_ALLOWED_ORIGINS: http://localhost:5173
+      TSA_URL: ${TSA_URL:-http://timestamp.digicert.com}
+      TSA_DISABLED: ${TSA_DISABLED:-}
+      PORT: "8084"
+    ports: ["8084:8084"]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  rabbit-data:
