@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 
 	core "soteria/libs/core/shopify"
@@ -205,9 +206,50 @@ func badge(productID, text string) shopify.Metafield {
 
 // find locates the variant by GTIN (barcode), falling back to SKU via the
 // catalog when the barcode is unknown to the store.
+// barcodeForms lists the equivalent ways one GTIN may be written in a store's
+// Barcode field.
+//
+// Barcode lookup is an exact string match, but a GTIN-14 ("00041196910537"), an
+// EAN-13 and the UPC-A printed on the pack ("041196910537") are the same
+// product. Callers normalize to GTIN-14 while merchants type the printed form,
+// so asking for only one spelling finds nothing and the hold silently falls
+// through to the SKU match, or fails outright when the SKU is blank.
+func barcodeForms(gtin string) []string {
+	digits := nonDigits.ReplaceAllString(gtin, "")
+	if digits == "" {
+		return []string{gtin}
+	}
+	seen := map[string]bool{}
+	var forms []string
+	add := func(v string) {
+		if v != "" && !seen[v] {
+			seen[v] = true
+			forms = append(forms, v)
+		}
+	}
+	add(gtin)
+	add(digits)
+	for _, width := range []int{14, 13, 12, 8} {
+		switch {
+		case len(digits) == width:
+		case len(digits) > width:
+			// Only leading zeros may be dropped: losing a significant digit would
+			// name a different product.
+			if strings.Trim(digits[:len(digits)-width], "0") == "" {
+				add(digits[len(digits)-width:])
+			}
+		default:
+			add(strings.Repeat("0", width-len(digits)) + digits)
+		}
+	}
+	return forms
+}
+
+var nonDigits = regexp.MustCompile(`\D`)
+
 func (a *Adapter) find(ctx context.Context, req core.HoldRequest) (shopify.Variant, error) {
 	if req.GTIN != "" {
-		vs, err := a.API.VariantsByBarcode(ctx, []string{req.GTIN})
+		vs, err := a.API.VariantsByBarcode(ctx, barcodeForms(req.GTIN))
 		if err != nil {
 			return shopify.Variant{}, err
 		}
