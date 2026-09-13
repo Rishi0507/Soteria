@@ -33,5 +33,5 @@ cd services/ingestion-rasff && go run ./cmd --once --dry-run
 
 ## Open items on my side
 
-- `usda_fsis` field names need one verification from a US network (the site 403s from here). **Deploy `ingestion-usda` in a US region** (or behind a US egress proxy); it will 403 elsewhere.
+- `usda_fsis`: verified live (2026-09-13) — the connector sends a browser-shaped header set the Akamai edge accepts; if that fingerprint rots, set `FSIS_USER_AGENT` or `FSIS_BASE_URL` (proxy).
 - `eu_rasff` runs on exported files; a portal-backend adapter is documented but unimplemented.
