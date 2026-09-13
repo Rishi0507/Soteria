@@ -8,7 +8,7 @@
 //
 //	GROQ_API_KEY        Groq free tier (console.groq.com). Without it the
 //	                    service only serves cache hits and --replay of recordings.
-//	GROQ_MODEL          default llama-3.3-70b-versatile
+//	GROQ_MODEL          default openai/gpt-oss-120b
 //	RABBITMQ_URL        amqp URL; empty runs on the in-process bus (use --replay/--text)
 //	CACHE_PATH          SQLite response cache (default data/extract-cache.db)
 //	PORT                HTTP port (default 8086): /healthz /metrics POST /v1/extract

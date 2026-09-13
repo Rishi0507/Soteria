@@ -87,9 +87,11 @@ func (e Extraction) AllLots() []string {
 // ---- validation ----------------------------------------------------------------
 
 var (
-	// A run of 8–14 digits possibly broken by single spaces or hyphens, as
-	// agencies print UPCs ("0 11110-60902 1", "1 94346474004", "41415-12153").
-	digitRun = regexp.MustCompile(`(?:\d[ -]?){7,13}\d`)
+	// A run of 12–14 digits possibly broken by single spaces or hyphens, as
+	// agencies print UPCs ("0 11110-60902 1", "1 94346474004"). GTIN-8 is
+	// deliberately excluded: 8-digit dates (20260811) and lot numbers pass the
+	// check digit one time in ten and would be reported as products.
+	digitRun = regexp.MustCompile(`(?:\d[ -]?){11,13}\d`)
 	nonDigit = regexp.MustCompile(`\D`)
 	wsRun    = regexp.MustCompile(`\s+`)
 	stateRe  = regexp.MustCompile(`^[A-Z]{2}$`)
@@ -133,12 +135,15 @@ func Validate(e *Extraction, text string) *Extraction {
 		for _, raw := range p.UPCs {
 			digits := nonDigit.ReplaceAllString(raw, "")
 			present := textDigits[digits] || textDigits[strings.TrimLeft(digits, "0")]
-			gtin := matching.NormalizeGTIN(digits)
+			gtin := ""
+			if len(digits) >= 12 && len(digits) <= 14 {
+				gtin = matching.NormalizeGTIN(digits)
+			}
 			switch {
+			case len(digits) < 12 || len(digits) > 14:
+				corrections = append(corrections, "dropped upc "+strings.TrimSpace(raw)+": "+strconv.Itoa(len(digits))+" digits is not a GTIN")
 			case !present && (gtin == "" || !textDigits[gtin]):
 				corrections = append(corrections, "dropped upc "+strings.TrimSpace(raw)+": not present in notice text")
-			case gtin == "" && (len(digits) < 12 || len(digits) > 14):
-				corrections = append(corrections, "dropped upc "+strings.TrimSpace(raw)+": "+strconv.Itoa(len(digits))+" digits is not a GTIN")
 			case gtin == "":
 				if !seenUPC[digits] {
 					upcs = append(upcs, digits)
@@ -174,8 +179,12 @@ func Validate(e *Extraction, text string) *Extraction {
 
 	// Regex safety net: valid GTINs in the text the model did not return.
 	missed := []string{}
-	for run := range textDigits {
-		if gtin := matching.NormalizeGTIN(run); gtin != "" && !seenUPC[gtin] && len(run) >= 12 {
+	for _, m := range digitRun.FindAllString(text, -1) {
+		run := nonDigit.ReplaceAllString(m, "")
+		if len(run) < 12 || len(run) > 14 {
+			continue
+		}
+		if gtin := matching.NormalizeGTIN(run); gtin != "" && !seenUPC[gtin] {
 			missed = append(missed, gtin)
 			seenUPC[gtin] = true
 		}

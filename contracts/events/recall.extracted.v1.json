@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://soteria.dev/contracts/events/recall.extracted.v1.json",
+  "title": "recall.extracted.v1",
+  "description": "Structured, validated reading of one raw recall notice, produced by recall-extractor (LLM + deterministic guardrail). Consumer: resolution-service, which should prefer these fields over re-parsing raw text. Every UPC and lot code is guaranteed to appear in `text`; UPCs are check-digit-valid GTIN-14 unless listed in corrections as 'kept verbatim'. Wrapped in _envelope.v1.json; correlation_id = '<source>:<source_id>', causation_id = the raw event. Exchange ingestion.x, routing key ingestion.recall.extracted.v1.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source", "source_id", "raw_event_id", "title", "text", "products", "hazard", "distribution", "confidence", "model", "extracted_at"],
+  "properties": {
+    "source":       { "type": "string", "enum": ["fda_enforcement", "fda_press", "usda_fsis", "eu_rasff"] },
+    "source_id":    { "type": "string", "minLength": 1 },
+    "raw_event_id": { "type": "string", "description": "event_id of the recall.raw.received.v1 event this was extracted from" },
+    "source_url":   { "type": "string" },
+    "title":        { "type": "string" },
+    "text":         { "type": "string", "description": "The exact notice text the model read (labelled sections). Auditors and consumers can verify every identifier against it." },
+    "firm":         { "type": "string" },
+    "brand":        { "type": "string", "description": "Consumer-facing brand on the package (may be a retailer private label), not the recalling firm." },
+    "products": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name"],
+        "properties": {
+          "name":      { "type": "string" },
+          "brand":     { "type": "string" },
+          "sizes":     { "type": "array", "items": { "type": "string" } },
+          "upcs":      { "type": "array", "items": { "type": "string", "pattern": "^[0-9]{12,14}$" }, "description": "GTIN-14 (zero-padded) when check-digit valid; otherwise the verbatim 12–14 digits, flagged in corrections" },
+          "lot_codes": { "type": "array", "items": { "type": "string", "minLength": 1 }, "description": "verbatim from the notice" },
+          "best_by":   { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "hazard": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type":      { "type": "string", "enum": ["pathogen", "undeclared_allergen", "foreign_material", "chemical", "mislabeling", "other"] },
+        "agent":     { "type": "string", "description": "organism / allergen / object, e.g. 'Listeria monocytogenes', 'peanut', 'glass pieces'" },
+        "allergens": { "type": "array", "items": { "type": "string" }, "description": "canonical lowercase names: milk, egg, peanut, tree nuts, soy, wheat, fish, shellfish, sesame, sulfites, mustard, celery, lupin, molluscs" }
+      }
+    },
+    "classification": { "type": "string", "description": "agency label verbatim" },
+    "distribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "nationwide": { "type": "boolean" },
+        "states":     { "type": "array", "items": { "type": "string", "pattern": "^[A-Z]{2}$" } },
+        "countries":  { "type": "array", "items": { "type": "string" } },
+        "retailers":  { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "confidence":   { "type": "number", "minimum": 0, "maximum": 1, "description": "model self-assessment, penalised by the validator for every dropped identifier; 0 products caps it at 0.3" },
+    "evidence":     { "type": "array", "items": { "type": "string" }, "description": "short verbatim quotes supporting the key fields" },
+    "notes":        { "type": "string" },
+    "model":        { "type": "string", "description": "e.g. groq/openai/gpt-oss-120b" },
+    "extracted_at": { "type": "string", "format": "date-time" },
+    "corrections":  { "type": "array", "items": { "type": "string" }, "description": "what the guardrail changed and why (dropped/kept/added identifiers, normalised fields)" }
+  }
+}

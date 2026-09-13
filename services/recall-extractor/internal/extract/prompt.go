@@ -14,13 +14,18 @@ Rules:
    Copy identifiers verbatim (keep spaces/hyphens as printed; the caller normalizes them).
 2. One entry in "products" per distinct product line (a different flavour, size, or pack is a separate line
    when it has its own UPC or lot). If the notice lists many UPCs without names, create one product per UPC
-   and use the closest description as the name.
+   and use the closest description as the name. "brand" (top-level and per product) is the consumer-facing
+   name printed on the package — often a retailer private label such as "Kroger", "Brookshire's", "Publix",
+   "Marketside" — and can differ per product. It is NOT the recalling firm, packer, or distributor; if the
+   notice names no brand, use the product line name, never the firm.
 3. "upcs": every UPC/EAN/GTIN printed for that product (retail AND case codes). A number is a UPC only if the
    notice calls it UPC/EAN/GTIN/bar code or it is clearly a 12-13 digit product code. Item numbers, product
    numbers, plant numbers, phone numbers and zip codes are NOT UPCs.
 4. "lot_codes": lot / batch / production codes, plant or establishment codes and code prefixes that identify
-   affected units (e.g. "LB028ACP04", "P-1950", "LLA617603", "Selec1011"). Dates alone are NOT lot codes;
-   put date ranges and best-by / use-by / sell-by text in "best_by".
+   affected units (e.g. "LB028ACP04", "P-1950", "LLA617603", "Selec1011"). For USDA FSIS notices the
+   establishment number printed inside the USDA mark of inspection (e.g. "EST. 12612", "P-45733") identifies
+   the affected units: include it verbatim in lot_codes. Dates alone are NOT lot codes; put date ranges and
+   best-by / use-by / sell-by text in "best_by".
 5. "hazard.type" is one of: pathogen, undeclared_allergen, foreign_material, chemical, mislabeling, other.
    "hazard.agent" names the organism, allergen, or object (e.g. "Listeria monocytogenes", "peanut", "glass pieces").
    "hazard.allergens" lists the undeclared allergens using these names when applicable:
