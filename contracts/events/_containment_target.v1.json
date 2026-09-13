@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://soteria.dev/contracts/events/_containment_target.v1.json",
+  "title": "ContainmentTarget.v1",
+  "type": "object",
+  "required": ["gtin", "scope"],
+  "additionalProperties": false,
+  "properties": {
+    "gtin":          { "type": "string" },
+    "sku":           { "type": "string" },
+    "product_title": { "type": "string" },
+    "scope":         { "type": "string", "enum": ["LOT", "SKU"] },
+    "lot_codes":     { "type": "array", "items": { "type": "string" }, "description": "required when scope=LOT; the ONLY inventory that may be held" },
+    "confidence":    { "type": "number", "minimum": 0, "maximum": 1 }
+  }
+}

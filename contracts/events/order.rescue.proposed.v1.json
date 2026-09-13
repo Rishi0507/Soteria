@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://soteria.dev/contracts/events/order.rescue.proposed.v1.json",
+  "title": "order.rescue.proposed.v1",
+  "description": "An in-flight order contains an affected lot; a same-price, allergen-safe substitute is offered. NEVER auto-swapped. Producer: order-rescue-service. Consumers: notification-service, storefront, audit-proof-service.",
+  "type": "object",
+  "required": ["incident_id", "rescue_id", "order_id", "customer", "proposed_at", "expires_at", "affected_line", "options"],
+  "additionalProperties": false,
+  "properties": {
+    "incident_id": { "type": "string" },
+    "rescue_id":   { "type": "string", "format": "uuid" },
+    "order_id":    { "type": "string" },
+    "proposed_at": { "type": "string", "format": "date-time" },
+    "expires_at":  { "type": "string", "format": "date-time" },
+    "hazard":      { "type": "string" },
+    "customer": {
+      "type": "object",
+      "required": ["customer_id"],
+      "additionalProperties": false,
+      "properties": {
+        "customer_id": { "type": "string" },
+        "email":       { "type": "string", "description": "PII - notification-service only; must not be persisted in the audit dossier in cleartext" },
+        "phone":       { "type": "string", "description": "PII - see email" },
+        "locale":      { "type": "string" }
+      }
+    },
+    "affected_line": {
+      "type": "object",
+      "required": ["line_item_id", "gtin", "lot_code", "quantity", "unit_price"],
+      "additionalProperties": false,
+      "properties": {
+        "line_item_id": { "type": "string" },
+        "gtin":         { "type": "string" },
+        "sku":          { "type": "string" },
+        "product_title":{ "type": "string" },
+        "lot_code":     { "type": "string" },
+        "quantity":     { "type": "integer", "minimum": 1 },
+        "unit_price":   { "$ref": "#/definitions/money" }
+      }
+    },
+    "options": {
+      "type": "array",
+      "description": "ordered best-first; always includes a CANCEL/refund option so the customer is never cornered",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["option_id", "kind"],
+        "additionalProperties": false,
+        "properties": {
+          "option_id":     { "type": "string" },
+          "kind":          { "type": "string", "enum": ["SUBSTITUTE", "REFUND", "CANCEL"] },
+          "gtin":          { "type": "string" },
+          "sku":           { "type": "string" },
+          "product_title": { "type": "string" },
+          "unit_price":    { "$ref": "#/definitions/money" },
+          "allergen_safe": { "type": "boolean", "description": "true only when Open Food Facts allergen data for the substitute is a subset of the original AND excludes the recall hazard" },
+          "allergens":     { "type": "array", "items": { "type": "string" } },
+          "rationale":     { "type": "string" }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "money": {
+      "type": "object",
+      "required": ["amount_minor", "currency"],
+      "additionalProperties": false,
+      "properties": {
+        "amount_minor": { "type": "integer", "description": "minor units, e.g. cents" },
+        "currency":     { "type": "string", "minLength": 3, "maxLength": 3 }
+      }
+    }
+  }
+}
