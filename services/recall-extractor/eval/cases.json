@@ -2,10 +2,10 @@
  {
   "id": "H-1230-2026",
   "raw": {
-   "event_id": "c4976126-49df-4a85-a3c4-52e751344718",
+   "event_id": "b5fc4d56-4695-4440-8011-2c55413d5f08",
    "event_type": "recall.raw.received",
    "version": 1,
-   "occurred_at": "2026-09-12T19:34:28.162885+00:00",
+   "occurred_at": "2026-09-13T14:33:25.173343+00:00",
    "producer": "ingestion-fda",
    "source": "fda_enforcement",
    "source_id": "H-1230-2026",
@@ -107,10 +107,10 @@
  {
   "id": "H-1160-2026",
   "raw": {
-   "event_id": "c001c8d5-ae58-47bb-815c-5c3b80f509ac",
+   "event_id": "2dd75a27-45bf-4d7f-9460-71034d285257",
    "event_type": "recall.raw.received",
    "version": 1,
-   "occurred_at": "2026-09-12T19:34:28.162885+00:00",
+   "occurred_at": "2026-09-13T14:33:25.173343+00:00",
    "producer": "ingestion-fda",
    "source": "fda_enforcement",
    "source_id": "H-1160-2026",
@@ -178,7 +178,9 @@
     "00710594511560",
     "00710594511829",
     "00710594511836",
+    "00710594511843",
     "00710594511850",
+    "00710594511867",
     "00827912008449",
     "00827912008456",
     "00827912008487",
@@ -192,10 +194,10 @@
  {
   "id": "H-1271-2026",
   "raw": {
-   "event_id": "aec21224-fd01-44df-b9e5-00d65cbb9ace",
+   "event_id": "7b9b7a5e-3717-406b-af50-e1e6e79a6823",
    "event_type": "recall.raw.received",
    "version": 1,
-   "occurred_at": "2026-09-12T19:34:28.162885+00:00",
+   "occurred_at": "2026-09-13T14:33:25.173343+00:00",
    "producer": "ingestion-fda",
    "source": "fda_enforcement",
    "source_id": "H-1271-2026",
@@ -247,7 +249,14 @@
     "NV",
     "NM",
     "CA",
-    "OK"
+    "OK",
+    "TX",
+    "PA",
+    "OH",
+    "NC",
+    "NY",
+    "GA",
+    "AR"
    ],
    "brand_any": [
     "marketside"
@@ -261,10 +270,10 @@
  {
   "id": "H-1219-2026",
   "raw": {
-   "event_id": "22446ca3-292c-4fed-80a3-67c0a4525fcf",
+   "event_id": "e4d8a621-21a2-41ac-a389-2b3eb640cb36",
    "event_type": "recall.raw.received",
    "version": 1,
-   "occurred_at": "2026-09-12T19:34:28.162885+00:00",
+   "occurred_at": "2026-09-13T14:33:25.173343+00:00",
    "producer": "ingestion-fda",
    "source": "fda_enforcement",
    "source_id": "H-1219-2026",
@@ -328,10 +337,10 @@
  {
   "id": "H-1262-2026",
   "raw": {
-   "event_id": "a244989b-6573-4965-b28b-99952fca8cc4",
+   "event_id": "be56ef75-c3a3-437c-ba60-c2cfa2fbb790",
    "event_type": "recall.raw.received",
    "version": 1,
-   "occurred_at": "2026-09-12T19:34:28.162885+00:00",
+   "occurred_at": "2026-09-13T14:33:25.173343+00:00",
    "producer": "ingestion-fda",
    "source": "fda_enforcement",
    "source_id": "H-1262-2026",
@@ -399,10 +408,10 @@
  {
   "id": "H-1273-2026",
   "raw": {
-   "event_id": "1a9bfaf7-9ac2-471b-808b-26b556be7e11",
+   "event_id": "83ea2e4c-b029-4113-a52f-7887807f9f71",
    "event_type": "recall.raw.received",
    "version": 1,
-   "occurred_at": "2026-09-12T19:34:28.162885+00:00",
+   "occurred_at": "2026-09-13T14:33:25.173343+00:00",
    "producer": "ingestion-fda",
    "source": "fda_enforcement",
    "source_id": "H-1273-2026",
@@ -484,10 +493,10 @@
  {
   "id": "H-1259-2026",
   "raw": {
-   "event_id": "3d665cce-2c35-4227-9cac-a688edd95d93",
+   "event_id": "eff67d86-c2bf-4b82-bb96-720df5ca2e0d",
    "event_type": "recall.raw.received",
    "version": 1,
-   "occurred_at": "2026-09-12T19:34:28.162885+00:00",
+   "occurred_at": "2026-09-13T14:33:25.173343+00:00",
    "producer": "ingestion-fda",
    "source": "fda_enforcement",
    "source_id": "H-1259-2026",
@@ -559,10 +568,10 @@
  {
   "id": "H-1265-2026",
   "raw": {
-   "event_id": "db6d4143-6652-4ba9-bf39-9b6a4abac389",
+   "event_id": "f015bca5-9cf8-4a15-b57a-30163c6a5389",
    "event_type": "recall.raw.received",
    "version": 1,
-   "occurred_at": "2026-09-12T19:34:28.162885+00:00",
+   "occurred_at": "2026-09-13T14:33:25.173343+00:00",
    "producer": "ingestion-fda",
    "source": "fda_enforcement",
    "source_id": "H-1265-2026",
@@ -673,10 +682,10 @@
  {
   "id": "H-1241-2026",
   "raw": {
-   "event_id": "24510e36-1bf8-4802-b772-2e4016ce0d9d",
+   "event_id": "6efd8ad8-323b-4668-a9df-6a6ae5e0fe92",
    "event_type": "recall.raw.received",
    "version": 1,
-   "occurred_at": "2026-09-12T19:34:28.162885+00:00",
+   "occurred_at": "2026-09-13T14:33:25.173343+00:00",
    "producer": "ingestion-fda",
    "source": "fda_enforcement",
    "source_id": "H-1241-2026",
@@ -746,10 +755,10 @@
  {
   "id": "H-1258-2026",
   "raw": {
-   "event_id": "954d8831-8181-4cc4-81d1-c068e07d399a",
+   "event_id": "2c1b312c-99c1-4eef-af54-81dfdab4a819",
    "event_type": "recall.raw.received",
    "version": 1,
-   "occurred_at": "2026-09-12T19:34:28.162885+00:00",
+   "occurred_at": "2026-09-13T14:33:25.173343+00:00",
    "producer": "ingestion-fda",
    "source": "fda_enforcement",
    "source_id": "H-1258-2026",
@@ -824,10 +833,10 @@
  {
   "id": "H-1137-2026",
   "raw": {
-   "event_id": "acccb339-1837-4609-a518-e098c6dc96b7",
+   "event_id": "85796980-5950-4a18-be24-d7acef04fae9",
    "event_type": "recall.raw.received",
    "version": 1,
-   "occurred_at": "2026-09-12T19:34:28.162885+00:00",
+   "occurred_at": "2026-09-13T14:33:25.173343+00:00",
    "producer": "ingestion-fda",
    "source": "fda_enforcement",
    "source_id": "H-1137-2026",
@@ -880,7 +889,6 @@
    ],
    "note": "infant formula, nationwide, botulinum; lots unlabelled (any verbatim lot accepted)",
    "upcs": [
-    "00000070926019",
     "00860013251901",
     "00860013251918"
    ]
@@ -889,10 +897,10 @@
  {
   "id": "H-1095-2026",
   "raw": {
-   "event_id": "fc8d800e-2135-4a4d-80da-442b8532c480",
+   "event_id": "9d274f17-7b26-4221-9447-c460f8a5d414",
    "event_type": "recall.raw.received",
    "version": 1,
-   "occurred_at": "2026-09-12T19:34:28.162885+00:00",
+   "occurred_at": "2026-09-13T14:33:25.173343+00:00",
    "producer": "ingestion-fda",
    "source": "fda_enforcement",
    "source_id": "H-1095-2026",
@@ -954,10 +962,10 @@
  {
   "id": "press-cabricharme",
   "raw": {
-   "event_id": "0a0c43aa-1f3f-4ca5-9a1a-0bd961f76f70",
+   "event_id": "a136e1c9-4b05-4f95-97fa-8e249f507b5a",
    "event_type": "recall.raw.received",
    "version": 1,
-   "occurred_at": "2026-09-12T19:34:28.162885+00:00",
+   "occurred_at": "2026-09-13T14:33:25.173343+00:00",
    "producer": "ingestion-fda",
    "source": "fda_press",
    "source_id": "http://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/whole-foods-market-issues-allergy-alert-undeclared-egg-cabricharme-cheese",
@@ -1002,10 +1010,10 @@
  {
   "id": "press-sprouts",
   "raw": {
-   "event_id": "bc18d699-d2ac-4388-9305-33821b97a9a2",
+   "event_id": "8a5cd178-3aa6-4df6-89f3-095100be77c2",
    "event_type": "recall.raw.received",
    "version": 1,
-   "occurred_at": "2026-09-12T19:34:28.162885+00:00",
+   "occurred_at": "2026-09-13T14:33:25.173343+00:00",
    "producer": "ingestion-fda",
    "source": "fda_press",
    "source_id": "http://www.fda.gov/safety/recalls-market-withdrawals-safety-alerts/evergreen-fresh-sprouts-llc-recalls-broccoli-sprouts-because-possible-health-risk",
@@ -1046,10 +1054,10 @@
  {
   "id": "031-2024",
   "raw": {
-   "event_id": "011f5818-9e28-41d0-9bc7-9f5d65d79090",
+   "event_id": "2260b15d-abec-40b3-8fd9-731bbbfbdd7b",
    "event_type": "recall.raw.received",
    "version": 1,
-   "occurred_at": "2026-09-12T19:34:28.162885+00:00",
+   "occurred_at": "2026-09-13T14:33:25.173343+00:00",
    "producer": "ingestion-usda",
    "source": "usda_fsis",
    "source_id": "031-2024",
@@ -1118,10 +1126,10 @@
  {
   "id": "2026.5412",
   "raw": {
-   "event_id": "30b4255e-42b5-4cde-95ac-7d882508d47c",
+   "event_id": "5fe74549-013b-44f2-9dfc-f74d0359a9ef",
    "event_type": "recall.raw.received",
    "version": 1,
-   "occurred_at": "2026-09-12T19:34:28.173728+00:00",
+   "occurred_at": "2026-09-13T14:33:25.173343+00:00",
    "producer": "ingestion-rasff",
    "source": "eu_rasff",
    "source_id": "2026.5412",

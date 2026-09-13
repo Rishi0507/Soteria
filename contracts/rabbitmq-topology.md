@@ -82,6 +82,7 @@ Each queue also has a `<queue>.dlq` bound to its owning context's dead-letter ex
 |---|---|---|---|
 | `ingestion.recall.raw.received.v1` | [`events/recall.raw.received.v1.json`](events/recall.raw.received.v1.json) | `ingestion-fda`, `ingestion-usda`, `ingestion-rasff` | live |
 | `ingestion.catalog.sku.vanished.v1` | [`events/catalog.sku.vanished.v1.json`](events/catalog.sku.vanished.v1.json) | `ingestion-silent-diff` | live (envelope-wrapped) |
+| `ingestion.recall.extracted.v1` | [`events/recall.extracted.v1.json`](events/recall.extracted.v1.json) | `recall-extractor` | live — LLM-extracted, guardrail-validated reading of every raw notice; proposed consumer: resolution-service (bind `resolution.recall-raw` to it) |
 | `resolution.lot.resolved.v1` | [`events/lot.resolved.v1.json`](events/lot.resolved.v1.json) | `resolution-service` | live |
 | `containment.action.proposed.v1` | [`events/containment.action.proposed.v1.json`](events/containment.action.proposed.v1.json) | `containment-service` | live |
 | `containment.action.taken.v1` | [`events/containment.action.taken.v1.json`](events/containment.action.taken.v1.json) | `containment-service` | live |
@@ -119,6 +120,7 @@ Message properties on every publish: `content_type=application/json`, `delivery_
 | `rescue.containment-taken` | order-rescue-service | `containment.x` | `containment.action.taken.v1` |
 | `rescue.confirmations` | order-rescue-service | `rescue.x` | `rescue.order.confirmed.v1` |
 | `audit.ledger` | audit-proof-service | `resolution.x`, `containment.x`, `rescue.x`, `evasion.x`, `notification.x` | `#` on each; the audit service records everything, including delivery receipts, so a dossier can show the customer was told |
+| `extractor.recall-raw` | recall-extractor | `ingestion.x` | `ingestion.recall.raw.received.*` |
 | `notification.outbound` | notification-service | `containment.x`, `rescue.x`, `evasion.x` | `containment.action.taken.v1`, `rescue.order.proposed.v1`, `evasion.flagged.v1` |
 | `storefront.projection` | storefront backend | `resolution.x`, `containment.x` | `resolution.lot.resolved.v1`, `containment.action.taken.v1` |
 | `ops.review` | ops console backend | `containment.x`, `audit.x` | `containment.action.proposed.v1`, `audit.dossier.generated.v1` |
