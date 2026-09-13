@@ -1,0 +1,124 @@
+{
+ "listings": [
+  {
+   "listing_id": "liq-1001",
+   "marketplace": "liquidation-mock",
+   "url": "https://liquidation.example/l/1001",
+   "title": "bettergoods Pistachio Nut Butter 6.7oz - 24 jars - short dated",
+   "description": "Case of 24. Lot LB028ACP04, best by Jan 2027. Sealed, warehouse overstock. Quick sale.",
+   "seller": "bulkfoodsdeals",
+   "price": "39.00",
+   "posted_at": "2026-09-05T14:00:00Z",
+   "image_text": "",
+   "barcode": ""
+  },
+  {
+   "listing_id": "liq-1002",
+   "marketplace": "liquidation-mock",
+   "url": "https://liquidation.example/l/1002",
+   "title": "Pistachio nut butter jars, 6.7 oz, 12 pack",
+   "description": "Great value. UPC 194346207961. Ships fast.",
+   "seller": "resellco",
+   "price": "22.50",
+   "posted_at": "2026-09-09T09:30:00Z",
+   "image_text": "",
+   "barcode": "194346207961"
+  },
+  {
+   "listing_id": "liq-1003",
+   "marketplace": "liquidation-mock",
+   "url": "https://liquidation.example/l/1003",
+   "title": "bettergoods Almond Butter 6.7oz - 24 jars",
+   "description": "Case of 24, best by Mar 2027. Not the pistachio one.",
+   "seller": "bulkfoodsdeals",
+   "price": "41.00",
+   "posted_at": "2026-09-06T10:00:00Z",
+   "image_text": "",
+   "barcode": ""
+  },
+  {
+   "listing_id": "liq-1004",
+   "marketplace": "liquidation-mock",
+   "url": "https://liquidation.example/l/1004",
+   "title": "Outshine Fruit Bars Watermelon 6ct frozen - 40 cases",
+   "description": "Frozen, pickup only. Best before 31 JUL 2027.",
+   "seller": "coldchainliquidators",
+   "price": "120.00",
+   "posted_at": "2026-09-10T16:00:00Z",
+   "image_text": "OUTSHINE WATERMELON 6 BARS LLA618203 31 JUL 2027",
+   "barcode": ""
+  },
+  {
+   "listing_id": "liq-1005",
+   "marketplace": "liquidation-mock",
+   "url": "https://liquidation.example/l/1005",
+   "title": "Outshine Fruit Bars Watermelon 6ct - 10 cases",
+   "description": "Older stock, best before 30 APR 2027.",
+   "seller": "frozenoutlet",
+   "price": "30.00",
+   "posted_at": "2026-07-15T12:00:00Z",
+   "image_text": "",
+   "barcode": ""
+  },
+  {
+   "listing_id": "liq-1006",
+   "marketplace": "liquidation-mock",
+   "url": "https://liquidation.example/l/1006",
+   "title": "Sun Noodle Sura Tanmen Hot & Sour ramen kits, 12 per case",
+   "description": "3 cases available. Production lot 1226183.",
+   "seller": "islandsurplus",
+   "price": "48.00",
+   "posted_at": "2026-09-11T08:00:00Z",
+   "image_text": "",
+   "barcode": ""
+  },
+  {
+   "listing_id": "liq-1007",
+   "marketplace": "liquidation-mock",
+   "url": "https://liquidation.example/l/1007",
+   "title": "Sun Noodle Tonkotsu ramen kit 2-pack",
+   "description": "Fresh noodles, regular stock.",
+   "seller": "islandsurplus",
+   "price": "9.00",
+   "posted_at": "2026-09-11T08:05:00Z",
+   "image_text": "",
+   "barcode": ""
+  },
+  {
+   "listing_id": "liq-1008",
+   "marketplace": "liquidation-mock",
+   "url": "https://liquidation.example/l/1008",
+   "title": "Assorted granola bars variety pack",
+   "description": "Mixed brands, 48 count.",
+   "seller": "snackdepot",
+   "price": "25.00",
+   "posted_at": "2026-09-08T11:00:00Z",
+   "image_text": "",
+   "barcode": ""
+  },
+  {
+   "listing_id": "liq-1009",
+   "marketplace": "liquidation-mock",
+   "url": "https://liquidation.example/l/1009",
+   "title": "bettergoods Pistachio Nut Butter 6.7 oz x 6 jars",
+   "description": "Six jars, exp January 28, 2027. Bought from a store clearance, sealed.",
+   "seller": "garagedeals",
+   "price": "11.00",
+   "posted_at": "2026-09-11T19:00:00Z",
+   "image_text": "",
+   "barcode": ""
+  },
+  {
+   "listing_id": "liq-1010",
+   "marketplace": "liquidation-mock",
+   "url": "https://liquidation.example/l/1010",
+   "title": "bettergoods Pistachio Nut Butter 6.7 oz - 2 jars",
+   "description": "Best by August 2027. New lot, not affected by the recall.",
+   "seller": "pantryflip",
+   "price": "7.00",
+   "posted_at": "2026-09-12T10:00:00Z",
+   "image_text": "",
+   "barcode": ""
+  }
+ ]
+}

@@ -23,10 +23,15 @@ const DefaultURL = "https://www.fda.gov/about-fda/contact-fda/stay-informed/rss-
 type Source struct {
 	Client *httpx.Client
 	URL    string
+	// FetchArticles fetches each item's press-release page so the event
+	// carries the full announcement (UPCs, lots, states) instead of the
+	// 300-character RSS blurb. On by default.
+	FetchArticles bool
+	cache         articleCache
 }
 
 // New returns a source with defaults.
-func New(c *httpx.Client) *Source { return &Source{Client: c, URL: DefaultURL} }
+func New(c *httpx.Client) *Source { return &Source{Client: c, URL: DefaultURL, FetchArticles: true} }
 
 func (s *Source) Name() string { return source.FDAPress }
 
@@ -52,7 +57,14 @@ func (s *Source) Fetch(ctx context.Context, since time.Time) ([]source.Item, err
 	if err != nil {
 		return nil, err
 	}
-	return Parse(body, since)
+	items, err := Parse(body, since)
+	if err != nil {
+		return nil, err
+	}
+	if s.FetchArticles {
+		s.enrich(ctx, items)
+	}
+	return items, nil
 }
 
 // Parse decodes an RSS document into items.

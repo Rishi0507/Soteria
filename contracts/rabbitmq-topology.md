@@ -88,7 +88,7 @@ Each queue also has a `<queue>.dlq` bound to its owning context's dead-letter ex
 | `containment.action.taken.v1` | [`events/containment.action.taken.v1.json`](events/containment.action.taken.v1.json) | `containment-service` | live |
 | `rescue.order.proposed.v1` | [`events/order.rescue.proposed.v1.json`](events/order.rescue.proposed.v1.json) | `order-rescue-service` | live |
 | `rescue.order.confirmed.v1` | [`events/order.rescue.confirmed.v1.json`](events/order.rescue.confirmed.v1.json) | `order-rescue-service`, on behalf of the storefront | live |
-| `evasion.flagged.v1` | [`events/evasion.flagged.v1.json`](events/evasion.flagged.v1.json) | `anti-evasion-service` | proposed |
+| `evasion.flagged.v1` | [`events/evasion.flagged.v1.json`](events/evasion.flagged.v1.json) | `anti-evasion-service` | live (envelope-wrapped; LLM judge + guardrail) |
 | `audit.dossier.generated.v1` | [`events/audit.dossier.generated.v1.json`](events/audit.dossier.generated.v1.json) | `audit-proof-service` | live |
 | `notification.delivered.v1` | [`events/notification.delivered.v1.json`](events/notification.delivered.v1.json) | `notification-service` | live — on `notification.x`; proposed consumer binding: `audit.ledger` (add `notification.x` / `#`) so the dossier can cite deliveries |
 
@@ -121,6 +121,7 @@ Message properties on every publish: `content_type=application/json`, `delivery_
 | `rescue.confirmations` | order-rescue-service | `rescue.x` | `rescue.order.confirmed.v1` |
 | `audit.ledger` | audit-proof-service | `resolution.x`, `containment.x`, `rescue.x`, `evasion.x`, `notification.x` | `#` on each; the audit service records everything, including delivery receipts, so a dossier can show the customer was told |
 | `extractor.recall-raw` | recall-extractor | `ingestion.x` | `ingestion.recall.raw.received.*` |
+| `evasion.containment-taken` | anti-evasion-service | `containment.x` | `containment.action.taken.v1` (HELD targets become the marketplace watch-list) |
 | `notification.outbound` | notification-service | `containment.x`, `rescue.x`, `evasion.x` | `containment.action.taken.v1`, `rescue.order.proposed.v1`, `evasion.flagged.v1` |
 | `storefront.projection` | storefront backend | `resolution.x`, `containment.x` | `resolution.lot.resolved.v1`, `containment.action.taken.v1` |
 | `ops.review` | ops console backend | `containment.x`, `audit.x` | `containment.action.proposed.v1`, `audit.dossier.generated.v1` |

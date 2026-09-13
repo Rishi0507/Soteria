@@ -5,9 +5,9 @@ name: ingestion
 
 on:
   push:
-    paths: ["go.work", "libs/**", "services/ingestion-*/**", "services/notification-service/**", "services/ingestion-silent-diff/**", "services/recall-extractor/**", "contracts/**", ".github/workflows/ingestion.yml"]
+    paths: ["go.work", "libs/**", "services/ingestion-*/**", "services/notification-service/**", "services/ingestion-silent-diff/**", "services/recall-extractor/**", "services/anti-evasion-service/**", "contracts/**", ".github/workflows/ingestion.yml"]
   pull_request:
-    paths: ["go.work", "libs/**", "services/ingestion-*/**", "services/notification-service/**", "services/ingestion-silent-diff/**", "services/recall-extractor/**", "contracts/**", ".github/workflows/ingestion.yml"]
+    paths: ["go.work", "libs/**", "services/ingestion-*/**", "services/notification-service/**", "services/ingestion-silent-diff/**", "services/recall-extractor/**", "services/anti-evasion-service/**", "contracts/**", ".github/workflows/ingestion.yml"]
 
 jobs:
   test:
@@ -39,13 +39,16 @@ jobs:
       - name: test ingestion-silent-diff (includes contract validation)
         working-directory: services/ingestion-silent-diff
         run: pip install -r requirements-dev.txt && python -m pytest -q
+      - name: test anti-evasion-service (includes contract validation)
+        working-directory: services/anti-evasion-service
+        run: pip install -r requirements-dev.txt && python -m pytest -q
 
   docker:
     runs-on: ubuntu-latest
     needs: [test, python]
     strategy:
       matrix:
-        svc: [ingestion-fda, ingestion-usda, ingestion-rasff, notification-service, ingestion-silent-diff, recall-extractor]
+        svc: [ingestion-fda, ingestion-usda, ingestion-rasff, notification-service, ingestion-silent-diff, recall-extractor, anti-evasion-service]
     steps:
       - uses: actions/checkout@v4
       - name: build image
