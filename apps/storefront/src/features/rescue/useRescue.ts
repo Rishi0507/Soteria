@@ -8,24 +8,6 @@ import {
     type Rescue,
 } from '../../api/rescue'
 
-type State = {
-    rescue: Rescue | null
-    loading: boolean
-    error: boolean
-    /** confirming holds the option id in flight, so only that button goes pending. */
-    confirming: string | null
-    /** message is customer-facing copy for a refused or already-made choice. */
-    message: string | null
-}
-
-const idle: State = {
-    rescue: null,
-    loading: false,
-    error: false,
-    confirming: null,
-    message: null,
-}
-
 type Args = {
     /** rescueId from the emailed link. */
     rescueId?: string
@@ -34,20 +16,26 @@ type Args = {
     consentToken?: string
 }
 
+/** The outcome of a load, tagged with the inputs that produced it. */
+type Loaded = {
+    key: string
+    rescue: Rescue | null
+    error: boolean
+}
+
 export function useRescue({ rescueId, orderId, consentToken }: Args) {
-    const [state, setState] = useState<State>({
-        ...idle,
-        loading: Boolean(rescueId || orderId),
-    })
+    const key = `${rescueId ?? ''}|${orderId ?? ''}`
+
+    const [loaded, setLoaded] = useState<Loaded | null>(null)
+    /** confirming holds the option id in flight, so only that button goes pending. */
+    const [confirming, setConfirming] = useState<string | null>(null)
+    /** message is customer-facing copy for a refused or already-made choice. */
+    const [message, setMessage] = useState<string | null>(null)
 
     useEffect(() => {
-        if (!rescueId && !orderId) {
-            setState(idle)
-            return
-        }
+        if (!rescueId && !orderId) return
 
         let cancelled = false
-        setState({ ...idle, loading: true })
 
         const load = rescueId
             ? getRescue(rescueId)
@@ -55,16 +43,23 @@ export function useRescue({ rescueId, orderId, consentToken }: Args) {
 
         load
             .then((rescue) => {
-                if (!cancelled) setState({ ...idle, rescue })
+                if (!cancelled) setLoaded({ key, rescue, error: false })
             })
             .catch(() => {
-                if (!cancelled) setState({ ...idle, error: true })
+                if (!cancelled) setLoaded({ key, rescue: null, error: true })
             })
 
         return () => {
             cancelled = true
         }
-    }, [rescueId, orderId])
+    }, [key, rescueId, orderId])
+
+    // A result loaded for different inputs is not this request's result;
+    // it reads as loading rather than as an answer.
+    const current = loaded && loaded.key === key ? loaded : null
+    const rescue = current?.rescue ?? null
+    const error = current?.error ?? false
+    const loading = Boolean(rescueId || orderId) && current === null
 
     /**
      * confirm only ever runs from a click. Nothing here decides for the customer,
@@ -72,23 +67,23 @@ export function useRescue({ rescueId, orderId, consentToken }: Args) {
      */
     const confirm = useCallback(
         async (optionId: string) => {
-            const id = state.rescue?.rescue_id ?? rescueId
+            const id = rescue?.rescue_id ?? rescueId
             if (!id) return
             if (!consentToken) {
-                setState((s) => ({
-                    ...s,
-                    message:
-                        'This page is missing its confirmation token. Please use the link from your email.',
-                }))
+                setMessage(
+                    'This page is missing its confirmation token. Please use the link from your email.'
+                )
                 return
             }
 
-            setState((s) => ({ ...s, confirming: optionId, message: null }))
+            setConfirming(optionId)
+            setMessage(null)
             try {
-                const rescue = await confirmRescue(id, optionId, consentToken)
-                setState({ ...idle, rescue })
+                const confirmed = await confirmRescue(id, optionId, consentToken)
+                setLoaded({ key, rescue: confirmed, error: false })
+                setConfirming(null)
             } catch (err) {
-                const message =
+                const text =
                     err instanceof ConsentRejectedError || err instanceof RescueClosedError
                         ? err.message
                         : 'We could not record that choice. Please try again.'
@@ -97,18 +92,21 @@ export function useRescue({ rescueId, orderId, consentToken }: Args) {
                 // tab or straight from the email link.
                 if (err instanceof RescueClosedError) {
                     try {
-                        const rescue = await getRescue(id)
-                        setState({ ...idle, rescue, message })
+                        const fresh = await getRescue(id)
+                        setLoaded({ key, rescue: fresh, error: false })
+                        setConfirming(null)
+                        setMessage(text)
                         return
                     } catch {
                         // fall through to the plain message
                     }
                 }
-                setState((s) => ({ ...s, confirming: null, message }))
+                setConfirming(null)
+                setMessage(text)
             }
         },
-        [state.rescue?.rescue_id, rescueId, consentToken]
+        [key, rescue?.rescue_id, rescueId, consentToken]
     )
 
-    return { ...state, confirm }
+    return { rescue, loading, error, confirming, message, confirm }
 }

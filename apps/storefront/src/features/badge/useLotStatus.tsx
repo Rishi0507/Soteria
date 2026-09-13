@@ -7,28 +7,28 @@ type State = {
     error: boolean
 }
 
+/** Stores the inputs alongside the outcome so loading can be derived. */
+type Result = {
+    gtin: string
+    lotCode?: string
+    status: LotStatus | null
+    error: boolean
+}
+
 export function useLotStatus(gtin?: string, lotCode?: string): State {
-    const [state, setState] = useState<State>({
-        status: null,
-        loading: Boolean(gtin),
-        error: false,
-    })
+    const [result, setResult] = useState<Result | null>(null)
 
     useEffect(() => {
-        if (!gtin) {
-            setState({ status: null, loading: false, error: false })
-            return
-        }
+        if (!gtin) return
 
         let cancelled = false
-        setState({ status: null, loading: true, error: false })
 
         getLotStatus(gtin, lotCode)
             .then((status) => {
-                if (!cancelled) setState({ status, loading: false, error: false })
+                if (!cancelled) setResult({ gtin, lotCode, status, error: false })
             })
             .catch(() => {
-                if (!cancelled) setState({ status: null, loading: false, error: true })
+                if (!cancelled) setResult({ gtin, lotCode, status: null, error: true })
             })
 
         return () => {
@@ -36,5 +36,16 @@ export function useLotStatus(gtin?: string, lotCode?: string): State {
         }
     }, [gtin, lotCode])
 
-    return state
+    // A result for a different gtin/lot is not this lot's result. Treating it
+    // as loading rather than as an answer matters here more than most places:
+    // showing a stale SAFE verdict against a newly entered lot is exactly the
+    // failure this badge exists to prevent.
+    const current =
+        result && result.gtin === gtin && result.lotCode === lotCode ? result : null
+
+    return {
+        status: current?.status ?? null,
+        loading: Boolean(gtin) && current === null,
+        error: current?.error ?? false,
+    }
 }
