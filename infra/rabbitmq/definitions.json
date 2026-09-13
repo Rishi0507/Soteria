@@ -1,0 +1,514 @@
+{
+  "rabbit_version": "4.1.0",
+  "vhosts": [
+    {
+      "name": "/"
+    }
+  ],
+  "policies": [
+    {
+      "vhost": "/",
+      "name": "audit-retention",
+      "pattern": "^audit\\.",
+      "apply-to": "queues",
+      "priority": 1,
+      "definition": {
+        "message-ttl": 2592000000
+      }
+    }
+  ],
+  "exchanges": [
+    {
+      "name": "ingestion.x",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "resolution.x",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "containment.x",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "rescue.x",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "evasion.x",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "audit.x",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "notification.x",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "ingestion.dlx",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "resolution.dlx",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "containment.dlx",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "rescue.dlx",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "evasion.dlx",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "audit.dlx",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "notification.dlx",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "storefront.dlx",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    },
+    {
+      "name": "ops.dlx",
+      "vhost": "/",
+      "type": "topic",
+      "durable": true,
+      "auto_delete": false,
+      "internal": false,
+      "arguments": {}
+    }
+  ],
+  "queues": [
+    {
+      "name": "resolution.recall-raw",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "resolution.dlx",
+        "x-queue-type": "quorum",
+        "x-delivery-limit": 5
+      }
+    },
+    {
+      "name": "resolution.recall-raw.dlq",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "containment.lot-resolved",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "containment.dlx",
+        "x-queue-type": "quorum",
+        "x-delivery-limit": 5
+      }
+    },
+    {
+      "name": "containment.lot-resolved.dlq",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "rescue.containment-taken",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "rescue.dlx",
+        "x-queue-type": "quorum",
+        "x-delivery-limit": 5
+      }
+    },
+    {
+      "name": "rescue.containment-taken.dlq",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "rescue.confirmations",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "rescue.dlx",
+        "x-queue-type": "quorum",
+        "x-delivery-limit": 5
+      }
+    },
+    {
+      "name": "rescue.confirmations.dlq",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "audit.ledger",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "audit.dlx",
+        "x-queue-type": "quorum",
+        "x-delivery-limit": 5
+      }
+    },
+    {
+      "name": "audit.ledger.dlq",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "notification.outbound",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "notification.dlx",
+        "x-queue-type": "quorum",
+        "x-delivery-limit": 5
+      }
+    },
+    {
+      "name": "notification.outbound.dlq",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "storefront.projection",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "storefront.dlx",
+        "x-queue-type": "quorum",
+        "x-delivery-limit": 5
+      }
+    },
+    {
+      "name": "storefront.projection.dlq",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "ops.review",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {
+        "x-dead-letter-exchange": "ops.dlx",
+        "x-queue-type": "quorum",
+        "x-delivery-limit": 5
+      }
+    },
+    {
+      "name": "ops.review.dlq",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    }
+  ],
+  "bindings": [
+    {
+      "source": "ingestion.x",
+      "vhost": "/",
+      "destination": "resolution.recall-raw",
+      "destination_type": "queue",
+      "routing_key": "ingestion.recall.raw.received.*",
+      "arguments": {}
+    },
+    {
+      "source": "ingestion.x",
+      "vhost": "/",
+      "destination": "resolution.recall-raw",
+      "destination_type": "queue",
+      "routing_key": "ingestion.catalog.sku.vanished.v1",
+      "arguments": {}
+    },
+    {
+      "source": "resolution.dlx",
+      "vhost": "/",
+      "destination": "resolution.recall-raw.dlq",
+      "destination_type": "queue",
+      "routing_key": "#",
+      "arguments": {}
+    },
+    {
+      "source": "resolution.x",
+      "vhost": "/",
+      "destination": "containment.lot-resolved",
+      "destination_type": "queue",
+      "routing_key": "resolution.lot.resolved.v1",
+      "arguments": {}
+    },
+    {
+      "source": "containment.dlx",
+      "vhost": "/",
+      "destination": "containment.lot-resolved.dlq",
+      "destination_type": "queue",
+      "routing_key": "#",
+      "arguments": {}
+    },
+    {
+      "source": "containment.x",
+      "vhost": "/",
+      "destination": "rescue.containment-taken",
+      "destination_type": "queue",
+      "routing_key": "containment.action.taken.v1",
+      "arguments": {}
+    },
+    {
+      "source": "rescue.x",
+      "vhost": "/",
+      "destination": "rescue.confirmations",
+      "destination_type": "queue",
+      "routing_key": "rescue.order.confirmed.v1",
+      "arguments": {}
+    },
+    {
+      "source": "rescue.dlx",
+      "vhost": "/",
+      "destination": "rescue.containment-taken.dlq",
+      "destination_type": "queue",
+      "routing_key": "#",
+      "arguments": {}
+    },
+    {
+      "source": "rescue.dlx",
+      "vhost": "/",
+      "destination": "rescue.confirmations.dlq",
+      "destination_type": "queue",
+      "routing_key": "#",
+      "arguments": {}
+    },
+    {
+      "source": "resolution.x",
+      "vhost": "/",
+      "destination": "audit.ledger",
+      "destination_type": "queue",
+      "routing_key": "#",
+      "arguments": {}
+    },
+    {
+      "source": "containment.x",
+      "vhost": "/",
+      "destination": "audit.ledger",
+      "destination_type": "queue",
+      "routing_key": "#",
+      "arguments": {}
+    },
+    {
+      "source": "rescue.x",
+      "vhost": "/",
+      "destination": "audit.ledger",
+      "destination_type": "queue",
+      "routing_key": "#",
+      "arguments": {}
+    },
+    {
+      "source": "evasion.x",
+      "vhost": "/",
+      "destination": "audit.ledger",
+      "destination_type": "queue",
+      "routing_key": "#",
+      "arguments": {}
+    },
+    {
+      "source": "notification.x",
+      "vhost": "/",
+      "destination": "audit.ledger",
+      "destination_type": "queue",
+      "routing_key": "#",
+      "arguments": {}
+    },
+    {
+      "source": "audit.dlx",
+      "vhost": "/",
+      "destination": "audit.ledger.dlq",
+      "destination_type": "queue",
+      "routing_key": "#",
+      "arguments": {}
+    },
+    {
+      "source": "containment.x",
+      "vhost": "/",
+      "destination": "notification.outbound",
+      "destination_type": "queue",
+      "routing_key": "containment.action.taken.v1",
+      "arguments": {}
+    },
+    {
+      "source": "rescue.x",
+      "vhost": "/",
+      "destination": "notification.outbound",
+      "destination_type": "queue",
+      "routing_key": "rescue.order.proposed.v1",
+      "arguments": {}
+    },
+    {
+      "source": "evasion.x",
+      "vhost": "/",
+      "destination": "notification.outbound",
+      "destination_type": "queue",
+      "routing_key": "evasion.flagged.v1",
+      "arguments": {}
+    },
+    {
+      "source": "notification.dlx",
+      "vhost": "/",
+      "destination": "notification.outbound.dlq",
+      "destination_type": "queue",
+      "routing_key": "#",
+      "arguments": {}
+    },
+    {
+      "source": "resolution.x",
+      "vhost": "/",
+      "destination": "storefront.projection",
+      "destination_type": "queue",
+      "routing_key": "resolution.lot.resolved.v1",
+      "arguments": {}
+    },
+    {
+      "source": "containment.x",
+      "vhost": "/",
+      "destination": "storefront.projection",
+      "destination_type": "queue",
+      "routing_key": "containment.action.taken.v1",
+      "arguments": {}
+    },
+    {
+      "source": "storefront.dlx",
+      "vhost": "/",
+      "destination": "storefront.projection.dlq",
+      "destination_type": "queue",
+      "routing_key": "#",
+      "arguments": {}
+    },
+    {
+      "source": "containment.x",
+      "vhost": "/",
+      "destination": "ops.review",
+      "destination_type": "queue",
+      "routing_key": "containment.action.proposed.v1",
+      "arguments": {}
+    },
+    {
+      "source": "audit.x",
+      "vhost": "/",
+      "destination": "ops.review",
+      "destination_type": "queue",
+      "routing_key": "audit.dossier.generated.v1",
+      "arguments": {}
+    },
+    {
+      "source": "ops.dlx",
+      "vhost": "/",
+      "destination": "ops.review.dlq",
+      "destination_type": "queue",
+      "routing_key": "#",
+      "arguments": {}
+    }
+  ]
+}
