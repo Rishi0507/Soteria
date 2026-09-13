@@ -1,15 +1,5 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
-import type { Product } from '../catalog'
-
-type Line = { product: Product; qty: number }
-type Bag = {
-    lines: Line[]
-    count: number
-    add: (p: Product) => void
-    remove: (gtin: string) => void
-}
-
-const BagContext = createContext<Bag | null>(null)
+import { useMemo, useState, type ReactNode } from 'react'
+import { BagContext, type Bag, type Line } from './useBag'
 
 /** A tiny in-memory bag so the shop feels like a shop. Not persisted on purpose. */
 export function BagProvider({ children }: { children: ReactNode }) {
@@ -31,10 +21,4 @@ export function BagProvider({ children }: { children: ReactNode }) {
         [lines]
     )
     return <BagContext.Provider value={value}>{children}</BagContext.Provider>
-}
-
-export function useBag(): Bag {
-    const b = useContext(BagContext)
-    if (!b) throw new Error('useBag outside BagProvider')
-    return b
 }

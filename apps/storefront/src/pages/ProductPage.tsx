@@ -6,7 +6,7 @@ import { useProductAllergens } from '../features/allergens/useProductAllergens'
 import { SafeLotBadge } from '../features/badge/SafeLotBadge'
 import { useLotStatus } from '../features/badge/useLotStatus'
 import { RecallBanner } from '../features/banner/RecallBanner'
-import { useBag } from '../store/bag'
+import { useBag } from '../store/useBag'
 
 /**
  * A product page that is, first, a product page: photo, name, size, price,

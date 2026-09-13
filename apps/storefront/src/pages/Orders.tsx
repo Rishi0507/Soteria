@@ -1,7 +1,7 @@
 import { Link, useSearchParams } from 'react-router-dom'
 import { RescuePanel } from '../features/rescue/RescuePanel'
 import { useRescue } from '../features/rescue/useRescue'
-import { useBag } from '../store/bag'
+import { useBag } from '../store/useBag'
 
 /**
  * Orders: the customer's recent order. If a recalled lot is in it, the rescue

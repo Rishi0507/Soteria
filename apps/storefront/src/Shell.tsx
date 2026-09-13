@@ -1,6 +1,6 @@
 import { NavLink, Link, Outlet } from 'react-router-dom'
 import { BackendStatus } from './features/status/BackendStatus'
-import { useBag } from './store/bag'
+import { useBag } from './store/useBag'
 
 /**
  * The store chrome: three-zone transparent nav (links / wordmark / utility),
