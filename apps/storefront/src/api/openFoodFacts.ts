@@ -39,9 +39,28 @@ export async function getProductAllergens(
 
     const p = data.product
     const allergens = p.allergens_tags ?? []
-    const hasAllergenField = Array.isArray(p.allergens_tags)
+    const traces = p.traces_tags ?? []
 
-    const coverage: Coverage = hasAllergenField ? 'COMPLETE' : 'PARTIAL'
+    // OFF returns allergens_tags: [] both for "a contributor checked and there
+    // are none" and for "nobody has filled this product in". The two payloads
+    // are byte-identical, so an empty array can never be read as a verified
+    // absence — only a non-empty list is evidence that anyone looked.
+    //
+    // ingredients_text means the product has *some* contributed data, which is
+    // weaker evidence: PARTIAL, not COMPLETE. Nothing at all is ABSENT.
+    //
+    // This deliberately mislabels genuinely allergen-free products as PARTIAL.
+    // That trade is intentional: a false PARTIAL costs a customer an unneeded
+    // caution, a false COMPLETE tells an allergic customer a product is clear
+    // when nobody ever checked.
+    let coverage: Coverage
+    if (allergens.length > 0 || traces.length > 0) {
+        coverage = 'COMPLETE'
+    } else if (p.ingredients_text && p.ingredients_text.trim().length > 0) {
+        coverage = 'PARTIAL'
+    } else {
+        coverage = 'ABSENT'
+    }
 
     return {
         ...base,
@@ -49,7 +68,7 @@ export async function getProductAllergens(
         brand: p.brands,
         coverage,
         allergens,
-        traces: p.traces_tags ?? [],
+        traces,
         ingredients_text: p.ingredients_text,
     }
 }
