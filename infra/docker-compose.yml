@@ -100,8 +100,8 @@ services:
       CORS_ALLOWED_ORIGINS: http://localhost:5173
       TSA_URL: ${TSA_URL:-http://timestamp.digicert.com}
       TSA_DISABLED: ${TSA_DISABLED:-}
-      PORT: "8084"
-    ports: ["8084:8084"]
+      PORT: "8085"
+    ports: ["8085:8085"]
     depends_on:
       rabbitmq:
         condition: service_healthy

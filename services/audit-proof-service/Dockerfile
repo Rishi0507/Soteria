@@ -18,6 +18,6 @@ RUN go build -trimpath -ldflags="-s -w" -o /out/audit-proof-service ./cmd/audit-
 FROM gcr.io/distroless/static-debian12:nonroot
 WORKDIR /app
 COPY --from=build /out/audit-proof-service /app/audit-proof-service
-ENV PORT=8084
-EXPOSE 8084
+ENV PORT=8085
+EXPOSE 8085
 ENTRYPOINT ["/app/audit-proof-service"]
