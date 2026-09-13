@@ -6,7 +6,7 @@ import type { Rescue } from '../../api/rescue'
 const meta: Meta<typeof RescuePanel> = {
     title: 'Storefront/RescuePanel',
     component: RescuePanel,
-    args: { onConfirm: () => {} },
+    args: { onConfirm: () => { } },
 }
 export default meta
 
@@ -59,6 +59,53 @@ export const Confirming: Story = {
 /** No substitute cleared the allergen and price checks, so none is offered. */
 export const NoSafeSubstitute: Story = {
     args: { rescue: { ...base, options: base.options.filter((o) => o.kind !== 'SUBSTITUTE') } },
+}
+/**
+ * A substitute the service could NOT clear for allergens. It must not be
+ * offered as a choice — the customer is being swapped off a peanut recall.
+ */
+export const UnsafeSubstitute: Story = {
+    args: {
+        rescue: {
+            ...base,
+            options: [
+                {
+                    option_id: 'sub-00099887766554',
+                    kind: 'SUBSTITUTE',
+                    gtin: '00099887766554',
+                    product_title: 'Trailhead Almond Crunch Bars 12 ct',
+                    unit_price: { amount_minor: 449, currency: 'USD' },
+                    allergen_safe: false,
+                    allergens: ['tree nuts', 'almonds'],
+                    rationale: 'closest match by category, but contains tree nuts',
+                },
+                ...base.options.filter((o) => o.kind !== 'SUBSTITUTE'),
+            ],
+        },
+    },
+}
+
+/**
+ * allergen_safe is optional in the contract. Absent means "not verified",
+ * which is not the same as safe, and must not render as one.
+ */
+export const UnverifiedSubstitute: Story = {
+    args: {
+        rescue: {
+            ...base,
+            options: [
+                {
+                    option_id: 'sub-00055443322119',
+                    kind: 'SUBSTITUTE',
+                    gtin: '00055443322119',
+                    product_title: 'Mill Street Seed Bars 12 ct',
+                    unit_price: { amount_minor: 449, currency: 'USD' },
+                    rationale: 'same category and price; allergen data unavailable',
+                },
+                ...base.options.filter((o) => o.kind !== 'SUBSTITUTE'),
+            ],
+        },
+    },
 }
 
 /** The lot could not be pinned to this line, so the copy must not name one. */
