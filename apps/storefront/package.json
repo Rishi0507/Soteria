@@ -1,0 +1,54 @@
+{
+  "name": "storefront",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
+    "codegen:resolution": "openapi-typescript ../../contracts/openapi/resolution-api.v1.yaml -o src/api/resolution.types.ts",
+    "codegen:rescue": "openapi-typescript ../../contracts/openapi/order-rescue-api.v1.yaml -o src/api/rescue.types.ts",
+    "codegen:containment": "openapi-typescript ../../contracts/openapi/containment-api.v1.yaml -o src/api/containment.types.ts",
+    "codegen:audit": "openapi-typescript ../../contracts/openapi/audit-api.v1.yaml -o src/api/audit.types.ts",
+    "codegen": "npm run codegen:resolution && npm run codegen:rescue && npm run codegen:containment && npm run codegen:audit",
+    "codegen:check": "npm run codegen && git add -N src/api/ && git diff --exit-code src/api/"
+  },
+  "dependencies": {
+    "graphql": "^16.14.2",
+    "graphql-request": "^7.4.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router-dom": "^7.18.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@storybook/react-vite": "^10.6.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "eslint": "^10.10.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.6",
+    "eslint-plugin-storybook": "^10.6.0",
+    "globals": "^17.12.0",
+    "msw": "^2.15.0",
+    "msw-storybook-addon": "^3.0.0",
+    "openapi-typescript": "^7.13.0",
+    "storybook": "^10.6.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~5.9",
+    "typescript-eslint": "^8.69.0",
+    "vite": "^8.3.0"
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
+    ]
+  }
+}
