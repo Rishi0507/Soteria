@@ -1,0 +1,27 @@
+[project]
+name = "soteria-ingestion-silent-diff"
+version = "0.1.0"
+description = "Silent-recall detection: diff manufacturer catalogs, emit catalog.sku.vanished.v1"
+requires-python = ">=3.11"
+dependencies = [
+  "requests>=2.31",
+  "pika>=1.3",
+  "rapidfuzz>=3.0",
+  "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "jsonschema>=4.20"]
+
+[project.scripts]
+silentdiff = "silentdiff.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["silentdiff*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
