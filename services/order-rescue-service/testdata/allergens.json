@@ -1,0 +1,6 @@
+[
+  { "gtin": "00041196910537", "name": "Sunfield Farms Chewy Granola Bars", "brand": "Sunfield Farms", "allergens": ["en:gluten"], "traces": [] },
+  { "gtin": "00012345678905", "name": "Harvest Lane Oat and Honey Granola Bars", "brand": "Harvest Lane", "allergens": ["en:gluten"], "traces": [] },
+  { "gtin": "00073123456788", "name": "Nutty Trail Peanut Crunch Granola Bars", "brand": "Nutty Trail", "allergens": ["en:gluten", "en:peanuts"], "traces": [] },
+  { "gtin": "00099999999999", "name": "Premium Seed Granola Bars", "brand": "Premium", "allergens": ["en:gluten"], "traces": ["en:nuts"] }
+]
