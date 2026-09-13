@@ -1,0 +1,13 @@
+# Marketplaces to sweep. `file` reads listing exports / a mocked feed from a
+# folder; `shopify` sweeps a discount grocer's public catalog (real, keyless);
+# `ebay` needs EBAY_CLIENT_ID / EBAY_CLIENT_SECRET (free developer account).
+sources:
+  - name: liquidation-mock
+    kind: file
+    url: fixtures/listings
+  # - name: ebay-food
+  #   kind: ebay
+  #   query: "pistachio nut butter bettergoods"
+  # - name: shopify:some-discount-grocer.com
+  #   kind: shopify
+  #   url: https://some-discount-grocer.com
