@@ -1,0 +1,50 @@
+# CI for the ops console. Mirrors storefront.yml rather than extending it: the
+# two apps share a toolchain but not a release cadence, and scoped path filters
+# mean a storefront-only change does not run these checks (and vice versa). The
+# same "fold into a shared template later" note on the ingestion and core-domain
+# workflows applies here — a matrix over apps/* would collapse the duplication
+# once both apps are stable.
+name: ops-console
+
+on:
+  push:
+    paths:
+      - 'apps/ops-console/**'
+      - 'contracts/openapi/**'
+      - '.github/workflows/ops-console.yml'
+  pull_request:
+    paths:
+      - 'apps/ops-console/**'
+      - 'contracts/openapi/**'
+      - '.github/workflows/ops-console.yml'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/ops-console
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/ops-console/package-lock.json
+
+      - run: npm ci
+
+      # Types are generated from /contracts. If a spec changed and the
+      # committed types weren't regenerated, fail here rather than letting
+      # the drift surface at runtime. The `git add -N` inside codegen:check
+      # means a generated file that was never committed fails too, not just
+      # one that was modified.
+      - name: Check generated types are current
+        run: npm run codegen:check
+
+      - run: npm run lint
+
+      - run: npx tsc -b --noEmit
+
+      - run: npm run build-storybook
