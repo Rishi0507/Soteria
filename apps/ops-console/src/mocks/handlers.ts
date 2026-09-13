@@ -1,10 +1,18 @@
 import { http, HttpResponse } from 'msw'
 import type { ContainmentAction } from '../api/containment'
 import { queue } from './fixtures'
+import type { Dossier } from '../api/audit'
+import {
+    archiveRows,
+    dossierComplete,
+    dossierWithNote,
+    verifiedBroken,
+    verifiedOK,
+} from './auditFixtures'
 
 // Origins match the `servers:` block of each OpenAPI spec in contracts/openapi.
 const CONTAINMENT = 'http://localhost:8082'
-const AUDIT = 'http://localhost:8084'
+const AUDIT = 'http://localhost:8085'
 
 /**
  * The config the mock currently holds. A PUT updates it, so the screen behaves
@@ -16,6 +24,13 @@ let config = {
     updated_by: 'ops:dana',
     updated_at: '2026-09-13T09:20:00Z',
 }
+
+/** Dossiers the mock currently holds, keyed by incident. */
+let dossiers: Record<string, Dossier> = {
+    [dossierComplete.incident_id]: dossierComplete,
+    [dossierWithNote.incident_id]: dossierWithNote,
+}
+let archive = archiveRows.map((r) => ({ ...r }))
 
 /** Mutable copy so a confirm or reject is visible on the next read. */
 let actions: ContainmentAction[] = queue.map((a) => ({ ...a }))
@@ -261,6 +276,111 @@ export const handlers = [
             return HttpResponse.json(updated)
         }
     ),
+
+    // ------------------------------------------------------ dossier archive
+
+    http.get(`${AUDIT}/v1/dossiers`, ({ request }) => {
+        const simulate = new URL(request.url).searchParams.get('simulate')
+        if (simulate === '500') return new HttpResponse(null, { status: 500 })
+        // An emptied ledger and a quiet period are the same response.
+        if (simulate === 'empty') return HttpResponse.json({ items: [] })
+        return HttpResponse.json({ items: archive })
+    }),
+
+    http.get(`${AUDIT}/v1/dossiers/:incidentId`, ({ params }) => {
+        const raw = String(params.incidentId)
+        // The handler parses `.pdf` off the path segment itself, case-sensitively.
+        if (raw.endsWith('.pdf')) {
+            const incident = raw.slice(0, -4)
+            if (!dossiers[incident]) {
+                return HttpResponse.json(
+                    { code: 'not_found', message: 'no dossier has been generated for this incident' },
+                    { status: 404 }
+                )
+            }
+            return new HttpResponse('%PDF-1.4 mock dossier', {
+                headers: {
+                    'Content-Type': 'application/pdf',
+                    'Content-Disposition': `inline; filename="soteria-dossier-${incident}.pdf"`,
+                },
+            })
+        }
+
+        const found = dossiers[raw]
+        if (!found) {
+            // Ledger-derived list, dossier-derived detail: this is the ordinary
+            // "not generated yet" case, not a fault.
+            return HttpResponse.json(
+                { code: 'not_found', message: 'no dossier has been generated for this incident' },
+                { status: 404 }
+            )
+        }
+        return HttpResponse.json(found)
+    }),
+
+    http.post(`${AUDIT}/v1/dossiers/:incidentId`, ({ params }) => {
+        const incident = String(params.incidentId)
+        const row = archive.find((r) => r.incident_id === incident)
+        if (!row) {
+            return HttpResponse.json(
+                { code: 'not_found', message: `audit: no events recorded for incident "${incident}"` },
+                { status: 404 }
+            )
+        }
+        // Not idempotent: a new id and a new generated_at every single time.
+        const base = dossiers[incident] ?? dossierWithNote
+        const fresh: Dossier = {
+            ...base,
+            incident_id: incident,
+            dossier_id: crypto.randomUUID(),
+            generated_at: new Date().toISOString(),
+            content_hash: row.content_hash ?? base.content_hash,
+            event_count: row.event_count,
+        }
+        dossiers = { ...dossiers, [incident]: fresh }
+        archive = archive.map((r) =>
+            r.incident_id === incident ? { ...r, has_dossier: true } : r
+        )
+        return HttpResponse.json(fresh, { status: 201 })
+    }),
+
+    http.get(`${AUDIT}/v1/dossiers/:incidentId/verify`, ({ params, request }) => {
+        const incident = String(params.incidentId)
+        const simulate = new URL(request.url).searchParams.get('simulate')
+        if (!archive.some((r) => r.incident_id === incident)) {
+            return HttpResponse.json(
+                { code: 'not_found', message: 'no events recorded for this incident' },
+                { status: 404 }
+            )
+        }
+        // A broken chain is a 200 whose body omits content_hash and hash_algorithm.
+        if (simulate === 'broken' || incident === verifiedBroken.incident_id) {
+            return HttpResponse.json({ ...verifiedBroken, incident_id: incident })
+        }
+        const row = archive.find((r) => r.incident_id === incident)
+        return HttpResponse.json({
+            ...verifiedOK,
+            incident_id: incident,
+            events: row?.event_count ?? verifiedOK.events,
+            content_hash: row?.content_hash ?? verifiedOK.content_hash,
+        })
+    }),
+
+    http.get(`${AUDIT}/v1/dossiers/:incidentId/chain`, ({ params }) => {
+        const incident = String(params.incidentId)
+        const row = archive.find((r) => r.incident_id === incident)
+        if (!row) {
+            return HttpResponse.json(
+                { code: 'not_found', message: 'no events recorded for this incident' },
+                { status: 404 }
+            )
+        }
+        return HttpResponse.json({
+            incident_id: incident,
+            head: row.content_hash,
+            records: [],
+        })
+    }),
 ]
 
 /** Restores the queue after manual pokes in dev. */

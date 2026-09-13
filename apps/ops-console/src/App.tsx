@@ -1,5 +1,9 @@
 import { useState } from 'react'
 import type { ActionStatus } from './api/containment'
+import { DossierArchivePanel } from './features/dossiers/DossierArchivePanel'
+import { DossierDetailPanel } from './features/dossiers/DossierDetailPanel'
+import { useDossier } from './features/dossiers/useDossier'
+import { useDossierArchive } from './features/dossiers/useDossierArchive'
 import { ActionDetailPanel } from './features/queue/ActionDetailPanel'
 import { ReviewQueuePanel } from './features/queue/ReviewQueuePanel'
 import { useActionReview } from './features/queue/useActionReview'
@@ -8,15 +12,18 @@ import { ThresholdPanel } from './features/thresholds/ThresholdPanel'
 import { useThresholds } from './features/thresholds/useThresholds'
 
 /**
- * The ops console shell. Two screens so far: the review queue and threshold
- * tuning. The dossier archive is not built.
+ * The ops console shell: the review queue, the dossier archive and threshold
+ * tuning.
  */
 export default function App() {
     const [status, setStatus] = useState<ActionStatus | undefined>('PENDING_REVIEW')
     const [selectedId, setSelectedId] = useState<string | undefined>()
+    const [selectedIncident, setSelectedIncident] = useState<string | undefined>()
 
     const queue = useReviewQueue(status)
     const review = useActionReview(selectedId)
+    const archive = useDossierArchive()
+    const dossier = useDossier(selectedIncident)
     const thresholds = useThresholds()
 
     return (
@@ -59,6 +66,33 @@ export default function App() {
                             void review.reject(body).then(queue.reload)
                         }}
                         onReload={review.reload}
+                    />
+                )}
+
+                <DossierArchivePanel
+                    rows={archive.rows}
+                    selectedId={selectedIncident}
+                    loading={archive.loading}
+                    error={archive.error}
+                    onSelect={setSelectedIncident}
+                    onReload={archive.reload}
+                />
+
+                {selectedIncident && (
+                    <DossierDetailPanel
+                        incidentId={selectedIncident}
+                        dossier={dossier.dossier}
+                        state={dossier.state}
+                        loading={dossier.loading}
+                        generating={dossier.generating}
+                        notice={dossier.notice}
+                        verification={dossier.verification}
+                        verifying={dossier.verifying}
+                        verifyError={dossier.verifyError}
+                        onGenerate={() => {
+                            void Promise.resolve(dossier.generate()).then(archive.reload)
+                        }}
+                        onReload={dossier.reload}
                     />
                 )}
 
