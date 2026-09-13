@@ -1,0 +1,66 @@
+{
+  "meta": {
+    "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+    "terms": "https://open.fda.gov/terms/",
+    "license": "https://open.fda.gov/license/",
+    "last_updated": "2026-09-02",
+    "results": {
+      "skip": 0,
+      "limit": 2,
+      "total": 217
+    }
+  },
+  "results": [
+    {
+      "status": "Terminated",
+      "city": "Honolulu",
+      "state": "HI",
+      "country": "United States",
+      "classification": "Class I",
+      "openfda": {},
+      "product_type": "Food",
+      "event_id": "99571",
+      "recalling_firm": "H & U Inc. dba Sun Noodle",
+      "address_1": "1933 Colburn St",
+      "address_2": "N/A",
+      "postal_code": "96819-3248",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Two or more of the following: Email, Fax, Letter, Press Release, Telephone, Visit",
+      "distribution_pattern": "Distribute in HI.",
+      "recall_number": "H-1258-2026",
+      "product_description": "Sura Tanmen Hot and Sour Flavor Premium Japanese Noodles & Soup Base. Retail package net wt. 15.4oz. Product is ramen noodle kit which contains noodles and Soba soup packet.   Item #05410 retail package, UPC 085315054108 Item #05410.1 cardboard box (12 packages per case), UPC 085315054105  Product is Perishable Frozen or Refrigerated and made by Sun Noodle Hawaii 1933 Colburn Street, Honolulu, HI",
+      "product_quantity": "140 packages",
+      "reason_for_recall": "Soba sauce packet, which contains bonito, sardine, and mackerel (fish), was packed into Sura Tanmen Hot and Sour Flavor ramen noodle package kit, but fish species are not declared on finished product label.",
+      "recall_initiation_date": "20260804",
+      "center_classification_date": "20260821",
+      "termination_date": "20260827",
+      "report_date": "20260902",
+      "code_info": "Production Lot: 1226183  Products will be dated for expiration according to their date of defrost by retailer or distributor in the following format: MM/DD"
+    },
+    {
+      "status": "Ongoing",
+      "city": "Union City",
+      "state": "CA",
+      "country": "United States",
+      "classification": "Class I",
+      "openfda": {},
+      "product_type": "Food",
+      "event_id": "99424",
+      "recalling_firm": "KHONG GUAN (HQ)",
+      "address_1": "685 South 9th Avenue",
+      "address_2": "N/A",
+      "postal_code": "94587",
+      "voluntary_mandated": "Voluntary: Firm initiated",
+      "initial_firm_notification": "Letter",
+      "distribution_pattern": "Domestic: AZ, CA, CO, HI, NJ, OR, TX, WA. Foreign: Not applicable.",
+      "recall_number": "H-1259-2026",
+      "product_description": "Glutinous Rice Balls with Black Sesame Filling NET WT. 14.1 OZ (400 g) Product of China UPC: 6908791000053",
+      "product_quantity": "87 cases (36 units/case)",
+      "reason_for_recall": "Undeclared peanuts.",
+      "recall_initiation_date": "20260713",
+      "center_classification_date": "20260821",
+      "report_date": "20260902",
+      "code_info": "USE BY: 10/19/2027; 9/22/2027"
+    }
+  ]
+}
