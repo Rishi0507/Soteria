@@ -1,0 +1,25 @@
+# Local RabbitMQ for developing the ingestion services.
+# Person 3's /infra supersedes this for shared environments.
+#   docker compose -f libs/feedkit/dev/docker-compose.yml up -d
+# Management UI: http://localhost:15672  (guest / guest)
+#
+# Deliberately no persistent volume: a named volume on Docker Desktop for
+# Windows can leave /var/lib/rabbitmq/.erlang.cookie unreadable and crash
+# the node. Messages here are dev-only and re-emitted by the pollers anyway.
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: soteria-rabbitmq
+    hostname: soteria-rabbitmq
+    # Start directly as the rabbitmq user: on Docker Desktop for Windows the
+    # root→rabbitmq drop in the image entrypoint can leave the Erlang cookie
+    # unreadable (eacces) and crash the node.
+    user: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
