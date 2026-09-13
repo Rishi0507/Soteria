@@ -9,17 +9,25 @@ import { useRescue } from './features/rescue/useRescue'
 import { BackendStatus } from './features/status/BackendStatus'
 
 /**
- * The product this demo shop sells. The GTIN matches the seeded catalog, so the
- * lot codes below exercise each verdict against the running resolution-service.
+ * The product this demo shop sells: a real item under a real recall.
+ *
+ * Gifford's Power play fudge ice cream, openFDA H-1245-2026 (Class II),
+ * withdrawn for potential foreign object contamination — rubber pieces. The
+ * title is the name Open Food Facts holds for this barcode, so the page and the
+ * allergen panel below it describe the same product rather than two.
+ *
+ * 26184 is the lot the notice actually names. CLEAN-A and CLEAN-B are the
+ * uncontaminated lots seedshop stocks beside it, which is the whole point: a
+ * hold takes the one lot and leaves the rest selling.
  */
 const PRODUCT = {
-    gtin: '041196910537',
-    title: 'Sunfield Farms Chewy Granola Bars',
-    variant: '12 ct',
+    gtin: '860864000307',
+    title: 'Power play fudge ice cream',
+    variant: 'One quart (946 mL)',
     price: '$4.49',
     lots: [
-        { code: '8H-1132', hint: 'recalled lot' },
-        { code: '8H-2000', hint: 'clean lot' },
+        { code: '26184', hint: 'recalled lot' },
+        { code: 'CLEAN-A', hint: 'clean lot' },
         { code: 'ZZ-0000', hint: 'lot we don’t carry' },
     ],
 }
@@ -28,7 +36,7 @@ const PRODUCT = {
  * Query parameters let the emailed link land straight on the customer's choice:
  *   ?rescue=<id>&token=<consent token>   the link we send
  *   ?order=ORD-1001                      lookup by order, for the account page
- *   ?lot=8H-1132                         preselect the lot on the pack
+ *   ?lot=26184                           preselect the lot on the pack
  */
 function useQuery() {
     const params = new URLSearchParams(window.location.search)
@@ -116,7 +124,7 @@ export default function App() {
                                     id="lot"
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
-                                    placeholder="e.g. 8H-1132"
+                                    placeholder="e.g. 26184"
                                     className="w-48 rounded-lg border border-neutral-300 px-3 py-2 text-sm"
                                 />
                                 <button
