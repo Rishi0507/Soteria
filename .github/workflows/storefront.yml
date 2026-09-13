@@ -1,0 +1,42 @@
+name: storefront
+
+on:
+  push:
+    paths:
+      - 'apps/storefront/**'
+      - 'contracts/openapi/**'
+      - '.github/workflows/storefront.yml'
+  pull_request:
+    paths:
+      - 'apps/storefront/**'
+      - 'contracts/openapi/**'
+      - '.github/workflows/storefront.yml'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/storefront
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/storefront/package-lock.json
+
+      - run: npm ci
+
+      # Types are generated from /contracts. If a spec changed and the
+      # committed types weren't regenerated, fail here rather than letting
+      # the drift surface at runtime.
+      - name: Check generated types are current
+        run: npm run codegen:check
+
+      - run: npm run lint
+
+      - run: npx tsc -b --noEmit
+
+      - run: npm run build-storybook
