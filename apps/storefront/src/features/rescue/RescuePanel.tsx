@@ -30,7 +30,7 @@ export function RescuePanel({
 }: Props) {
     if (loading) {
         return (
-            <section className="rounded-xl border border-neutral-200 bg-white p-5 text-sm text-neutral-500">
+            <section className="block text-ui text-ash-gray">
                 Loading your order…
             </section>
         )
@@ -38,9 +38,9 @@ export function RescuePanel({
 
     if (error || !rescue) {
         return (
-            <section className="rounded-xl border border-neutral-200 bg-white p-5 text-sm text-neutral-700">
-                <p className="font-medium">We can’t load this request right now.</p>
-                <p className="mt-1 text-neutral-600">
+            <section className="block text-ui text-silver-mist">
+                <p className="font-normal">We can’t load this request right now.</p>
+                <p className="mt-1 text-ash-gray">
                     Your order has not been changed. Please try the link in your email again,
                     or contact support.
                 </p>
@@ -68,25 +68,25 @@ export function RescuePanel({
     const busy = Boolean(confirming)
 
     return (
-        <section className="rounded-xl border border-neutral-200 bg-white p-5">
-            <header className="border-b border-neutral-100 pb-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-red-700">
+        <section className="block">
+            <header className="border-b border-transparent pb-4">
+                <p className="text-caption font-normal uppercase tracking-wide text-saffron-spark">
                     Recall affecting order {rescue.order_id}
                 </p>
-                <h2 className="mt-1 text-lg font-semibold text-neutral-900">
+                <h2 className="mt-1 text-heading-2xs font-normal text-bone-white">
                     {line.product_title ?? line.sku}
                 </h2>
-                <p className="mt-1 text-sm text-neutral-700">
+                <p className="mt-1 text-ui text-silver-mist">
                     {line.quantity} × {formatMoney(line.unit_price)}
-                    <span className="ml-2 text-neutral-600">
+                    <span className="ml-2 text-ash-gray">
                         {line.lot_code === LOT_UNATTRIBUTED
                             ? 'from one of the recalled lots'
                             : `lot ${line.lot_code}`}
                     </span>
                 </p>
                 {rescue.hazard && (
-                    <p className="mt-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-900">
-                        <span className="font-semibold">Do not consume this item.</span>{' '}
+                    <p className="mt-2 rounded-3xl px-3 py-2 text-ui text-saffron-spark">
+                        <span className="font-normal">Do not consume this item.</span>{' '}
                         {rescue.hazard}
                     </p>
                 )}
@@ -96,10 +96,10 @@ export function RescuePanel({
                 <Outcome rescue={rescue} />
             ) : (
                 <div className="pt-4">
-                    <h3 className="text-sm font-semibold text-neutral-900">
+                    <h3 className="text-ui font-normal text-bone-white">
                         Choose what happens to this item
                     </h3>
-                    <p className="mt-1 text-sm text-neutral-600">
+                    <p className="mt-1 text-ui text-ash-gray">
                         Nothing changes until you choose. We never swap an item for you.
                     </p>
 
@@ -118,14 +118,14 @@ export function RescuePanel({
                             ))}
                         </ul>
                     ) : (
-                        <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                        <p className="mt-3 rounded-3xl px-3 py-2 text-ui text-saffron-spark">
                             We could not find a replacement we are confident is safe for you,
                             so we are not offering one.
                         </p>
                     )}
 
                     {withheldUnsafe > 0 && (
-                        <p className="mt-3 text-sm text-neutral-600">
+                        <p className="mt-3 text-ui text-ash-gray">
                             {withheldUnsafe === 1
                                 ? 'One other replacement was not offered because it carries an allergen linked to this recall.'
                                 : `${withheldUnsafe} other replacements were not offered because they carry an allergen linked to this recall.`}
@@ -133,11 +133,11 @@ export function RescuePanel({
                     )}
 
                     {unverified.length > 0 && (
-                        <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-4">
-                            <p className="text-sm font-semibold text-amber-900">
+                        <div className="mt-4 rounded-3xl border border-saffron-spark/60 p-4">
+                            <p className="text-ui font-normal text-saffron-spark">
                                 Not checked for allergens
                             </p>
-                            <p className="mt-1 text-sm text-amber-900">
+                            <p className="mt-1 text-ui text-saffron-spark">
                                 We could not verify{' '}
                                 {unverified.length === 1 ? 'this product' : 'these products'}{' '}
                                 against the allergen in this recall. We are not recommending
@@ -160,23 +160,23 @@ export function RescuePanel({
                         </div>
                     )}
 
-                    <ul className="mt-4 space-y-2 border-t border-neutral-100 pt-4">
+                    <ul className="mt-4 space-y-2 border-t border-transparent pt-4">
                         {others.map((option) => (
                             <li key={option.option_id}>
                                 <button
                                     type="button"
                                     disabled={busy}
                                     onClick={() => onConfirm(option.option_id)}
-                                    className="w-full rounded-lg border border-neutral-300 px-4 py-2 text-left text-sm font-medium text-neutral-800 hover:bg-neutral-50 disabled:opacity-50"
+                                    className="w-full rounded-3xl border border-transparent px-4 py-2 text-left text-ui font-normal text-bone-white hover:bg-white/5 disabled:opacity-50"
                                 >
                                     {option.kind === 'REFUND'
                                         ? 'Refund this item'
                                         : 'Cancel the order'}
-                                    <span className="ml-2 font-normal text-neutral-600">
+                                    <span className="ml-2 font-normal text-ash-gray">
                                         {option.rationale}
                                     </span>
                                     {confirming === option.option_id && (
-                                        <span className="ml-2 text-neutral-500">Recording…</span>
+                                        <span className="ml-2 text-ash-gray">Recording…</span>
                                     )}
                                 </button>
                             </li>
@@ -186,12 +186,12 @@ export function RescuePanel({
             )}
 
             {message && (
-                <p className="mt-4 rounded-lg bg-neutral-100 px-3 py-2 text-sm text-neutral-800">
+                <p className="mt-4 rounded-3xl px-3 py-2 text-ui text-bone-white">
                     {message}
                 </p>
             )}
 
-            <footer className="mt-4 text-xs text-neutral-500">
+            <footer className="mt-4 text-caption text-ash-gray">
                 Offer expires {new Date(rescue.expires_at).toLocaleString()} · incident{' '}
                 {rescue.incident_id}
             </footer>
@@ -233,19 +233,19 @@ function SubstituteOption({
     onConfirm: (optionId: string) => void
 }) {
     return (
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50/60 p-4">
+        <div className="rounded-3xl border border-transparent bg-transparent p-4">
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <p className="font-medium text-neutral-900">{option.product_title}</p>
-                    <p className="mt-0.5 text-sm text-neutral-700">
+                    <p className="font-normal text-bone-white">{option.product_title}</p>
+                    <p className="mt-0.5 text-ui text-silver-mist">
                         {priceNote(option, original)}
                     </p>
-                    <p className="mt-1 text-sm text-neutral-700">
+                    <p className="mt-1 text-ui text-silver-mist">
                         {option.allergens && option.allergens.length > 0
                             ? `Contains: ${option.allergens.join(', ')}`
                             : 'No allergens found in this product’s data'}
                     </p>
-                    <p className="mt-1 text-xs text-emerald-800">
+                    <p className="mt-1 text-caption text-verdant-text">
                         Checked against the recall hazard and against the allergens of your
                         original item.
                     </p>
@@ -254,7 +254,7 @@ function SubstituteOption({
                     type="button"
                     disabled={disabled}
                     onClick={() => onConfirm(option.option_id)}
-                    className="shrink-0 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
+                    className="shrink-0 btn-primary"
                 >
                     {pending ? 'Confirming…' : 'Send me this instead'}
                 </button>
@@ -281,10 +281,10 @@ function UnverifiedOption({
     onConfirm: (optionId: string) => void
 }) {
     return (
-        <div className="rounded-lg border border-amber-300 bg-white p-4">
-            <p className="font-medium text-neutral-900">{option.product_title}</p>
-            <p className="mt-0.5 text-sm text-neutral-700">{priceNote(option, original)}</p>
-            <p className="mt-1 text-sm text-amber-900">
+        <div className="rounded-3xl border border-saffron-spark/60 p-4">
+            <p className="font-normal text-bone-white">{option.product_title}</p>
+            <p className="mt-0.5 text-ui text-silver-mist">{priceNote(option, original)}</p>
+            <p className="mt-1 text-ui text-saffron-spark">
                 Allergen information for this product is unavailable. It has not been checked
                 against this recall.
             </p>
@@ -292,7 +292,7 @@ function UnverifiedOption({
                 type="button"
                 disabled={disabled}
                 onClick={() => onConfirm(option.option_id)}
-                className="mt-3 rounded-lg border border-neutral-400 px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-50 disabled:opacity-50"
+                className="mt-3 btn-ghost"
             >
                 {pending ? 'Confirming…' : 'Send this anyway'}
             </button>
@@ -303,7 +303,7 @@ function UnverifiedOption({
 function Outcome({ rescue }: { rescue: Rescue }) {
     if (rescue.status === 'EXPIRED') {
         return (
-            <p className="pt-4 text-sm text-neutral-700">
+            <p className="pt-4 text-ui text-silver-mist">
                 This offer expired before a choice was made. Your order was not changed;
                 please contact support.
             </p>
@@ -316,8 +316,8 @@ function Outcome({ rescue }: { rescue: Rescue }) {
         : null
 
     return (
-        <div className="pt-4 text-sm text-neutral-800">
-            <p className="font-medium text-emerald-800">Thank you, that’s recorded.</p>
+        <div className="pt-4 text-ui text-bone-white">
+            <p className="font-normal text-verdant-text">Thank you, that’s recorded.</p>
             <p className="mt-1">
                 {chosen?.kind === 'SUBSTITUTE'
                     ? `We are sending ${chosen.product_title} instead.`
@@ -325,7 +325,7 @@ function Outcome({ rescue }: { rescue: Rescue }) {
                         ? 'We are refunding this item and leaving the rest of your order as it is.'
                         : 'We are cancelling this order.'}
             </p>
-            {confirmed && <p className="mt-1 text-neutral-600">Confirmed {confirmed}.</p>}
+            {confirmed && <p className="mt-1 text-ash-gray">Confirmed {confirmed}.</p>}
         </div>
     )
 }

@@ -27,23 +27,23 @@ export function DossierArchivePanel({
     onReload,
 }: Props) {
     return (
-        <section className="rounded-xl border border-neutral-200 bg-white">
-            <header className="border-b border-neutral-100 p-4">
-                <h2 className="text-lg font-semibold text-neutral-900">Incident archive</h2>
-                <p className="mt-1 text-sm text-neutral-600">
+        <section className="block">
+            <header className="border-b border-transparent p-4">
+                <h2 className="text-heading-2xs font-normal text-bone-white">Incident archive</h2>
+                <p className="mt-1 text-ui text-ash-gray">
                     Every incident with events on record, and whether a dossier has been built
                     for it.
                 </p>
             </header>
 
             {loading && (
-                <p className="p-5 text-sm text-neutral-500">Loading the archive&hellip;</p>
+                <p className="p-5 text-ui text-ash-gray">Loading the archive&hellip;</p>
             )}
 
             {!loading && error && (
-                <div className="p-5 text-sm text-neutral-700">
-                    <p className="font-medium">We can&rsquo;t read the archive.</p>
-                    <p className="mt-1 text-neutral-600">
+                <div className="p-5 text-ui text-silver-mist">
+                    <p className="font-normal">We can&rsquo;t read the archive.</p>
+                    <p className="mt-1 text-ash-gray">
                         This says nothing about whether the records exist — only that the audit
                         service did not answer.
                     </p>
@@ -51,7 +51,7 @@ export function DossierArchivePanel({
                         <button
                             type="button"
                             onClick={onReload}
-                            className="mt-3 rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-50"
+                            className="mt-3 btn-ghost"
                         >
                             Try again
                         </button>
@@ -61,7 +61,7 @@ export function DossierArchivePanel({
 
             {!loading && !error && rows.length === 0 && (
                 <div className="p-5">
-                    <p className="text-sm font-medium text-neutral-900">
+                    <p className="text-ui font-normal text-bone-white">
                         Nothing is recorded.
                     </p>
                     <VolatileLedgerNote context="empty" />
@@ -69,7 +69,7 @@ export function DossierArchivePanel({
                         <button
                             type="button"
                             onClick={onReload}
-                            className="mt-3 rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-50"
+                            className="mt-3 btn-ghost"
                         >
                             Check again
                         </button>
@@ -78,7 +78,7 @@ export function DossierArchivePanel({
             )}
 
             {!loading && !error && rows.length > 0 && (
-                <ul className="divide-y divide-neutral-100">
+                <ul className="divide-y divide-white/10">
                     {rows.map((row) => (
                         <li key={row.incident_id}>
                             <button
@@ -86,31 +86,31 @@ export function DossierArchivePanel({
                                 onClick={() => onSelect(row.incident_id)}
                                 aria-current={row.incident_id === selectedId}
                                 className={
-                                    'w-full px-4 py-3 text-left hover:bg-neutral-50 ' +
-                                    (row.incident_id === selectedId ? 'bg-neutral-50' : '')
+                                    'w-full px-4 py-3 text-left hover:bg-white/5 ' +
+                                    (row.incident_id === selectedId ? 'bg-white/5' : '')
                                 }
                             >
                                 <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                                     {row.has_dossier ? (
-                                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium uppercase tracking-wide text-emerald-900">
+                                        <span className="chip chip-verdant uppercase tracking-wide text-verdant-text">
                                             dossier built
                                         </span>
                                     ) : (
-                                        <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-xs font-medium uppercase tracking-wide text-neutral-800">
+                                        <span className="rounded-full px-2 py-0.5 text-caption font-normal uppercase tracking-wide text-bone-white">
                                             not generated
                                         </span>
                                     )}
-                                    <span className="font-medium text-neutral-900">
+                                    <span className="font-normal text-bone-white">
                                         {row.incident_id}
                                     </span>
-                                    <span className="ml-auto text-xs text-neutral-500 tabular-nums">
+                                    <span className="ml-auto text-caption text-ash-gray tabular-nums">
                                         {row.event_count === 1
                                             ? '1 event'
                                             : `${row.event_count} events`}
                                     </span>
                                 </div>
                                 {row.content_hash && (
-                                    <p className="mt-1 font-mono text-xs text-neutral-500">
+                                    <p className="mt-1 font-mono text-caption text-ash-gray">
                                         chain head {shortHash(row.content_hash)}
                                     </p>
                                 )}
@@ -121,7 +121,7 @@ export function DossierArchivePanel({
             )}
 
             {!loading && !error && rows.length > 0 && (
-                <footer className="border-t border-neutral-100 px-4 py-3">
+                <footer className="border-t border-transparent px-4 py-3">
                     <VolatileLedgerNote context="list" />
                 </footer>
             )}

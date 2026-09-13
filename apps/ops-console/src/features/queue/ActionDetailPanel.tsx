@@ -42,7 +42,7 @@ export function ActionDetailPanel({
 }: Props) {
     if (loading) {
         return (
-            <section className="rounded-xl border border-neutral-200 bg-white p-5 text-sm text-neutral-500">
+            <section className="block text-ui text-ash-gray">
                 Loading the action&hellip;
             </section>
         )
@@ -50,14 +50,14 @@ export function ActionDetailPanel({
 
     if (error || !action) {
         return (
-            <section className="rounded-xl border border-neutral-200 bg-white p-5 text-sm text-neutral-700">
-                <p className="font-medium">We can&rsquo;t read this action.</p>
-                <p className="mt-1 text-neutral-600">Nothing has been decided.</p>
+            <section className="block text-ui text-silver-mist">
+                <p className="font-normal">We can&rsquo;t read this action.</p>
+                <p className="mt-1 text-ash-gray">Nothing has been decided.</p>
                 {onReload && (
                     <button
                         type="button"
                         onClick={onReload}
-                        className="mt-3 rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-50"
+                        className="mt-3 btn-ghost"
                     >
                         Try again
                     </button>
@@ -69,15 +69,15 @@ export function ActionDetailPanel({
     const pending = action.status === 'PENDING_REVIEW'
 
     return (
-        <section className="rounded-xl border border-neutral-200 bg-white p-5">
-            <header className="border-b border-neutral-100 pb-4">
+        <section className="block">
+            <header className="border-b border-transparent pb-4">
                 <div className="flex flex-wrap items-center gap-3">
                     <StatusBadge status={action.status} />
-                    <h2 className="text-lg font-semibold text-neutral-900">
+                    <h2 className="text-heading-2xs font-normal text-bone-white">
                         {action.hazard ?? 'Hazard not stated'}
                     </h2>
                 </div>
-                <dl className="mt-3 grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
+                <dl className="mt-3 grid gap-x-8 gap-y-2 text-ui sm:grid-cols-2">
                     <Row label="Incident" value={action.incident_id} />
                     <Row label="Action" value={action.action_id} />
                     <Row
@@ -90,8 +90,8 @@ export function ActionDetailPanel({
                         value={new Date(action.created_at).toLocaleString()}
                     />
                 </dl>
-                <p className="mt-3 rounded-lg bg-neutral-100 px-3 py-2 text-sm text-neutral-800">
-                    <span className="font-medium">Why this is in the queue: </span>
+                <p className="mt-3 rounded-3xl px-3 py-2 text-ui text-bone-white">
+                    <span className="font-normal">Why this is in the queue: </span>
                     {action.reason ?? 'No queueing reason was recorded.'}
                 </p>
             </header>
@@ -130,9 +130,9 @@ function Row({
 }) {
     return (
         <div>
-            <dt className="text-neutral-500">{label}</dt>
-            <dd className="font-medium text-neutral-900">{value}</dd>
-            {hint && <dd className="text-xs text-neutral-500">{hint}</dd>}
+            <dt className="text-ash-gray">{label}</dt>
+            <dd className="font-normal text-bone-white">{value}</dd>
+            {hint && <dd className="text-caption text-ash-gray">{hint}</dd>}
         </div>
     )
 }
@@ -140,13 +140,13 @@ function Row({
 function Notice({ notice }: { notice: DecisionNotice }) {
     const tone =
         notice.kind === 'decided'
-            ? 'bg-emerald-50 text-emerald-900'
+            ? 'chip chip-verdant'
             : notice.kind === 'partial' || notice.kind === 'conflict'
-              ? 'bg-amber-50 text-amber-900'
-              : 'bg-red-50 text-red-900'
+              ? 'chip chip-saffron'
+              : 'chip chip-saffron'
 
     return (
-        <p role="status" className={`mt-4 rounded-lg px-3 py-2 text-sm ${tone}`}>
+        <p role="status" className={`mt-4 rounded-3xl px-3 py-2 text-ui${tone}`}>
             {notice.text}
         </p>
     )
@@ -167,7 +167,7 @@ function TargetList({
 
     return (
         <div className="pt-4">
-            <h3 className="text-sm font-semibold text-neutral-900">
+            <h3 className="text-ui font-normal text-bone-white">
                 {targets.length === 1 ? 'Product' : `Products (${targets.length})`}
             </h3>
             <ul className="mt-2 space-y-2">
@@ -176,31 +176,31 @@ function TargetList({
                     return (
                         <li
                             key={t.gtin}
-                            className="rounded-lg border border-neutral-200 p-3 text-sm"
+                            className="block text-ui"
                         >
                             <div className="flex flex-wrap items-baseline gap-x-3">
-                                <span className="font-medium text-neutral-900">
+                                <span className="font-normal text-bone-white">
                                     {t.product_title ?? t.sku ?? t.gtin}
                                 </span>
-                                <span className="text-xs text-neutral-500">
+                                <span className="text-caption text-ash-gray">
                                     GTIN {t.gtin}
                                     {t.sku ? ` · SKU ${t.sku}` : ''}
                                 </span>
-                                <span className="ml-auto rounded bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-700">
+                                <span className="ml-auto rounded-3xl px-2 py-0.5 text-caption font-normal text-silver-mist">
                                     {t.scope}
                                 </span>
                             </div>
 
                             {isNarrowable(t) ? (
-                                <p className="mt-1 text-neutral-700">
+                                <p className="mt-1 text-silver-mist">
                                     Lots in scope:{' '}
                                     <span className="tabular-nums">
                                         {(t.lot_codes ?? []).join(', ')}
                                     </span>
                                 </p>
                             ) : (
-                                <p className="mt-1 rounded bg-amber-50 px-2 py-1 text-amber-900">
-                                    <span className="font-medium">
+                                <p className="mt-1 rounded-3xl px-2 py-1 text-saffron-spark">
+                                    <span className="font-normal">
                                         Whole product — this cannot be narrowed.
                                     </span>{' '}
                                     No lot codes were recovered for it, so confirming holds the
@@ -209,7 +209,7 @@ function TargetList({
                             )}
 
                             {typeof t.confidence === 'number' && (
-                                <p className="mt-1 text-xs text-neutral-500 tabular-nums">
+                                <p className="mt-1 text-caption text-ash-gray tabular-nums">
                                     match confidence {t.confidence}
                                 </p>
                             )}
@@ -221,7 +221,7 @@ function TargetList({
             </ul>
 
             {status === 'PENDING_REVIEW' && (
-                <p className="mt-2 text-xs text-neutral-500">
+                <p className="mt-2 text-caption text-ash-gray">
                     How many units this would hold is not known until the hold runs — the
                     service returns unit counts only in the result of a confirmation.
                 </p>
@@ -233,14 +233,14 @@ function TargetList({
 function ResultLine({ result }: { result: ContainmentResult }) {
     const tone =
         result.status === 'HELD'
-            ? 'bg-emerald-50 text-emerald-900'
+            ? 'chip chip-verdant'
             : result.status === 'FAILED'
-              ? 'bg-red-50 text-red-900'
-              : 'bg-neutral-100 text-neutral-800'
+              ? 'chip chip-saffron'
+              : 'chip'
 
     return (
-        <div className={`mt-2 rounded px-2 py-1 text-sm ${tone}`}>
-            <span className="font-medium">{result.status}</span>
+        <div className={`mt-2 rounded-3xl px-2 py-1 text-ui${tone}`}>
+            <span className="font-normal">{result.status}</span>
             {result.status === 'HELD' && (
                 <span className="ml-2 tabular-nums">
                     {result.units_held ?? 0} units held
@@ -251,7 +251,7 @@ function ResultLine({ result }: { result: ContainmentResult }) {
             )}
             {result.error && <span className="ml-2">{result.error}</span>}
             {result.platform_ref && (
-                <span className="ml-2 text-xs opacity-75">{result.platform_ref}</span>
+                <span className="ml-2 text-caption opacity-75">{result.platform_ref}</span>
             )}
         </div>
     )
@@ -327,18 +327,18 @@ function DecisionForm({
     }
 
     return (
-        <div className="mt-5 border-t border-neutral-100 pt-4">
+        <div className="mt-5 border-t border-transparent pt-4">
             {narrowable.length > 0 ? (
                 <fieldset disabled={deciding}>
-                    <legend className="text-sm font-semibold text-neutral-900">
+                    <legend className="text-ui font-normal text-bone-white">
                         Lots to hold
                     </legend>
-                    <p className="mt-1 text-sm text-neutral-600">
+                    <p className="mt-1 text-ui text-ash-gray">
                         All lots are selected. Unselect one to leave it on sale. You can only
                         narrow what was already in scope — there is no way to add a lot here.
                     </p>
                     {narrowable.length > 1 && (
-                        <p className="mt-1 rounded-lg bg-neutral-100 px-3 py-2 text-sm text-neutral-800">
+                        <p className="mt-1 rounded-3xl px-3 py-2 text-ui text-bone-white">
                             This one list applies to every product on this action. The service
                             takes no per-product instruction, so unselecting a code removes it
                             from every product that carries it.
@@ -353,7 +353,7 @@ function DecisionForm({
                             )
                             return (
                                 <li key={code}>
-                                    <label className="flex items-start gap-2 text-sm text-neutral-800">
+                                    <label className="flex items-start gap-2 text-ui text-bone-white">
                                         <input
                                             type="checkbox"
                                             checked={isOn}
@@ -361,9 +361,9 @@ function DecisionForm({
                                             className="mt-1"
                                         />
                                         <span>
-                                            <span className="font-medium tabular-nums">{code}</span>
+                                            <span className="font-normal tabular-nums">{code}</span>
                                             {carriers.length > 1 && (
-                                                <span className="ml-2 text-xs text-amber-800">
+                                                <span className="ml-2 text-caption text-saffron-spark">
                                                     on {carriers.length} products:{' '}
                                                     {carriers
                                                         .map((t) => t.product_title ?? t.gtin)
@@ -380,9 +380,9 @@ function DecisionForm({
                     {emptied.length > 0 && (
                         <div
                             role="alert"
-                            className="mt-3 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-900"
+                            className="mt-3 rounded-3xl border border-saffron-spark/60 p-3 text-ui text-saffron-spark"
                         >
-                            <p className="font-semibold">
+                            <p className="font-normal">
                                 This selection would hold more, not less.
                             </p>
                             <p className="mt-1">
@@ -399,7 +399,7 @@ function DecisionForm({
                     )}
 
                     {narrowable.length < action.targets.length && (
-                        <p className="mt-3 text-sm text-amber-900">
+                        <p className="mt-3 text-ui text-saffron-spark">
                             {action.targets.length - narrowable.length} of{' '}
                             {action.targets.length} products have no lot codes and will be held
                             whole whatever is selected here.
@@ -407,14 +407,14 @@ function DecisionForm({
                     )}
                 </fieldset>
             ) : (
-                <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                <p className="rounded-3xl px-3 py-2 text-ui text-saffron-spark">
                     No lot codes were recovered on any product here, so nothing can be
                     narrowed. Confirming holds every product on this action in full.
                 </p>
             )}
 
             <div className="mt-4">
-                <label htmlFor="actor" className="block text-sm font-medium text-neutral-800">
+                <label htmlFor="actor" className="block text-ui font-normal text-bone-white">
                     Your name or operator ID
                 </label>
                 <input
@@ -426,17 +426,17 @@ function DecisionForm({
                         setProblem(null)
                     }}
                     placeholder="e.g. ops:dana"
-                    className="mt-1 w-64 rounded-lg border border-neutral-300 px-3 py-2 text-sm disabled:bg-neutral-50"
+                    className="mt-1 w-64 btn-ghost"
                 />
-                <p className="mt-1 text-xs text-neutral-500">
+                <p className="mt-1 text-caption text-ash-gray">
                     Recorded against the decision. It is not checked against anything.
                 </p>
             </div>
 
             <div className="mt-4 grid gap-4 lg:grid-cols-2">
-                <div className="rounded-lg border border-neutral-200 p-4">
-                    <h3 className="text-sm font-semibold text-neutral-900">Confirm the hold</h3>
-                    <label htmlFor="note" className="mt-2 block text-sm text-neutral-700">
+                <div className="block">
+                    <h3 className="text-ui font-normal text-bone-white">Confirm the hold</h3>
+                    <label htmlFor="note" className="mt-2 block text-ui text-silver-mist">
                         Note (optional)
                     </label>
                     <input
@@ -445,25 +445,25 @@ function DecisionForm({
                         disabled={deciding}
                         onChange={(e) => setNote(e.target.value)}
                         placeholder="e.g. checked against the FDA notice"
-                        className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm disabled:bg-neutral-50"
+                        className="mt-1 w-full btn-ghost"
                     />
                     <button
                         type="button"
                         onClick={confirm}
                         disabled={deciding || emptied.length > 0}
-                        className="mt-3 rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800 disabled:opacity-50"
+                        className="mt-3 btn-primary"
                     >
                         {deciding ? 'Working…' : 'Confirm hold'}
                     </button>
                 </div>
 
-                <div className="rounded-lg border border-neutral-200 p-4">
-                    <h3 className="text-sm font-semibold text-neutral-900">Reject</h3>
-                    <p className="mt-1 text-xs text-neutral-600">
+                <div className="block">
+                    <h3 className="text-ui font-normal text-bone-white">Reject</h3>
+                    <p className="mt-1 text-caption text-ash-gray">
                         Nothing is held. This cannot be undone — there is no way to reopen a
                         rejected action.
                     </p>
-                    <label htmlFor="reason" className="mt-2 block text-sm text-neutral-700">
+                    <label htmlFor="reason" className="mt-2 block text-ui text-silver-mist">
                         Reason (required)
                     </label>
                     <input
@@ -475,13 +475,13 @@ function DecisionForm({
                             setProblem(null)
                         }}
                         placeholder="e.g. notice refers to a different brand"
-                        className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm disabled:bg-neutral-50"
+                        className="mt-1 w-full btn-ghost"
                     />
                     <button
                         type="button"
                         onClick={reject}
                         disabled={deciding}
-                        className="mt-3 rounded-lg border border-neutral-400 px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-50 disabled:opacity-50"
+                        className="mt-3 btn-ghost"
                     >
                         {deciding ? 'Working…' : 'Reject'}
                     </button>
@@ -489,13 +489,13 @@ function DecisionForm({
             </div>
 
             {problem && (
-                <p role="alert" className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-900">
+                <p role="alert" className="mt-4 rounded-3xl px-3 py-2 text-ui text-saffron-spark">
                     {problem}
                 </p>
             )}
 
             {narrowed && emptied.length === 0 && (
-                <p className="mt-3 text-xs text-neutral-600">
+                <p className="mt-3 text-caption text-ash-gray">
                     Confirming will hold:{' '}
                     {narrowable
                         .map(
@@ -516,9 +516,9 @@ function Outcome({ action }: { action: ContainmentAction }) {
     const rejected = action.status === 'HUMAN_REJECTED'
 
     return (
-        <div className="mt-5 border-t border-neutral-100 pt-4 text-sm">
-            <p className="text-neutral-800">
-                <span className="font-medium">
+        <div className="mt-5 border-t border-transparent pt-4 text-ui">
+            <p className="text-bone-white">
+                <span className="font-normal">
                     {rejected ? 'Rejected' : 'Decided'}
                 </span>
                 {action.actor ? ` by ${action.actor}` : ''}
@@ -528,17 +528,17 @@ function Outcome({ action }: { action: ContainmentAction }) {
                 .
             </p>
             {action.note && (
-                <p className="mt-1 text-neutral-700">
+                <p className="mt-1 text-silver-mist">
                     {/* On a rejection the service stores the reviewer's reason in
                         `note`; `reason` keeps the auto-generated queueing text. */}
-                    <span className="font-medium">
+                    <span className="font-normal">
                         {rejected ? 'Reason given: ' : 'Note: '}
                     </span>
                     {action.note}
                 </p>
             )}
             {!rejected && (action.results?.length ?? 0) === 0 && (
-                <p className="mt-1 text-neutral-600">
+                <p className="mt-1 text-ash-gray">
                     No per-target results were returned.
                 </p>
             )}
