@@ -9,7 +9,12 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "codegen:resolution": "openapi-typescript ../../contracts/openapi/resolution-api.v1.yaml -o src/api/resolution.types.ts",
+    "codegen:rescue": "openapi-typescript ../../contracts/openapi/order-rescue-api.v1.yaml -o src/api/rescue.types.ts",
+    "codegen:containment": "openapi-typescript ../../contracts/openapi/containment-api.v1.yaml -o src/api/containment.types.ts",
+    "codegen": "npm run codegen:resolution && npm run codegen:rescue && npm run codegen:containment",
+    "codegen:check": "npm run codegen && git diff --exit-code src/api/*.types.ts"
   },
   "dependencies": {
     "graphql": "^16.14.2",
