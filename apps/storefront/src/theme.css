@@ -1,0 +1,183 @@
+/*
+ * Sotería Market — "cinematic open-road diorama".
+ *
+ * Warm cream canvas, product photography doing the storytelling, thin black
+ * type with tight negative tracking, hairline borders, 20px photo cards,
+ * pill-shaped interactive elements. Near-monochrome; one ember-orange accent
+ * used only as a small surface wash, never as a button fill. No shadows, no
+ * gradients. Recall handling is a quiet capability of the store — it only
+ * becomes visible when something is actually detected.
+ *
+ * F37Bolton is the brand face; Inter (geometric enough) is the fallback with
+ * the same convention: 400 for everything, 700 only for display + wordmark.
+ */
+
+@theme {
+    --color-warm-cream: #faf6ef;
+    --color-pure-white: #ffffff;
+    --color-obsidian: #000000;
+    --color-pebble: #999999;
+    --color-driftwood: #a1a1a1;
+    --color-mist: #d9d9d9;
+    --color-ember-orange: #fa5c40;
+
+    --font-sans: 'F37Bolton', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+    --text-caption: 12px;
+    --text-caption--line-height: 1.2;
+    --text-caption--letter-spacing: -0.36px;
+    --text-body-sm: 14px;
+    --text-body-sm--line-height: 1.2;
+    --text-body-sm--letter-spacing: -0.42px;
+    --text-body: 16px;
+    --text-body--line-height: 1.25;
+    --text-body--letter-spacing: -0.48px;
+    --text-body-lg: 20px;
+    --text-body-lg--line-height: 1.25;
+    --text-body-lg--letter-spacing: -0.6px;
+    --text-subheading: 22px;
+    --text-subheading--line-height: 1.2;
+    --text-subheading--letter-spacing: -0.66px;
+    --text-heading-sm: 24px;
+    --text-heading-sm--line-height: 1.2;
+    --text-heading-sm--letter-spacing: -0.72px;
+    --text-heading: 34px;
+    --text-heading--line-height: 1.2;
+    --text-heading--letter-spacing: -1.02px;
+    --text-heading-lg: 48px;
+    --text-heading-lg--line-height: 1;
+    --text-heading-lg--letter-spacing: -2.4px;
+    --text-display: 72px;
+    --text-display--line-height: 1;
+    --text-display--letter-spacing: -3.6px;
+
+    --radius-2xl: 20px;
+    --radius-full: 100px;
+}
+
+@layer base {
+    :root { color-scheme: light; }
+    html { background: var(--color-warm-cream); }
+    body {
+        margin: 0;
+        background: var(--color-warm-cream);
+        color: var(--color-obsidian);
+        font-family: var(--font-sans);
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 1.25;
+        letter-spacing: -0.48px;
+        -webkit-font-smoothing: antialiased;
+    }
+    h1, h2, h3, h4 { font-weight: 400; margin: 0; }
+    button, input, select, textarea { font: inherit; color: inherit; letter-spacing: inherit; }
+    a { color: inherit; text-decoration: none; }
+    ::selection { background: var(--color-ember-orange); color: var(--color-pure-white); }
+    img { display: block; max-width: 100%; }
+}
+
+@layer components {
+    /* Display and headings: tight tracking is the whole voice. */
+    .display { font-size: 72px; line-height: 1; letter-spacing: -3.6px; font-weight: 400; }
+    .headline-lg { font-size: 48px; line-height: 1; letter-spacing: -2.4px; font-weight: 400; }
+    .headline { font-size: 34px; line-height: 1.2; letter-spacing: -1.02px; font-weight: 400; }
+    .headline-sm { font-size: 24px; line-height: 1.2; letter-spacing: -0.72px; font-weight: 400; }
+    @media (max-width: 760px) {
+        .display { font-size: 44px; letter-spacing: -2px; }
+        .headline-lg { font-size: 34px; letter-spacing: -1.2px; }
+        .headline { font-size: 26px; letter-spacing: -0.8px; }
+    }
+    .copy { font-size: 16px; line-height: 1.25; letter-spacing: -0.48px; color: var(--color-pebble); max-width: 480px; }
+    .copy-lg { font-size: 20px; line-height: 1.25; letter-spacing: -0.6px; color: var(--color-obsidian); max-width: 560px; }
+    .wordmark { font-size: 16px; font-weight: 400; letter-spacing: 0.4em; text-transform: uppercase; }
+
+    /* The only interactive pattern: text links, underline on hover; pill chips. */
+    .link {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: none; border: 0; padding: 0; cursor: pointer;
+        font-size: 14px; letter-spacing: -0.42px; color: var(--color-obsidian);
+        text-decoration: underline; text-underline-offset: 4px; text-decoration-color: transparent;
+        transition: text-decoration-color 120ms ease, color 120ms ease;
+    }
+    .link:hover { text-decoration-color: currentColor; }
+    .link:disabled { color: var(--color-pebble); cursor: not-allowed; }
+    .link-muted { color: var(--color-pebble); }
+    .link-muted:hover { color: var(--color-obsidian); }
+
+    .pill {
+        display: inline-flex; align-items: center; gap: 8px;
+        border: 1px solid var(--color-obsidian); border-radius: 100px; background: transparent;
+        padding: 10px 18px; font-size: 14px; letter-spacing: -0.42px; color: var(--color-obsidian);
+        cursor: pointer; transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+    }
+    .pill:hover { background: var(--color-obsidian); color: var(--color-warm-cream); }
+    .pill:disabled { border-color: var(--color-mist); color: var(--color-pebble); cursor: not-allowed; background: transparent; }
+    .pill.is-active { background: var(--color-obsidian); color: var(--color-warm-cream); }
+    .pill-quiet { border-color: var(--color-mist); }
+    .pill-quiet:hover { border-color: var(--color-obsidian); background: transparent; color: var(--color-obsidian); }
+    /* the one filled pill per page: black, for "add to bag" only */
+    .pill-solid { background: var(--color-obsidian); color: var(--color-warm-cream); }
+    .pill-solid:hover { background: #222; color: var(--color-warm-cream); }
+
+    .field {
+        width: 100%; background: var(--color-pure-white); border: 1px solid var(--color-mist); border-radius: 100px;
+        padding: 12px 20px; font-size: 16px; letter-spacing: -0.48px; color: var(--color-obsidian); outline: none;
+        transition: border-color 120ms ease;
+    }
+    .field::placeholder { color: var(--color-driftwood); }
+    .field:focus { border-color: var(--color-obsidian); }
+    select.field { appearance: none; }
+
+    /* Photo card: 20px radius, no border, no shadow. */
+    .photo { border-radius: 20px; overflow: hidden; background: var(--color-pure-white); }
+    .photo img { width: 100%; height: 100%; object-fit: contain; }
+    .card { background: var(--color-pure-white); border-radius: 20px; padding: 24px; }
+    .hairline { height: 1px; background: var(--color-mist); }
+    .hairline-dark { height: 1px; background: var(--color-obsidian); }
+
+    /* Ember: a thin wash strip, never a fill for actions. */
+    .wash { background: var(--color-ember-orange); color: var(--color-pure-white); }
+    .wash-strip { height: 4px; background: var(--color-ember-orange); border-radius: 100px; }
+
+    .label { font-size: 12px; letter-spacing: -0.36px; text-transform: uppercase; color: var(--color-pebble); }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing: 0; }
+    .dot { display: inline-block; width: 8px; height: 8px; border-radius: 100px; background: var(--color-pebble); }
+    .dot-ember { background: var(--color-ember-orange); }
+    .dot-ok { background: var(--color-obsidian); }
+
+    /* "block" is what the remapped panels became: rhythm, not boxes. */
+    .block { padding-block: 8px; }
+    .chip { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--color-mist); border-radius: 100px; padding: 6px 12px; font-size: 14px; letter-spacing: -0.42px; color: var(--color-obsidian); background: transparent; cursor: pointer; }
+    .chip:hover, .chip.is-active { border-color: var(--color-obsidian); }
+    .chip-verdant { border-color: var(--color-obsidian); }
+    .chip-saffron { border-color: var(--color-ember-orange); color: var(--color-ember-orange); }
+    .chip-iris { border-color: var(--color-pebble); color: var(--color-pebble); }
+    .btn-primary { composes: pill; }
+}
+
+/* Legacy class aliases from the remapped components → this system. */
+.btn-primary { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--color-obsidian); border-radius: 100px; background: var(--color-obsidian); color: var(--color-warm-cream); padding: 10px 18px; font-size: 14px; letter-spacing: -0.42px; cursor: pointer; }
+.btn-primary:hover { background: #222; }
+.btn-primary:disabled { background: transparent; border-color: var(--color-mist); color: var(--color-pebble); cursor: not-allowed; }
+.btn-ghost { display: inline-flex; align-items: center; gap: 6px; background: none; border: 0; padding: 6px 0; cursor: pointer; font-size: 14px; letter-spacing: -0.42px; color: var(--color-pebble); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: transparent; }
+.btn-ghost:hover { color: var(--color-obsidian); text-decoration-color: currentColor; }
+.btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }
+.label-muted { color: var(--color-pebble); }
+.text-bone-white { color: var(--color-obsidian); }
+.text-ash-gray { color: var(--color-pebble); }
+.text-silver-mist { color: var(--color-driftwood); }
+.text-saffron-spark { color: var(--color-ember-orange); }
+.text-verdant-text { color: var(--color-obsidian); }
+.text-electric-iris { color: var(--color-obsidian); }
+.bg-void { background: var(--color-warm-cream); }
+.bg-saffron-spark { background: var(--color-ember-orange); }
+.bg-electric-iris { background: var(--color-obsidian); }
+.text-void { color: var(--color-pure-white); }
+.bg-verdant-text { background: var(--color-obsidian); }
+.bg-ash-gray { background: var(--color-pebble); }
+.text-ui { font-size: 14px; letter-spacing: -0.42px; }
+.text-heading-2xs { font-size: 24px; letter-spacing: -0.72px; line-height: 1.2; }
+.text-heading-xs { font-size: 22px; letter-spacing: -0.66px; line-height: 1.2; }
+.text-nav-label { font-size: 14px; letter-spacing: -0.42px; }
+.hover\:bg-white\/5:hover { background: rgba(0, 0, 0, 0.04); }
+.rounded-3xl { border-radius: 20px; }

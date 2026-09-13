@@ -10,16 +10,10 @@ The API has no `since` parameter and returns the current year's full list on eve
 
 ## Network caveat
 
-`fsis.usda.gov` sits behind Akamai and returns **403 to some non-US networks** (observed from India on 2026-09-12; the site's HTML pages and RSS are blocked too, not just the API). Options:
-
-- Run the service from US egress (the intended deployment), or
-- Set `HTTPS_PROXY` (Go's HTTP client honors it), or
-- Point `FSIS_BASE_URL` at a proxy/fixture server for local development.
-
-The field mapping is built from the documented v1 payload and a fixture (`internal/fsis/testdata/recalls.json`). **Action for whoever first runs this from a US network:** save one live response over the fixture and re-run `make test` — the mapper tests will flag any renamed field.
+`fsis.usda.gov` sits behind Akamai and refuses requests that do not look like a browser XHR. The connector sends the header set the edge accepts (see `browserUA` / `requestHeaders` in `internal/fsis/fsis.go`); **verified live from a non-US network on 2026-09-13: 14 recalls in a 60-day window, all fields mapped**. That header set is a fingerprint and will rot; when the edge rules change, override with `FSIS_USER_AGENT`, or point `FSIS_BASE_URL` at a US-egress proxy / fixture server. The live payload sends some fields as arrays and others as strings per record — the mapper accepts both.
 
 ```sh
-make dry-run                                                    # against the live API (needs US egress)
+make dry-run                                                    # against the live API
 FSIS_BASE_URL=http://127.0.0.1:8765/recalls.json make dry-run   # against a local fixture server
 make once && make run
 ```

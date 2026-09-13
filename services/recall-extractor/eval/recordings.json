@@ -1,0 +1,1282 @@
+{
+ "model": "groq/openai/gpt-oss-120b",
+ "entries": {
+  "002b8ccfc5be7f80f16213471f284be7fdc3319efc86b46afeaca43ee585c1d2": {
+   "case_id": "H-1271-2026",
+   "text": "SOURCE: fda_enforcement\nFIRM: CUISINE, KETTLE\nPRODUCT: Marketside Tomato Bisque Soup Kit, Tomato Bisque with Cheese Croutons \u0026 White Cheddar Cheese, Ready to Heat, Net Wt. 14 OZ (397g), with UPC 1 94346474004. Must Keep Refrigerated.\nCODES: Best By/ Use By: 8/22/2026\nREASON: Product had a presumptive positive test result for Listeria monocytogenes\nCLASSIFICATION: Class II\nDISTRIBUTION: The recalled product was distributed to the following States: IL, NV, NM, CA, OK, TX, PA, OH, NC, NY, GA, and AR.\nADDITIONAL: recall initiated: 20260811 | status: Ongoing | city/state: Savage, MD",
+   "response": {
+    "source": "",
+    "source_id": "",
+    "firm": "CUISINE, KETTLE",
+    "brand": "Marketside",
+    "products": [
+     {
+      "name": "Tomato Bisque Soup Kit, Tomato Bisque with Cheese Croutons \u0026 White Cheddar Cheese, Ready to Heat",
+      "brand": "Marketside",
+      "sizes": [
+       "14 oz"
+      ],
+      "upcs": [
+       "00194346474004"
+      ],
+      "best_by": [
+       "8/22/2026"
+      ]
+     }
+    ],
+    "hazard": {
+     "type": "pathogen",
+     "agent": "Listeria monocytogenes"
+    },
+    "classification": "Class II",
+    "distribution": {
+     "states": [
+      "IL",
+      "NV",
+      "NM",
+      "CA",
+      "OK",
+      "TX",
+      "PA",
+      "OH",
+      "NC",
+      "NY",
+      "GA",
+      "AR"
+     ]
+    },
+    "confidence": 0.98,
+    "evidence": [
+     "UPC 1 94346474004",
+     "Best By/ Use By: 8/22/2026",
+     "presumptive positive test result for Listeria monocytogenes",
+     "distributed to the following States: IL, NV, NM, CA, OK, TX, PA, OH, NC, NY, GA, and AR."
+    ],
+    "model": "groq/openai/gpt-oss-120b",
+    "extracted_at": "0001-01-01T00:00:00Z"
+   }
+  },
+  "158332af983442b99aba2b229ff5ba157b6a3dd8264bf1a1614108ccbd4d9e66": {
+   "case_id": "H-1265-2026",
+   "text": "SOURCE: fda_enforcement\nFIRM: Dreyer's Grand  Ice Cream Inc.\nPRODUCT: Outshine Fruit Bar Watermelon, 6-Count 2.5 ounce with UPC 041548413624, packaged in paper outer cartons; individual fruit bars in plastic wrapper.  Keep at 0F (-18C) or colder.\nCODES: Batch code/ Best Before (bottom of package): LLA617603   30 JUN 2027 LLA617703   30 JUN 2027 LLA617803   30 JUN 2027 LLA617903   30 JUN 2027 LLA618003   30 JUN 2027 LLA618103   30 JUN 2027 LLA618203   31 JUL 2027 LLA618303   31 JUL 2027 LLA618403   31 JUL 2027 LLA618503   31 JUL 2027 LLA619003   31 JUL 2027 LLA619103   31 JUL 2027 LLA619203   31 JUL 2027 LLA619303   31 JUL 2027 LLA619403   31 JUL 2027 LLA619503   31 JUL 2027\nREASON: Foreign object: products may contain glass pieces\nCLASSIFICATION: Class II\nDISTRIBUTION: The adulterated product was distributed to the following States: AL, AR, AZ, CA,CO,CT, FL,GA, IA,ID, IL, KS, LA, MA,MD,MI, MN,MO, NC, ND, NH, NJ, NV, NY, OH, PA, PR, TN TX, UT, VA, VI, WA, and WI.\nADDITIONAL: recall initiated: 20260818 | status: Ongoing | city/state: Laurel, MD",
+   "response": {
+    "source": "",
+    "source_id": "",
+    "firm": "Dreyer's Grand Ice Cream Inc.",
+    "brand": "Outshine",
+    "products": [
+     {
+      "name": "Outshine Fruit Bar Watermelon",
+      "brand": "Outshine",
+      "sizes": [
+       "6-Count",
+       "2.5 oz"
+      ],
+      "upcs": [
+       "00041548413624"
+      ],
+      "lot_codes": [
+       "LLA617603",
+       "LLA617703",
+       "LLA617803",
+       "LLA617903",
+       "LLA618003",
+       "LLA618103",
+       "LLA618203",
+       "LLA618303",
+       "LLA618403",
+       "LLA618503",
+       "LLA619003",
+       "LLA619103",
+       "LLA619203",
+       "LLA619303",
+       "LLA619403",
+       "LLA619503"
+      ],
+      "best_by": [
+       "30 JUN 2027",
+       "31 JUL 2027"
+      ]
+     }
+    ],
+    "hazard": {
+     "type": "foreign_material",
+     "agent": "glass pieces"
+    },
+    "classification": "Class II",
+    "distribution": {
+     "states": [
+      "AL",
+      "AR",
+      "AZ",
+      "CA",
+      "CO",
+      "CT",
+      "FL",
+      "GA",
+      "IA",
+      "ID",
+      "IL",
+      "KS",
+      "LA",
+      "MA",
+      "MD",
+      "MI",
+      "MN",
+      "MO",
+      "NC",
+      "ND",
+      "NH",
+      "NJ",
+      "NV",
+      "NY",
+      "OH",
+      "PA",
+      "PR",
+      "TN",
+      "TX",
+      "UT",
+      "VA",
+      "VI",
+      "WA",
+      "WI"
+     ]
+    },
+    "confidence": 0.97,
+    "evidence": [
+     "UPC 041548413624",
+     "Batch code/ Best Before (bottom of package): LLA617603   30 JUN 2027",
+     "Foreign object: products may contain glass pieces",
+     "distributed to the following States: AL, AR, AZ, CA, CO, CT, FL, GA, IA, ID, IL, KS, LA, MA, MD, MI, MN, MO, NC, ND, NH, NJ, NV, NY, OH, PA, PR, TN, TX, UT, VA, VI, WA, and WI"
+    ],
+    "model": "groq/openai/gpt-oss-120b",
+    "extracted_at": "0001-01-01T00:00:00Z"
+   }
+  },
+  "1a59bd40a6305bba6191d18658577db41c02e26ba8262ac922bac5e1cf3750ea": {
+   "case_id": "H-1137-2026",
+   "text": "SOURCE: fda_enforcement\nFIRM: NARA ORGANICS INC\nPRODUCT: a.) nara organics brand; Whole Milk Organic Infant Formula; Milk-based Powder with Iron; 0-12 months; NET WT 24.7 OZ (700 G); UPC: 860013251901  b.) nara organics brand; Whole Milk Organic Infant Formula; Milk-based Powder with Iron; 0-12 months; NET WT 14.1 OZ (400 G); UPC: 860013251918\nCODES: Recalled Lot Codes   -  408125075E14F2 -  708125076E14F2 -  708125083E14F2 -  408125139E14F2 -  708125141E14F2 -  708125145E14F2 -  708125174E14F2 -  709125273E14F2 -  709125280E14F2 -  709125288E14F2 -  409125307E14F2 -  70926019ENNB -  70926029ENNB -  70926035ENNB -  70926039ENNB -  70926042ENNB Use-By dates span March 16, 2027 - February 11, 2028\nREASON: Product may be contaminated with Clostridium botulinum.\nCLASSIFICATION: Class I\nDISTRIBUTION: nationwide\nADDITIONAL: recall initiated: 20260613 | status: Ongoing | city/state: New York, NY",
+   "response": {
+    "source": "",
+    "source_id": "",
+    "firm": "NARA ORGANICS INC",
+    "brand": "Nara Organics",
+    "products": [
+     {
+      "name": "Whole Milk Organic Infant Formula (Milk-based Powder with Iron, 0-12 months)",
+      "brand": "Nara Organics",
+      "sizes": [
+       "24.7 oz (700 g)"
+      ],
+      "upcs": [
+       "00860013251901"
+      ],
+      "lot_codes": [
+       "408125075E14F2",
+       "708125076E14F2",
+       "708125083E14F2",
+       "408125139E14F2",
+       "708125141E14F2",
+       "708125145E14F2",
+       "708125174E14F2",
+       "709125273E14F2",
+       "709125280E14F2",
+       "709125288E14F2",
+       "409125307E14F2",
+       "70926019ENNB",
+       "70926029ENNB",
+       "70926035ENNB",
+       "70926039ENNB",
+       "70926042ENNB"
+      ],
+      "best_by": [
+       "March 16, 2027 - February 11, 2028"
+      ]
+     },
+     {
+      "name": "Whole Milk Organic Infant Formula (Milk-based Powder with Iron, 0-12 months)",
+      "brand": "Nara Organics",
+      "sizes": [
+       "14.1 oz (400 g)"
+      ],
+      "upcs": [
+       "00860013251918"
+      ],
+      "lot_codes": [
+       "408125075E14F2",
+       "708125076E14F2",
+       "708125083E14F2",
+       "408125139E14F2",
+       "708125141E14F2",
+       "708125145E14F2",
+       "708125174E14F2",
+       "709125273E14F2",
+       "709125280E14F2",
+       "709125288E14F2",
+       "409125307E14F2",
+       "70926019ENNB",
+       "70926029ENNB",
+       "70926035ENNB",
+       "70926039ENNB",
+       "70926042ENNB"
+      ],
+      "best_by": [
+       "March 16, 2027 - February 11, 2028"
+      ]
+     }
+    ],
+    "hazard": {
+     "type": "pathogen",
+     "agent": "Clostridium botulinum"
+    },
+    "classification": "Class I",
+    "distribution": {
+     "nationwide": true
+    },
+    "confidence": 0.98,
+    "evidence": [
+     "UPC: 860013251901",
+     "UPC: 860013251918",
+     "Product may be contaminated with Clostridium botulinum.",
+     "Recalled Lot Codes - 408125075E14F2 - 708125076E14F2"
+    ],
+    "model": "groq/openai/gpt-oss-120b",
+    "extracted_at": "0001-01-01T00:00:00Z"
+   }
+  },
+  "2cbe0d9add422ded09610ab1ea45138beffd050c5afdde6111d44ba703f0e434": {
+   "case_id": "H-1273-2026",
+   "text": "SOURCE: fda_enforcement\nFIRM: Botticelli Foods, LLC\nPRODUCT: bettergoods brand Pistachio Nut Butter, NET WT 6.7oz (190g), UPC 194346207961\nCODES: Lot: LB028ACP04 exp. date: January 28, 2027\nREASON: Product may be contaminated with Salmonella.\nCLASSIFICATION: Class I\nDISTRIBUTION: Alabama, Alaska, Arizona, Colorado, Florida, Georgia, Idaho, Kansas, Mississippi, Missouri, Montana, Nebraska, Nevada, New Mexico, Oregon, South Dakota, Tennessee, Washington, and Wyoming\nADDITIONAL: recall initiated: 20260717 | status: Ongoing | city/state: Hauppauge, NY",
+   "response": {
+    "source": "",
+    "source_id": "",
+    "firm": "Botticelli Foods, LLC",
+    "brand": "bettergoods",
+    "products": [
+     {
+      "name": "Pistachio Nut Butter",
+      "brand": "bettergoods",
+      "sizes": [
+       "6.7 oz"
+      ],
+      "upcs": [
+       "00194346207961"
+      ],
+      "lot_codes": [
+       "LB028ACP04"
+      ],
+      "best_by": [
+       "January 28, 2027"
+      ]
+     }
+    ],
+    "hazard": {
+     "type": "pathogen",
+     "agent": "Salmonella"
+    },
+    "classification": "Class I",
+    "distribution": {
+     "states": [
+      "AL",
+      "AK",
+      "AZ",
+      "CO",
+      "FL",
+      "GA",
+      "ID",
+      "KS",
+      "MS",
+      "MO",
+      "MT",
+      "NE",
+      "NV",
+      "NM",
+      "OR",
+      "SD",
+      "TN",
+      "WA",
+      "WY"
+     ]
+    },
+    "confidence": 0.98,
+    "evidence": [
+     "UPC 194346207961",
+     "Lot: LB028ACP04",
+     "Product may be contaminated with Salmonella.",
+     "Distribution: AL, AK, AZ, CO, FL, GA, ID, KS, MS, MO, MT, NE, NV, NM, OR, SD, TN, WA, WY"
+    ],
+    "model": "groq/openai/gpt-oss-120b",
+    "extracted_at": "0001-01-01T00:00:00Z"
+   }
+  },
+  "3236555056cb0a052b803dfc0def65f6ae4cd59bc40b7c68454e850ea2288d61": {
+   "case_id": "H-1259-2026",
+   "text": "SOURCE: fda_enforcement\nFIRM: KHONG GUAN (HQ)\nPRODUCT: Glutinous Rice Balls with Black Sesame Filling NET WT. 14.1 OZ (400 g) Product of China UPC: 6908791000053\nCODES: USE BY: 10/19/2027; 9/22/2027\nREASON: Undeclared peanuts.\nCLASSIFICATION: Class I\nDISTRIBUTION: Domestic: AZ, CA, CO, HI, NJ, OR, TX, WA. Foreign: Not applicable.\nADDITIONAL: recall initiated: 20260713 | status: Ongoing | city/state: Union City, CA",
+   "response": {
+    "source": "",
+    "source_id": "",
+    "firm": "KHONG GUAN (HQ)",
+    "brand": "Glutinous Rice Balls with Black Sesame Filling",
+    "products": [
+     {
+      "name": "Glutinous Rice Balls with Black Sesame Filling",
+      "brand": "Glutinous Rice Balls with Black Sesame Filling",
+      "sizes": [
+       "14.1 oz"
+      ],
+      "upcs": [
+       "06908791000053"
+      ],
+      "best_by": [
+       "10/19/2027",
+       "9/22/2027"
+      ]
+     }
+    ],
+    "hazard": {
+     "type": "undeclared_allergen",
+     "agent": "peanut",
+     "allergens": [
+      "peanut"
+     ]
+    },
+    "classification": "Class I",
+    "distribution": {
+     "states": [
+      "AZ",
+      "CA",
+      "CO",
+      "HI",
+      "NJ",
+      "OR",
+      "TX",
+      "WA"
+     ]
+    },
+    "confidence": 0.98,
+    "evidence": [
+     "UPC: 6908791000053",
+     "USE BY: 10/19/2027; 9/22/2027",
+     "Undeclared peanuts.",
+     "Domestic: AZ, CA, CO, HI, NJ, OR, TX, WA"
+    ],
+    "notes": "No lot codes provided",
+    "model": "groq/openai/gpt-oss-120b",
+    "extracted_at": "0001-01-01T00:00:00Z"
+   }
+  },
+  "3b409645ebb316408742e7c5d222569111d8bdc23e2d1c0825a56974b13e110e": {
+   "case_id": "H-1241-2026",
+   "text": "SOURCE: fda_enforcement\nFIRM: Publix Super Markets, Inc.\nPRODUCT: Organic Whole Mixed Berries, Net Wt. 48 oz (3Lb) plastic bag. packed in 6 bags per case of 10 oz each. Keep Frozen. UPC 41415-12153\nCODES: all product with an expiration date prior to Feb 9, 2028 (Best by Date Feb 09, 2028)\nREASON: Due to potential E. coli O145:H28 contamination\nCLASSIFICATION: Class I\nDISTRIBUTION: Distributed in  Alabama, Florida, Georgia, Kentucky, North Carolina, South Carolina, Tennessee, and Virginia.\nADDITIONAL: recall initiated: 20260625 | status: Terminated | city/state: Lakeland, FL",
+   "response": {
+    "source": "",
+    "source_id": "",
+    "firm": "Publix Super Markets, Inc.",
+    "brand": "Publix",
+    "products": [
+     {
+      "name": "Organic Whole Mixed Berries",
+      "brand": "Publix",
+      "sizes": [
+       "48 oz"
+      ],
+      "best_by": [
+       "Best by Date Feb 09, 2028"
+      ]
+     }
+    ],
+    "hazard": {
+     "type": "pathogen",
+     "agent": "E. coli O145:H28"
+    },
+    "classification": "Class I",
+    "distribution": {
+     "states": [
+      "AL",
+      "FL",
+      "GA",
+      "KY",
+      "NC",
+      "SC",
+      "TN",
+      "VA"
+     ]
+    },
+    "confidence": 0.97,
+    "evidence": [
+     "UPC 41415-12153",
+     "Potential E. coli O145:H28 contamination",
+     "expiration date prior to Feb 9, 2028",
+     "Distributed in Alabama, Florida, Georgia, Kentucky, North Carolina, South Carolina, Tennessee, and Virginia"
+    ],
+    "model": "groq/openai/gpt-oss-120b",
+    "extracted_at": "0001-01-01T00:00:00Z"
+   }
+  },
+  "441629d063d52bc1c846fcdc1b9609fa6fc91945aa9aef4c9b96aeb7ceb8a462": {
+   "case_id": "2026.5412",
+   "text": "SOURCE: eu_rasff\nTITLE: Salmonella Typhimurium in sesame seeds from India\nPRODUCT: hulled sesame seeds, 25 kg bags, lot SES-2607-A/B (origin: India)\nREASON: Salmonella Typhimurium (presence /25g)\nCLASSIFICATION: alert / serious\nDISTRIBUTION: Germany, Netherlands, Poland, United States\nADDITIONAL: notifying country: Germany | origin: India | product category: nuts, nut products and seeds | risk decision: serious",
+   "response": {
+    "source": "",
+    "source_id": "",
+    "brand": "Hulled Sesame Seeds",
+    "products": [
+     {
+      "name": "Hulled Sesame Seeds",
+      "brand": "Hulled Sesame Seeds",
+      "sizes": [
+       "25 kg"
+      ],
+      "lot_codes": [
+       "SES-2607-A/B"
+      ]
+     }
+    ],
+    "hazard": {
+     "type": "pathogen",
+     "agent": "Salmonella Typhimurium"
+    },
+    "classification": "alert / serious",
+    "distribution": {
+     "countries": [
+      "Germany",
+      "Netherlands",
+      "Poland",
+      "United States"
+     ]
+    },
+    "confidence": 0.95,
+    "evidence": [
+     "Salmonella Typhimurium (presence /25g)",
+     "hulled sesame seeds, 25 kg bags, lot SES-2607-A/B (origin: India)",
+     "Germany, Netherlands, Poland, United States",
+     "alert / serious"
+    ],
+    "notes": "No recalling firm or consumer brand provided in notice",
+    "model": "groq/openai/gpt-oss-120b",
+    "extracted_at": "0001-01-01T00:00:00Z"
+   }
+  },
+  "4d8ce092ae88540f2beaee7084a01a1176fa6b2c29c77cdcacf4459be088431a": {
+   "case_id": "H-1160-2026",
+   "text": "SOURCE: fda_enforcement\nFIRM: D'Dioses Fruit Pops, Inc.\nPRODUCT: Ice Pop, D'Dioses Arroz con Leche, 4 oz (85 g), with UPC 710594511843\nCODES: 710594511867,710594511850, 710594511560, 827912008456, 8279120084732, 710594511829, 71059511812, 827912008487, 827912008548, 710594511836, 827912008531, 827912008494, 827912008593, 827912008449, 710594511362,710594511225\nREASON: May contain undeclared milk, pecans, pistachios, yellow #5 and red #40.\nCLASSIFICATION: Class I\nDISTRIBUTION: Distributed in the following states: NJ, CT, NY, PA.\nADDITIONAL: recall initiated: 20260504 | status: Ongoing | city/state: Paterson, NJ",
+   "response": {
+    "source": "",
+    "source_id": "",
+    "firm": "D'Dioses Fruit Pops, Inc.",
+    "brand": "D'Dioses",
+    "products": [
+     {
+      "name": "Ice Pop D'Dioses Arroz con Leche",
+      "brand": "D'Dioses",
+      "sizes": [
+       "4 oz",
+       "85 g"
+      ],
+      "upcs": [
+       "00710594511843",
+       "00710594511867",
+       "00710594511850",
+       "00710594511560",
+       "00827912008456",
+       "8279120084732",
+       "00710594511829",
+       "00827912008487",
+       "00827912008548",
+       "00710594511836",
+       "00827912008531",
+       "00827912008494",
+       "00827912008593",
+       "00827912008449",
+       "00710594511362",
+       "00710594511225"
+      ]
+     }
+    ],
+    "hazard": {
+     "type": "undeclared_allergen",
+     "agent": "milk, pecans, pistachios, yellow #5, red #40",
+     "allergens": [
+      "milk",
+      "tree nuts"
+     ]
+    },
+    "classification": "Class I",
+    "distribution": {
+     "states": [
+      "NJ",
+      "CT",
+      "NY",
+      "PA"
+     ]
+    },
+    "confidence": 0.96,
+    "evidence": [
+     "UPC 710594511843",
+     "CODES: 710594511867,710594511850, 710594511560, 827912008456",
+     "May contain undeclared milk, pecans, pistachios, yellow #5 and red #40.",
+     "Distributed in the following states: NJ, CT, NY, PA."
+    ],
+    "model": "groq/openai/gpt-oss-120b",
+    "extracted_at": "0001-01-01T00:00:00Z"
+   }
+  },
+  "5e45c3fb5439f321c72e812bc9e0a2fc624c3af04f88c8331d444120a347c92f": {
+   "case_id": "H-1258-2026",
+   "text": "SOURCE: fda_enforcement\nFIRM: H \u0026 U Inc. dba Sun Noodle\nPRODUCT: Sura Tanmen Hot and Sour Flavor Premium Japanese Noodles \u0026 Soup Base. Retail package net wt. 15.4oz. Product is ramen noodle kit which contains noodles and Soba soup packet.   Item #05410 retail package, UPC 085315054108 Item #05410.1 cardboard box (12 packages per case), UPC 085315054105  Product is Perishable Frozen or Refrigerated and made by Sun Noodle Hawaii 1933 Colburn Street, Honolulu, HI\nCODES: Production Lot: 1226183  Products will be dated for expiration according to their date of defrost by retailer or distributor in the following format: MM/DD\nREASON: Soba sauce packet, which contains bonito, sardine, and mackerel (fish), was packed into Sura Tanmen Hot and Sour Flavor ramen noodle package kit, but fish species are not declared on finished product label.\nCLASSIFICATION: Class I\nDISTRIBUTION: Distribute in HI.\nADDITIONAL: recall initiated: 20260804 | status: Terminated | city/state: Honolulu, HI",
+   "response": {
+    "source": "",
+    "source_id": "",
+    "firm": "H \u0026 U Inc. dba Sun Noodle",
+    "brand": "Sun Noodle",
+    "products": [
+     {
+      "name": "Sura Tanmen Hot and Sour Flavor Premium Japanese Noodles \u0026 Soup Base",
+      "brand": "Sun Noodle",
+      "sizes": [
+       "15.4 oz"
+      ],
+      "upcs": [
+       "00085315054108",
+       "085315054105"
+      ],
+      "lot_codes": [
+       "1226183"
+      ]
+     }
+    ],
+    "hazard": {
+     "type": "undeclared_allergen",
+     "agent": "fish",
+     "allergens": [
+      "fish"
+     ]
+    },
+    "classification": "Class I",
+    "distribution": {
+     "states": [
+      "HI"
+     ]
+    },
+    "confidence": 0.96,
+    "evidence": [
+     "UPC 085315054108",
+     "UPC 085315054105",
+     "Production Lot: 1226183",
+     "bonito, sardine, and mackerel (fish)"
+    ],
+    "notes": "Item #05410 and #05410.1 are item numbers, not UPCs",
+    "model": "groq/openai/gpt-oss-120b",
+    "extracted_at": "0001-01-01T00:00:00Z"
+   }
+  },
+  "64e8c307fc24f32aaf3e588213c43adfe617ccc6a8f64f82a457a5fd1a770553": {
+   "case_id": "H-1262-2026",
+   "text": "SOURCE: fda_enforcement\nFIRM: Sirna and Sons Produce, Inc\nPRODUCT: Sirna \u0026 Sons Produce PEPPER JALAPENO BREAK 1LB, repackaged into 1 lb. plastic bags, Product Number: 55255, Packed by Sirna \u0026 Sons Produce 7176 State Route 88, Ravenna, OH 44266, distributed for food service use only\nCODES: Lot Numbers: 60947409, 60991812 Pack Dates: 07/13/26, 07/23/26 Internal Product Number: 00184\nREASON: Potential Salmonella Javiana contamination\nCLASSIFICATION: Class I\nDISTRIBUTION: OH, PA (for food service use only)\nADDITIONAL: recall initiated: 20260805 | status: Ongoing | city/state: Ravenna, OH",
+   "response": {
+    "source": "",
+    "source_id": "",
+    "firm": "Sirna and Sons Produce, Inc",
+    "brand": "Sirna \u0026 Sons Produce",
+    "products": [
+     {
+      "name": "Pepper Jalapeno Break 1 lb",
+      "brand": "Sirna \u0026 Sons Produce",
+      "sizes": [
+       "1 lb"
+      ],
+      "lot_codes": [
+       "60947409",
+       "60991812"
+      ],
+      "best_by": [
+       "Pack Dates: 07/13/26, 07/23/26"
+      ]
+     }
+    ],
+    "hazard": {
+     "type": "pathogen",
+     "agent": "Salmonella Javiana"
+    },
+    "classification": "Class I",
+    "distribution": {
+     "states": [
+      "OH",
+      "PA"
+     ]
+    },
+    "confidence": 0.95,
+    "evidence": [
+     "Lot Numbers: 60947409, 60991812",
+     "Potential Salmonella Javiana contamination",
+     "DISTRIBUTION: OH, PA (for food service use only)",
+     "PRODUCT: Sirna \u0026 Sons Produce PEPPER JALAPENO BREAK 1LB"
+    ],
+    "notes": "No UPCs were provided in the notice",
+    "model": "groq/openai/gpt-oss-120b",
+    "extracted_at": "0001-01-01T00:00:00Z"
+   }
+  },
+  "8c37972bdece74a74dc0b5e3d0deedd06a6d51089f0efe66561bd645a9e27354": {
+   "case_id": "H-1230-2026",
+   "text": "SOURCE: fda_enforcement\nFIRM: MIDWEST POULTRY SERVC C/O H \u0026 LELECTRIC\nPRODUCT: Grade A White In-shell Chicken eggs packaged in the following configurations:   1.  Kroger, Medium, 12 Eggs, Net Wt 21 oz (1lb 5oz) 596g, UPC 0 11110-60902 1.  Distributed by The Kroger Co., Cincinnati, OH  45202.   2.  Kroger, Medium, 30 Eggs, Net Wt 52.5 oz (3lb 4.5oz) 596g, UPC 0 11110-60980 9.  Distributed by The Kroger Co., Cincinnati, OH  45202.   3.  Kroger, Large 12 Eggs, Net Wt 24 oz (1lb 8oz) 681g, UPC 0 11110-60903 8.  Distributed by The Kroger Co., Cincinnati, OH  45202.   4.  Kroger, Large 18 Eggs, Net Wt 36 oz (2lb 4oz) 1.03kg, UPC 0 11110-60933 5.  Distributed by The Kroger Co., Cincinnati, OH  45202.   5.  Kroger, Large 60 Eggs, Net Wt 7lb 8oz (3.40kg), UPC 0 11110-60933 5.  Distributed by The Kroger Co., Cincinnati, OH  45202.    6.  Kroger, Extra Large 12 Eggs, Net Wt 27 oz (1lb 11oz) 766g, UPC 0 11110-60904 5.  Distributed by The Kroger Co., Cincinnati, OH  45202.   7.  Kroger, Jumbo 12 Eggs, Net Wt 30 oz (1lb 14oz) 851g, UPC 0 11110-60905 2.  Distributed by The Kroger Co., Cincinnati, OH  45202.    Packed by Tx Lic #613171, 800 Wabash Rd, N. Manchester, IN  46962.    8.  Brookshire's farm fresh, Large 6 Eggs, Net Wt 12 oz (341g), UPC 0 92825-09564 4.  Distributed by:  Brookshire Grocery Company, P.O. Box 1411, Tyler, TX  75710-1411.   9.  Brookshire's farm fresh, Large 12 Eggs, Net Wt 24 oz (1lb 8oz) 681g, UPC 0 92825-09555 2.  Distributed by:  Brookshire Grocery Company, P.O. Box 1411, Tyler, TX  75710-1411.   10.   Brookshire's farm fresh, Large 18 Eggs, Net Wt 36 oz (2lb 4oz) 1.03kg, UPC 0 92825-09556 9.  Distributed by:  Brookshire Grocery Company, P.O. Box 1411, Tyler, TX  75710-1411.   11.  Brookshire's farm fresh, Large 36 Total Eggs TWIN PACK (18 Each), Net Wt 36 oz (2lb 4oz) 1.03kg, UPC 0 92825-10980 8.  Distributed by:  Brookshire Grocery Company, P.O. Box 1411, Tyler, TX  75710-1411.   12.  Super 1 Foods Large 60 Eggs, Net Wt 120 oz (7lbs8oz) 3.4kg, UPC 0 92825-09563 7.  Distributed by:  Brookshire Grocery Company, P.O. Box 1411, Tyler, TX  75710-1411.   13.  Brookshire's farm fresh, Extra Large 18 Eggs, Net Wt 40.5 oz (2lb 8.5oz) 1.15kg, UPC 0 92825-09560 6.  Distributed by:  Brookshire Grocery Company, P.O. Box 1411, Tyler, TX  75710-1411.   14.  Brookshire's farm fresh, Jumbo 12 Eggs, Net Wt 30 oz (1lb 14oz) 851g, UPC 0 92825-09558 3.  Distributed by:  Brookshire Grocery Company, P.O. Box 1411, Tyler, TX  75710-1411.   Packed by MPS Egg Farms, 14374 E State Hwy 21, Byran, TX  77808.    15.  Country Morning Medium 12 Eggs, Net Wt 21 oz (1lb 5oz) 596g, UPC 0 78566-00104 5.   16.  Country Morning Large 12 Eggs, Net Wt 24 oz (1lb 8oz) 681g, UPC 0 78566-20000 4.   17.  Country Morning Large 18 Eggs, Net Wt  36 oz (2lb 4oz) 1.03kg, UPC 0 78566-00503 6.   18.  Country Morning Large 2 1/2 Dozen Eggs, UPC 0 79307-00516 2.   19.  Country Morning Extra Large 12 Eggs, Net Wt 27 oz (1lb 11oz) 766g, UPC 0 78566-00102 1.   20.  Country Morning Jumbo 12 Eggs, Net Wt 30 oz (1lb 14oz) 851g, UPC 0 78566-00101 4. 21.  Cal-Maine Sunups 2 1/2 Dozen Eggs, UPC 0 28621-30498 7.    Packed by Tx Lic #s. 0840962, 0840961 MPS Egg Farms, 2750 County Road 1011, Center, TX  75935.    Bulk Product packaged as follows:   22.  Medium Grade A JD 183, 15 dozen, MPS Egg Farms TX Lic. No. 0840961, 14374 E Hwy 21, Byran, TX  77808.   23.  Medium Grade A JD 158, 30 dozen, MPS Egg Farms TX Lic. No. 0840961, 14374 E Hwy 21, Byran, TX  77808.   24.  Large Grade A JD 193, 15 dozen, MPS Egg Farms TX Lic. No. 0840961, 14374 E Hwy 21, Byran, TX  77808.   25.  Large Grade A JD 193, 30 dozen MPS Egg Farms TX Lic. No. 0840961, 14374 E Hwy 21, Byran, TX  77808.   26.  Grade A Large Egg JD 208, 900 dozen, Distributed by MPS Egg Farms, 14374 E Hwy 21, Byran, TX  77808.   27.  Extra Large Grade A, JD 193, 15 dozen, MPS Egg Farms TX Lic. No. 0840961, 14374 E Hwy 21, Byran, TX  77808.   28.  Jumbo Grade A, JD 175, 16.67 Dozen, MPS Egg Farms TX Lic. No. 0840961, 14374 E Hwy 21, Byran, TX  77808.    Keep Refrigerated at or Below 45-Degrees F.\nCODES: Code information is printed on the left or right sides of the carton.   Codes P-1950 or 0840962 with a Julian Date between 157 and 184 and a Best By/Sell By date Between July 20 - August 17, 2026\nREASON: Possible Salmonella Enteritidis\nCLASSIFICATION: Class I\nDISTRIBUTION: Arkansas, Louisiana, Mississippi, New Mexico, Oklahoma, Texas\nADDITIONAL: recall initiated: 20260722 | status: Ongoing | city/state: N Manchester, IN",
+   "response": {
+    "source": "",
+    "source_id": "",
+    "firm": "MIDWEST POULTRY SERVC C/O H \u0026 LELECTRIC",
+    "products": [
+     {
+      "name": "Kroger Medium 12 Eggs",
+      "brand": "Kroger",
+      "sizes": [
+       "12 Eggs (21 oz)"
+      ],
+      "upcs": [
+       "00011110609021"
+      ],
+      "lot_codes": [
+       "P-1950",
+       "0840962"
+      ],
+      "best_by": [
+       "July 20 - August 17, 2026"
+      ]
+     },
+     {
+      "name": "Kroger Medium 30 Eggs",
+      "brand": "Kroger",
+      "sizes": [
+       "30 Eggs (52.5 oz)"
+      ],
+      "upcs": [
+       "00011110609809"
+      ],
+      "lot_codes": [
+       "P-1950",
+       "0840962"
+      ],
+      "best_by": [
+       "July 20 - August 17, 2026"
+      ]
+     },
+     {
+      "name": "Kroger Large 12 Eggs",
+      "brand": "Kroger",
+      "sizes": [
+       "12 Eggs (24 oz)"
+      ],
+      "upcs": [
+       "00011110609038"
+      ],
+      "lot_codes": [
+       "P-1950",
+       "0840962"
+      ],
+      "best_by": [
+       "July 20 - August 17, 2026"
+      ]
+     },
+     {
+      "name": "Kroger Large 18 Eggs",
+      "brand": "Kroger",
+      "sizes": [
+       "18 Eggs (36 oz)"
+      ],
+      "upcs": [
+       "00011110609335"
+      ],
+      "lot_codes": [
+       "P-1950",
+       "0840962"
+      ],
+      "best_by": [
+       "July 20 - August 17, 2026"
+      ]
+     },
+     {
+      "name": "Kroger Large 60 Eggs",
+      "brand": "Kroger",
+      "sizes": [
+       "60 Eggs (7 lb 8 oz)"
+      ],
+      "lot_codes": [
+       "P-1950",
+       "0840962"
+      ],
+      "best_by": [
+       "July 20 - August 17, 2026"
+      ]
+     },
+     {
+      "name": "Kroger Extra Large 12 Eggs",
+      "brand": "Kroger",
+      "sizes": [
+       "12 Eggs (27 oz)"
+      ],
+      "upcs": [
+       "00011110609045"
+      ],
+      "lot_codes": [
+       "P-1950",
+       "0840962"
+      ],
+      "best_by": [
+       "July 20 - August 17, 2026"
+      ]
+     },
+     {
+      "name": "Kroger Jumbo 12 Eggs",
+      "brand": "Kroger",
+      "sizes": [
+       "12 Eggs (30 oz)"
+      ],
+      "upcs": [
+       "00011110609052"
+      ],
+      "lot_codes": [
+       "P-1950",
+       "0840962"
+      ],
+      "best_by": [
+       "July 20 - August 17, 2026"
+      ]
+     },
+     {
+      "name": "Brookshire's Large 6 Eggs",
+      "brand": "Brookshire's",
+      "sizes": [
+       "6 Eggs (12 oz)"
+      ],
+      "upcs": [
+       "00092825095644"
+      ],
+      "lot_codes": [
+       "P-1950",
+       "0840962"
+      ],
+      "best_by": [
+       "July 20 - August 17, 2026"
+      ]
+     },
+     {
+      "name": "Brookshire's Large 12 Eggs",
+      "brand": "Brookshire's",
+      "sizes": [
+       "12 Eggs (24 oz)"
+      ],
+      "upcs": [
+       "00092825095552"
+      ],
+      "lot_codes": [
+       "P-1950",
+       "0840962"
+      ],
+      "best_by": [
+       "July 20 - August 17, 2026"
+      ]
+     },
+     {
+      "name": "Brookshire's Large 18 Eggs",
+      "brand": "Brookshire's",
+      "sizes": [
+       "18 Eggs (36 oz)"
+      ],
+      "upcs": [
+       "00092825095569"
+      ],
+      "lot_codes": [
+       "P-1950",
+       "0840962"
+      ],
+      "best_by": [
+       "July 20 - August 17, 2026"
+      ]
+     },
+     {
+      "name": "Brookshire's Large Twin Pack 36 Eggs",
+      "brand": "Brookshire's",
+      "sizes": [
+       "36 Eggs (2 lb 4 oz)"
+      ],
+      "upcs": [
+       "00092825109808"
+      ],
+      "lot_codes": [
+       "P-1950",
+       "0840962"
+      ],
+      "best_by": [
+       "July 20 - August 17, 2026"
+      ]
+     },
+     {
+      "name": "Super 1 Foods Large 60 Eggs",
+      "brand": "Super 1 Foods",
+      "sizes": [
+       "60 Eggs (7 lb 8 oz)"
+      ],
+      "upcs": [
+       "00092825095637"
+      ],
+      "lot_codes": [
+       "P-1950",
+       "0840962"
+      ],
+      "best_by": [
+       "July 20 - August 17, 2026"
+      ]
+     },
+     {
+      "name": "Brookshire's Extra Large 18 Eggs",
+      "brand": "Brookshire's",
+      "sizes": [
+       "18 Eggs (40.5 oz)"
+      ],
+      "upcs": [
+       "00092825095606"
+      ],
+      "lot_codes": [
+       "P-1950",
+       "0840962"
+      ],
+      "best_by": [
+       "July 20 - August 17, 2026"
+      ]
+     },
+     {
+      "name": "Brookshire's Jumbo 12 Eggs",
+      "brand": "Brookshire's",
+      "sizes": [
+       "12 Eggs (30 oz)"
+      ],
+      "upcs": [
+       "00092825095583"
+      ],
+      "lot_codes": [
+       "P-1950",
+       "0840962"
+      ],
+      "best_by": [
+       "July 20 - August 17, 2026"
+      ]
+     },
+     {
+      "name": "Country Morning Medium 12 Eggs",
+      "brand": "Country Morning",
+      "sizes": [
+       "12 Eggs (21 oz)"
+      ],
+      "upcs": [
+       "00078566001045"
+      ],
+      "lot_codes": [
+       "P-1950",
+       "0840962"
+      ],
+      "best_by": [
+       "July 20 - August 17, 2026"
+      ]
+     },
+     {
+      "name": "Country Morning Large 12 Eggs",
+      "brand": "Country Morning",
+      "sizes": [
+       "12 Eggs (24 oz)"
+      ],
+      "upcs": [
+       "00078566200004"
+      ],
+      "lot_codes": [
+       "P-1950",
+       "0840962"
+      ],
+      "best_by": [
+       "July 20 - August 17, 2026"
+      ]
+     },
+     {
+      "name": "Country Morning Large 18 Eggs",
+      "brand": "Country Morning",
+      "sizes": [
+       "18 Eggs (36 oz)"
+      ],
+      "upcs": [
+       "00078566005036"
+      ],
+      "lot_codes": [
+       "P-1950",
+       "0840962"
+      ],
+      "best_by": [
+       "July 20 - August 17, 2026"
+      ]
+     },
+     {
+      "name": "Country Morning Large 2.5 Dozen Eggs",
+      "brand": "Country Morning",
+      "sizes": [
+       "2.5 Dozen Eggs"
+      ],
+      "upcs": [
+       "00079307005162"
+      ],
+      "lot_codes": [
+       "P-1950",
+       "0840962"
+      ],
+      "best_by": [
+       "July 20 - August 17, 2026"
+      ]
+     },
+     {
+      "name": "Country Morning Extra Large 12 Eggs",
+      "brand": "Country Morning",
+      "sizes": [
+       "12 Eggs (27 oz)"
+      ],
+      "upcs": [
+       "00078566001021"
+      ],
+      "lot_codes": [
+       "P-1950",
+       "0840962"
+      ],
+      "best_by": [
+       "July 20 - August 17, 2026"
+      ]
+     },
+     {
+      "name": "Country Morning Jumbo 12 Eggs",
+      "brand": "Country Morning",
+      "sizes": [
+       "12 Eggs (30 oz)"
+      ],
+      "upcs": [
+       "00078566001014"
+      ],
+      "lot_codes": [
+       "P-1950",
+       "0840962"
+      ],
+      "best_by": [
+       "July 20 - August 17, 2026"
+      ]
+     },
+     {
+      "name": "Cal-Maine Sunups 2.5 Dozen Eggs",
+      "brand": "Cal-Maine",
+      "sizes": [
+       "2.5 Dozen Eggs"
+      ],
+      "upcs": [
+       "00028621304987"
+      ],
+      "lot_codes": [
+       "P-1950",
+       "0840962"
+      ],
+      "best_by": [
+       "July 20 - August 17, 2026"
+      ]
+     }
+    ],
+    "hazard": {
+     "type": "pathogen",
+     "agent": "Salmonella Enteritidis"
+    },
+    "classification": "Class I",
+    "distribution": {
+     "states": [
+      "AR",
+      "LA",
+      "MS",
+      "NM",
+      "OK",
+      "TX"
+     ],
+     "retailers": [
+      "Kroger",
+      "Brookshire's",
+      "Super 1 Foods",
+      "Country Morning",
+      "Cal-Maine"
+     ]
+    },
+    "confidence": 0.96,
+    "evidence": [
+     "Possible Salmonella Enteritidis",
+     "Codes P-1950 or 0840962 with a Julian Date between 157 and 184",
+     "UPC 0 11110-60902 1",
+     "UPC 0 92825-09564 4"
+    ],
+    "model": "groq/openai/gpt-oss-120b",
+    "extracted_at": "0001-01-01T00:00:00Z"
+   }
+  },
+  "9b95095678f94baa9045040a07c23a48c1b4e2fd2ae885e3a880580e3fc4e533": {
+   "case_id": "H-1219-2026",
+   "text": "SOURCE: fda_enforcement\nFIRM: La Colonia Foods Llc\nPRODUCT: Selectos Latinos Requeson Mexicano Mexican Cottage Cheese, Net Weight 16 oz, packed into retail-sized clear plastic containers. Keep refrigerated.\nCODES: Selec1011\nREASON: Products may be contaminated with Listeria monocytogenes.\nCLASSIFICATION: Class I\nDISTRIBUTION: The recalled product was distributed to the following states:  MD, VA\nADDITIONAL: recall initiated: 20260604 | status: Ongoing | city/state: Rockville, MD",
+   "response": {
+    "source": "",
+    "source_id": "",
+    "firm": "La Colonia Foods Llc",
+    "brand": "Selectos Latinos",
+    "products": [
+     {
+      "name": "Selectos Latinos Requeson Mexicano Mexican Cottage Cheese",
+      "brand": "Selectos Latinos",
+      "sizes": [
+       "16 oz"
+      ],
+      "lot_codes": [
+       "Selec1011"
+      ]
+     }
+    ],
+    "hazard": {
+     "type": "pathogen",
+     "agent": "Listeria monocytogenes"
+    },
+    "classification": "Class I",
+    "distribution": {
+     "states": [
+      "MD",
+      "VA"
+     ]
+    },
+    "confidence": 0.96,
+    "evidence": [
+     "Selectos Latinos Requeson Mexicano Mexican Cottage Cheese, Net Weight 16 oz",
+     "CODES: Selec1011",
+     "Products may be contaminated with Listeria monocytogenes.",
+     "The recalled product was distributed to the following states:  MD, VA"
+    ],
+    "notes": "No UPCs were provided in the notice",
+    "model": "groq/openai/gpt-oss-120b",
+    "extracted_at": "0001-01-01T00:00:00Z"
+   }
+  },
+  "ab7b95e285b08476a4ffd5f912dc09f092a3ee76cecc165e9568dd6187685196": {
+   "case_id": "press-sprouts",
+   "text": "SOURCE: fda_press\nTITLE: Evergreen Fresh Sprouts LLC Recalls Broccoli Sprouts Because of Possible Health Risk\nPRODUCT: 09/10/2026, Evergreen Fresh Sprouts LLC of Moyie Springs, IDAHO is recalling 215 cases (6/4oz bags per case) of Broccoli Sprouts, because it has the potential to be contaminated with Salmonella, an organism which can cause serious and sometimes fatal infections in young children, frail or elderly pe",
+   "response": {
+    "source": "",
+    "source_id": "",
+    "firm": "Evergreen Fresh Sprouts LLC",
+    "brand": "Evergreen Fresh Sprouts",
+    "products": [
+     {
+      "name": "Broccoli Sprouts",
+      "brand": "Evergreen Fresh Sprouts",
+      "sizes": [
+       "4 oz bag"
+      ]
+     }
+    ],
+    "hazard": {
+     "type": "pathogen",
+     "agent": "Salmonella"
+    },
+    "distribution": {},
+    "confidence": 0.6,
+    "evidence": [
+     "recalling 215 cases (6/4oz bags per case) of Broccoli Sprouts",
+     "potential to be contaminated with Salmonella",
+     "09/10/2026"
+    ],
+    "notes": "No UPCs or lot codes were provided in the notice.",
+    "model": "groq/openai/gpt-oss-120b",
+    "extracted_at": "0001-01-01T00:00:00Z"
+   }
+  },
+  "c4b3999491ad16189750cb6031362e8adb2fe73f392f1d7e6682cfb4fcb4cb7c": {
+   "case_id": "031-2024",
+   "text": "SOURCE: usda_fsis\nFIRM: EST. 12612\nTITLE: Boar's Head Provisions Co. Recalls Ready-To-Eat Liverwurst and Other Deli Meat Products Due to Possible Listeria Contamination\nPRODUCT: 3.5-lb. loaves in plastic casing, or various weight packages sliced in retail delis, of \"Boar's Head Strassburger Brand Liverwurst MADE IN VIRGINIA\" with sell by dates ranging from 29 JUL to 17 AUG.\n9.5-lb. and 4.5-lb. full product, or various weight packages sliced in retail delis, of \"Boar's Head VIRGINIA HAM OLD FASHIONED HAM\" with sell by date 10 AUG.\nREASON: Product Contamination — Boar's Head Provisions Co., Inc., a Jarratt, Va. establishment, is recalling approximately 207,528 pounds of deli meat products that may be adulterated with Listeria monocytogenes. The products bear establishment number \"EST. 12612\" inside the USDA mark of inspection.\nCLASSIFICATION: High - Class I\nDISTRIBUTION: Nationwide\nADDITIONAL: establishment: EST. 12612 | recall type: Active Recall | processing: Fully Cooked - Not Shelf Stable",
+   "response": {
+    "source": "",
+    "source_id": "",
+    "firm": "EST. 12612",
+    "brand": "Boar's Head",
+    "products": [
+     {
+      "name": "Strassburger Brand Liverwurst",
+      "brand": "Boar's Head",
+      "sizes": [
+       "3.5 lb"
+      ],
+      "lot_codes": [
+       "EST. 12612"
+      ],
+      "best_by": [
+       "July 29 - August 17"
+      ]
+     },
+     {
+      "name": "Virginia Ham Old Fashioned Ham",
+      "brand": "Boar's Head",
+      "sizes": [
+       "9.5 lb",
+       "4.5 lb"
+      ],
+      "lot_codes": [
+       "EST. 12612"
+      ],
+      "best_by": [
+       "August 10"
+      ]
+     }
+    ],
+    "hazard": {
+     "type": "pathogen",
+     "agent": "Listeria monocytogenes"
+    },
+    "classification": "High - Class I",
+    "distribution": {
+     "nationwide": true
+    },
+    "confidence": 0.96,
+    "evidence": [
+     "Boar's Head Strassburger Brand Liverwurst MADE IN VIRGINIA",
+     "sell by dates ranging from 29 JUL to 17 AUG",
+     "Boar's Head VIRGINIA HAM OLD FASHIONED HAM",
+     "Listeria monocytogenes"
+    ],
+    "model": "groq/openai/gpt-oss-120b",
+    "extracted_at": "0001-01-01T00:00:00Z"
+   }
+  },
+  "efd6d61d446ba6b56892ecc046b2ac7a1da6fac69aeb1ee8d862c57345535a75": {
+   "case_id": "press-cabricharme",
+   "text": "SOURCE: fda_press\nTITLE: Whole Foods Market Issues Allergy Alert on Undeclared Egg in Cabricharme Cheese\nPRODUCT: Whole Foods Market of Austin, TX is recalling Fromagerie Coop de Mean Cabricharme cheese because the product contains egg lysozyme, an egg white protein, which is not declared on the product label. People who have an allergy or severe sensitivity to eggs run the risk of a serious or life-threateni",
+   "response": {
+    "source": "",
+    "source_id": "",
+    "firm": "Whole Foods Market",
+    "brand": "Whole Foods Market",
+    "products": [
+     {
+      "name": "Cabricharme cheese",
+      "brand": "Whole Foods Market"
+     }
+    ],
+    "hazard": {
+     "type": "undeclared_allergen",
+     "agent": "egg",
+     "allergens": [
+      "egg"
+     ]
+    },
+    "distribution": {},
+    "confidence": 0.6,
+    "evidence": [
+     "Whole Foods Market Issues Allergy Alert on Undeclared Egg in Cabricharme Cheese",
+     "Fromagerie Coop de Mean Cabricharme cheese because the product contains egg lysozyme",
+     "egg white protein, which is not declared on the product label"
+    ],
+    "notes": "No UPCs, lot codes, best‑by dates, or distribution details provided in notice",
+    "model": "groq/openai/gpt-oss-120b",
+    "extracted_at": "0001-01-01T00:00:00Z"
+   }
+  },
+  "f8095a528e58c2568e72e27409f84703990ca91a009c217bfb68dc0218f0be9e": {
+   "case_id": "H-1095-2026",
+   "text": "SOURCE: fda_enforcement\nFIRM: Champion Foods, LLC\nPRODUCT: Motor City Pizza Co. 5 Cheese Bread Single retail pack; 22.43 oz. (1 lb. 6.4 oz.) 636g UPC 8 70375 00511 1; 6 retail units per case Motor City Pizza Co. 5 Cheese Bread Twin retail pack; 44.86 oz. (2 lb. 12.9 oz.) 1272g UPC 8 70375 00509 8; 10 retail units per case\nCODES: Sell By dates: Single retail pack: 2/4/2027, 2/5/2027, 2/23/2027, 2/24/2027, 3/9/2027, 3/10/2027, 3/17/2027, 3/18/2027, 3/24/2027, 3/25/2027, 4/7/2027, 4/8/2027, 4/20/2027, 4/21/2027 Twin retail pack: 2/3/2027, 2/4/2027, 2/24/2027, 2/25/2027, 3/10/2027, 3/11/2027, 3/18/2027, 3/25/2027\nREASON: potential salmonella contamination\nCLASSIFICATION: Class II\nDISTRIBUTION: Affected 5 Cheese Bread lots were distributed and sold nationwide at retailers including Costco, Walmart, Giant Landover, Grocery Outlet, Jewel, Kroger, Schnucks, Target, C\u0026S, Bozzuto s, Brookshire Grocery, Meijer, Food City, KeHe, Lipari, Publix, Merchants Dis Hickory, PDI/Hy-Vee, River Valley, SpartanNash, Supervalu, and UNFI.\nADDITIONAL: recall initiated: 20260529 | status: Terminated | city/state: New Boston, MI",
+   "response": {
+    "source": "",
+    "source_id": "",
+    "firm": "Champion Foods, LLC",
+    "brand": "Motor City Pizza Co.",
+    "products": [
+     {
+      "name": "5 Cheese Bread Single",
+      "brand": "Motor City Pizza Co.",
+      "sizes": [
+       "22.43 oz"
+      ],
+      "upcs": [
+       "00870375005111"
+      ],
+      "best_by": [
+       "2/4/2027",
+       "2/5/2027",
+       "2/23/2027",
+       "2/24/2027",
+       "3/9/2027",
+       "3/10/2027",
+       "3/17/2027",
+       "3/18/2027",
+       "3/24/2027",
+       "3/25/2027",
+       "4/7/2027",
+       "4/8/2027",
+       "4/20/2027",
+       "4/21/2027"
+      ]
+     },
+     {
+      "name": "5 Cheese Bread Twin",
+      "brand": "Motor City Pizza Co.",
+      "sizes": [
+       "44.86 oz"
+      ],
+      "upcs": [
+       "00870375005098"
+      ],
+      "best_by": [
+       "2/3/2027",
+       "2/4/2027",
+       "2/24/2027",
+       "2/25/2027",
+       "3/10/2027",
+       "3/11/2027",
+       "3/18/2027",
+       "3/25/2027"
+      ]
+     }
+    ],
+    "hazard": {
+     "type": "pathogen",
+     "agent": "Salmonella"
+    },
+    "classification": "Class II",
+    "distribution": {
+     "nationwide": true,
+     "retailers": [
+      "Costco",
+      "Walmart",
+      "Giant Landover",
+      "Grocery Outlet",
+      "Jewel",
+      "Kroger",
+      "Schnucks",
+      "Target",
+      "C\u0026S",
+      "Bozzuto's",
+      "Brookshire Grocery",
+      "Meijer",
+      "Food City",
+      "KeHe",
+      "Lipari",
+      "Publix",
+      "Merchants Dis Hickory",
+      "PDI/Hy-Vee",
+      "River Valley",
+      "SpartanNash",
+      "Supervalu",
+      "UNFI"
+     ]
+    },
+    "confidence": 0.96,
+    "evidence": [
+     "UPC 8 70375 00511 1",
+     "UPC 8 70375 00509 8",
+     "potential salmonella contamination",
+     "distributed and sold nationwide at retailers including Costco, Walmart, Giant Landover"
+    ],
+    "notes": "No lot or batch codes were provided; only sell‑by dates are listed.",
+    "model": "groq/openai/gpt-oss-120b",
+    "extracted_at": "0001-01-01T00:00:00Z"
+   }
+  }
+ }
+}

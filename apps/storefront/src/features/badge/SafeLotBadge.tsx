@@ -6,51 +6,59 @@ type Props = {
     error?: boolean
 }
 
+/**
+ * SafeLotBadge is the verdict on a lot. A safe lot gets one quiet line; an
+ * affected lot gets the headline treatment, because that is the one moment
+ * the store must not be subtle.
+ */
 export function SafeLotBadge({ status, loading, error }: Props) {
     if (loading) {
         return (
-            <span className="inline-flex items-center gap-2 rounded-full bg-neutral-100 px-3 py-1 text-sm text-neutral-500">
-                Checking lot…
-            </span>
+            <p className="text-body-sm text-pebble">
+                <span className="dot mr-2 animate-pulse align-middle" />
+                Checking this lot…
+            </p>
         )
     }
 
     if (error || !status) {
         return (
-            <span className="inline-flex items-center gap-2 rounded-full bg-neutral-100 px-3 py-1 text-sm text-neutral-600">
-                Lot status unavailable
-            </span>
+            <p className="text-body-sm text-pebble">
+                <span className="dot mr-2 align-middle" />
+                We couldn’t check this lot right now.
+            </p>
         )
     }
 
     switch (status.verdict) {
         case 'SAFE':
             return (
-                <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-800">
-                    Verified Safe Lot
-                    {status.lot_code && (
-                        <span className="font-normal text-emerald-700">
-                            {status.lot_code}
-                        </span>
-                    )}
-                </span>
+                <p className="text-body-sm">
+                    <span className="dot dot-ok mr-2 align-middle" />
+                    Lot <span className="mono">{status.lot_code}</span> verified — no active recall.
+                </p>
             )
 
         case 'AFFECTED':
             return (
-                <span className="inline-flex flex-col gap-0.5 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-900">
-                    <span className="font-semibold">Recalled lot — do not consume</span>
-                    {status.hazard && (
-                        <span className="text-red-800">{status.hazard}</span>
-                    )}
-                </span>
+                <div>
+                    <div className="wash-strip mb-4 w-16" />
+                    <p className="headline text-ember-orange">Recalled lot — do not consume.</p>
+                    {status.hazard && <p className="mt-3 text-body-lg">{status.hazard}</p>}
+                    <p className="mt-2 text-body-sm text-pebble">
+                        Lot <span className="mono">{status.lot_code}</span>. Return it for a full refund,
+                        or throw it away. You don’t need a receipt.
+                    </p>
+                </div>
             )
 
         case 'UNKNOWN_LOT':
             return (
-                <span className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-sm text-amber-900">
-                    Lot not recognised — not yet verified
-                </span>
+                <p className="text-body-sm text-pebble">
+                    <span className="dot mr-2 align-middle" />
+                    We don’t recognise lot <span className="mono">{status.lot_code}</span>. There is an
+                    active recall on this product, so please don’t use it until we’ve confirmed.
+                </p>
             )
     }
 }

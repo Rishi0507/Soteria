@@ -28,7 +28,7 @@ type Extractor interface {
 
 // ---- Groq (OpenAI-compatible chat completions) --------------------------------
 
-// Groq calls the Groq free tier. Default model llama-3.3-70b-versatile.
+// Groq calls the Groq free tier. Default model openai/gpt-oss-120b (Groq retired llama-3.3-70b in 2026).
 type Groq struct {
 	APIKey  string
 	Model   string
@@ -38,10 +38,10 @@ type Groq struct {
 	MaxRetries int
 }
 
-// NewGroq returns a client; model "" → llama-3.3-70b-versatile.
+// NewGroq returns a client; model "" → openai/gpt-oss-120b.
 func NewGroq(apiKey, model string) *Groq {
 	if model == "" {
-		model = "llama-3.3-70b-versatile"
+		model = "openai/gpt-oss-120b"
 	}
 	return &Groq{APIKey: apiKey, Model: model, BaseURL: "https://api.groq.com/openai/v1", HTTP: &http.Client{Timeout: 60 * time.Second}, MaxRetries: 4}
 }
@@ -88,7 +88,7 @@ func (g *Groq) Extract(ctx context.Context, text string) (Extraction, error) {
 	req := chatRequest{
 		Model:       g.Model,
 		Temperature: 0,
-		MaxTokens:   2048,
+		MaxTokens:   8192,
 		Messages: []chatMessage{
 			{Role: "system", Content: SystemPrompt},
 			{Role: "user", Content: UserPrompt(text)},

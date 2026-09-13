@@ -1,4 +1,4 @@
-import { http, HttpResponse } from 'msw'
+import { http, HttpResponse, passthrough } from 'msw'
 
 const RESOLUTION = 'http://localhost:8081'
 const RESCUE = 'http://localhost:8083'
@@ -42,11 +42,17 @@ export const handlers = [
         const gtin = url.searchParams.get('gtin') ?? ''
         const lot = url.searchParams.get('lot_code') ?? undefined
 
-        // Keyed on the codes the page actually offers. These used to answer on
-        // L2408B and L9999Z while App.tsx offered different codes, so every
-        // preset fell through to SAFE — including the one labelled "recalled
-        // lot", which is the single most misleading thing this mock could say.
-        if (lot === '26184') {
+        // Real recalled lot codes from the seeded catalog (Sept 2026 FDA notices)
+        // plus the original fixture code, so the demo store can show a hit.
+        const RECALLED: Record<string, string> = {
+            L2408B: 'Undeclared peanut',
+            LB028ACP04: 'Salmonella — Botticelli Foods / bettergoods Pistachio Nut Butter (FDA H-1273-2026)',
+            LLA618203: 'Foreign material (glass pieces) — Outshine Fruit Bars (FDA H-1265-2026)',
+            '1226183': 'Undeclared fish — Sun Noodle Sura Tanmen (FDA H-1258-2026)',
+            '8H-1132': 'Listeria monocytogenes',
+            'P-1950': 'Salmonella Enteritidis — Kroger Grade A eggs (FDA H-1230-2026)',
+        }
+        if (lot && RECALLED[lot]) {
             return HttpResponse.json({
                 gtin,
                 lot_code: lot,

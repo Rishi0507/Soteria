@@ -60,21 +60,16 @@ export function BackendStatus() {
     }, [])
 
     return (
-        <ul className="flex items-center gap-4 text-xs text-neutral-600">
+        <ul className="hidden items-center gap-3 text-caption text-pebble lg:flex" title="Recall-check services">
             {probes.map((p) => (
-                <li key={p.label} className="flex items-center gap-1.5" title={p.detail}>
+                <li key={p.label} className="flex items-center gap-1.5" title={`${p.label}: ${p.detail}`}>
                     <span
                         aria-hidden
                         className={
-                            'inline-block h-2 w-2 rounded-full ' +
-                            (p.up === null
-                                ? 'bg-neutral-300'
-                                : p.up
-                                  ? 'bg-emerald-500'
-                                  : 'bg-red-500')
+                            'inline-block h-1.5 w-1.5 rounded-full ' +
+                            (p.up === null ? 'bg-mist' : p.up ? 'bg-obsidian' : 'bg-ember-orange')
                         }
                     />
-                    <span>{p.label}</span>
                     <span className="sr-only">
                         {p.up === null ? 'checking' : p.up ? 'live' : `down: ${p.detail}`}
                     </span>

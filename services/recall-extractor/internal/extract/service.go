@@ -177,10 +177,12 @@ func DocumentFor(raw feedevent.Event) Document {
 		}
 		d.Extra = joinNonEmpty(" | ", labelled("recall initiated", get("recall_initiation_date")), labelled("status", get("status")), labelled("city/state", joinNonEmpty(", ", get("city"), get("state"))))
 	case source.FDAPress:
-		d.Product = "" // description already carries the prose; avoid duplicating
-		d.Extra = get("description")
-		if d.Extra == strOr(n.ProductDescription) {
-			d.Product, d.Extra = strOr(n.ProductDescription), ""
+		// With the press-release page fetched, product_description is the
+		// full announcement and raw.summary carries the structured header;
+		// otherwise it is the 300-character RSS blurb.
+		if sum, ok := rec["summary"].(map[string]any); ok {
+			gs := func(k string) string { v, _ := sum[k].(string); return strings.TrimSpace(v) }
+			d.Extra = joinNonEmpty(" | ", labelled("company", gs("company")), labelled("brand", gs("brand")), labelled("product", gs("product")), labelled("reason", gs("reason")))
 		}
 	case source.USDAFSIS:
 		d.Extra = joinNonEmpty(" | ", labelled("establishment", get("field_establishment")), labelled("recall type", get("field_recall_type")), labelled("processing", get("field_processing")))

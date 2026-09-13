@@ -46,7 +46,7 @@ export function DossierDetailPanel({
 }: Props) {
     if (loading) {
         return (
-            <section className="rounded-xl border border-neutral-200 bg-white p-5 text-sm text-neutral-500">
+            <section className="block text-ui text-ash-gray">
                 Loading the record&hellip;
             </section>
         )
@@ -54,9 +54,9 @@ export function DossierDetailPanel({
 
     if (state === 'error') {
         return (
-            <section className="rounded-xl border border-neutral-200 bg-white p-5 text-sm text-neutral-700">
-                <p className="font-medium">We can&rsquo;t read this record.</p>
-                <p className="mt-1 text-neutral-600">
+            <section className="block text-ui text-silver-mist">
+                <p className="font-normal">We can&rsquo;t read this record.</p>
+                <p className="mt-1 text-ash-gray">
                     This says nothing about whether it exists — only that the audit service
                     did not answer.
                 </p>
@@ -66,12 +66,12 @@ export function DossierDetailPanel({
     }
 
     return (
-        <section className="rounded-xl border border-neutral-200 bg-white p-5">
-            <header className="border-b border-neutral-100 pb-4">
-                <h2 className="text-lg font-semibold text-neutral-900">
+        <section className="block">
+            <header className="border-b border-transparent pb-4">
+                <h2 className="text-heading-2xs font-normal text-bone-white">
                     {incidentId ?? dossier?.incident_id}
                 </h2>
-                <p className="mt-1 text-sm text-neutral-600">
+                <p className="mt-1 text-ui text-ash-gray">
                     The record of what happened during this incident, and the proof it has not
                     been edited since.
                 </p>
@@ -85,7 +85,7 @@ export function DossierDetailPanel({
 
             {state === 'not-recorded' && (
                 <div className="pt-4">
-                    <p className="text-sm font-medium text-neutral-900">
+                    <p className="text-ui font-normal text-bone-white">
                         No events are recorded for this incident.
                     </p>
                     <VolatileLedgerNote context="missing" />
@@ -95,10 +95,10 @@ export function DossierDetailPanel({
 
             {state === 'not-generated' && (
                 <div className="pt-4">
-                    <p className="text-sm font-medium text-neutral-900">
+                    <p className="text-ui font-normal text-bone-white">
                         No dossier has been built for this incident yet.
                     </p>
-                    <p className="mt-1 text-sm text-neutral-600">
+                    <p className="mt-1 text-ui text-ash-gray">
                         The events are on record and the chain above can be verified without a
                         document. A dossier is normally built automatically when containment
                         completes; this incident has not reached that point, or the generation
@@ -129,8 +129,8 @@ export function DossierDetailPanel({
                     className={
                         'mt-4 rounded-lg px-3 py-2 text-sm ' +
                         (notice.kind === 'generated'
-                            ? 'bg-emerald-50 text-emerald-900'
-                            : 'bg-red-50 text-red-900')
+                            ? 'chip chip-verdant'
+                            : 'chip chip-saffron')
                     }
                 >
                     {notice.text}
@@ -145,7 +145,7 @@ function RetryButton({ onClick }: { onClick: () => void }) {
         <button
             type="button"
             onClick={onClick}
-            className="mt-3 rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-50"
+            className="mt-3 btn-ghost"
         >
             Try again
         </button>
@@ -169,7 +169,7 @@ function VerificationBlock({
 }) {
     if (verifying) {
         return (
-            <p className="mt-4 rounded-lg bg-neutral-100 px-3 py-2 text-sm text-neutral-600">
+            <p className="mt-4 rounded-3xl px-3 py-2 text-ui text-ash-gray">
                 Recomputing the hash chain&hellip;
             </p>
         )
@@ -177,7 +177,7 @@ function VerificationBlock({
 
     if (failed || !verification) {
         return (
-            <p className="mt-4 rounded-lg bg-neutral-100 px-3 py-2 text-sm text-neutral-700">
+            <p className="mt-4 rounded-3xl px-3 py-2 text-ui text-silver-mist">
                 The chain could not be checked just now. That is not a finding either way —
                 it means the request did not complete, not that anything is wrong with the
                 record.
@@ -189,9 +189,9 @@ function VerificationBlock({
         return (
             <div
                 role="alert"
-                className="mt-4 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-900"
+                className="mt-4 rounded-3xl border border-saffron-spark/60 p-4 text-ui text-saffron-spark"
             >
-                <p className="font-semibold">This chain does not verify.</p>
+                <p className="font-normal">This chain does not verify.</p>
                 <p className="mt-1">
                     Recomputing {verification.events}{' '}
                     {verification.events === 1 ? 'record' : 'records'} found a record that does
@@ -199,7 +199,7 @@ function VerificationBlock({
                     and stops there, so there may be others after it.
                 </p>
                 {verification.problem && (
-                    <p className="mt-2 rounded bg-white/70 px-2 py-1 font-mono text-xs">
+                    <p className="mt-2 rounded-3xl bg-white/70 px-2 py-1 font-mono text-caption">
                         {verification.problem}
                     </p>
                 )}
@@ -211,13 +211,13 @@ function VerificationBlock({
     }
 
     return (
-        <div className="mt-4 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-900">
-            <p className="font-medium">
+        <div className="mt-4 rounded-3xl p-3 text-ui text-verdant-text">
+            <p className="font-normal">
                 Chain verifies across {verification.events}{' '}
                 {verification.events === 1 ? 'record' : 'records'}.
             </p>
             {verification.content_hash && (
-                <p className="mt-1 font-mono text-xs">
+                <p className="mt-1 font-mono text-caption">
                     head {shortHash(verification.content_hash)}
                     {verification.hash_algorithm ? ` · ${verification.hash_algorithm}` : ''}
                 </p>
@@ -251,7 +251,7 @@ function GenerateControl({
             <button
                 type="button"
                 onClick={() => setOpen(true)}
-                className="mt-3 rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800"
+                className="mt-3 btn-primary"
             >
                 Build the dossier&hellip;
             </button>
@@ -263,7 +263,7 @@ function GenerateControl({
             <button
                 type="button"
                 onClick={() => setOpen(true)}
-                className="mt-4 text-sm font-medium text-neutral-700 underline underline-offset-2 hover:no-underline"
+                className="mt-4 text-ui font-normal text-silver-mist underline underline-offset-2 hover:no-underline"
             >
                 Generate a new copy&hellip;
             </button>
@@ -271,18 +271,18 @@ function GenerateControl({
     }
 
     return (
-        <div className="mt-4 rounded-lg border border-neutral-300 bg-neutral-50 p-4">
-            <p className="text-sm font-medium text-neutral-900">
+        <div className="mt-4 rounded-3xl border border-transparent p-4">
+            <p className="text-ui font-normal text-bone-white">
                 {mode === 'first' ? 'Build this dossier?' : 'Generate a new copy?'}
             </p>
-            <p className="mt-1 text-sm text-neutral-700">
+            <p className="mt-1 text-ui text-silver-mist">
                 This issues a new dossier id, re-renders the PDF, and publishes a
                 dossier-generated event on the bus. It does that every time, even when the
                 chain has not changed — so the evidence is the same, but the record of how
                 many documents were produced is not.
             </p>
             {mode === 'again' && (
-                <p className="mt-1 text-sm text-neutral-700">
+                <p className="mt-1 text-ui text-silver-mist">
                     The existing copy is replaced. There is no way to ask for the previous
                     one back.
                 </p>
@@ -292,7 +292,7 @@ function GenerateControl({
                     type="button"
                     onClick={onGenerate}
                     disabled={generating}
-                    className="rounded-lg bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800 disabled:opacity-50"
+                    className="btn-primary"
                 >
                     {generating ? 'Generating…' : 'Generate'}
                 </button>
@@ -300,7 +300,7 @@ function GenerateControl({
                     type="button"
                     onClick={() => setOpen(false)}
                     disabled={generating}
-                    className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-white disabled:opacity-50"
+                    className="btn-ghost hover:bg-white/5 disabled:opacity-50"
                 >
                     Cancel
                 </button>
@@ -319,17 +319,17 @@ function DossierBody({ dossier }: { dossier: Dossier }) {
                     href={dossierPdfUrl(dossier.incident_id)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-800 hover:bg-neutral-50"
+                    className="btn-ghost"
                 >
                     Open the PDF
                 </a>
-                <span className="text-xs text-neutral-500">
+                <span className="text-caption text-ash-gray">
                     Opens in a new tab — the service serves it inline rather than as a
                     download.
                 </span>
             </div>
 
-            <dl className="mt-4 grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
+            <dl className="mt-4 grid gap-x-8 gap-y-2 text-ui sm:grid-cols-2">
                 <Row label="Events recorded" value={String(dossier.event_count)} />
                 <Row label="Generated" value={when(dossier.generated_at)} />
                 <Row label="First event" value={when(dossier.opened_at)} />
@@ -370,15 +370,15 @@ function Row({
 }) {
     return (
         <div>
-            <dt className="text-neutral-500">{label}</dt>
+            <dt className="text-ash-gray">{label}</dt>
             <dd
                 className={
-                    'font-medium text-neutral-900 ' + (mono ? 'break-all font-mono text-xs' : '')
+                    'font-normal text-bone-white ' + (mono ? 'break-all font-mono text-xs' : '')
                 }
             >
                 {value}
             </dd>
-            {hint && <dd className="mt-0.5 text-xs text-neutral-500">{hint}</dd>}
+            {hint && <dd className="mt-0.5 text-caption text-ash-gray">{hint}</dd>}
         </div>
     )
 }
@@ -392,8 +392,8 @@ function Row({
 function TimestampBlock({ dossier }: { dossier: Dossier }) {
     if (dossier.timestamp_proof) {
         return (
-            <div className="mt-4 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-900">
-                <p className="font-medium">
+            <div className="mt-4 rounded-3xl p-3 text-ui text-verdant-text">
+                <p className="font-normal">
                     The content hash is anchored in time by a timestamp authority.
                 </p>
                 <p className="mt-1">
@@ -407,10 +407,10 @@ function TimestampBlock({ dossier }: { dossier: Dossier }) {
 
     if (dossier.timestamp_note) {
         return (
-            <div className="mt-4 rounded-lg border border-neutral-300 bg-neutral-50 p-3 text-sm text-neutral-800">
-                <p className="font-medium">No timestamp was obtained.</p>
+            <div className="mt-4 rounded-3xl border border-transparent p-3 text-ui text-bone-white">
+                <p className="font-normal">No timestamp was obtained.</p>
                 <p className="mt-1">{dossier.timestamp_note}</p>
-                <p className="mt-1 text-neutral-600">
+                <p className="mt-1 text-ash-gray">
                     The hash chain still shows the records have not been altered relative to
                     one another. What is missing is independent evidence of <em>when</em> they
                     existed.
@@ -420,7 +420,7 @@ function TimestampBlock({ dossier }: { dossier: Dossier }) {
     }
 
     return (
-        <div className="mt-4 rounded-lg bg-neutral-100 p-3 text-sm text-neutral-700">
+        <div className="mt-4 block text-ui text-silver-mist">
             The dossier carries neither a timestamp token nor a note explaining its absence.
         </div>
     )
@@ -441,9 +441,9 @@ function SummaryBlock({ summary }: { summary: Summary }) {
 
     return (
         <div className="mt-5">
-            <h3 className="text-sm font-semibold text-neutral-900">What happened</h3>
+            <h3 className="text-ui font-normal text-bone-white">What happened</h3>
 
-            <dl className="mt-2 grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
+            <dl className="mt-2 grid gap-x-8 gap-y-2 text-ui sm:grid-cols-2">
                 {summary.hazard && <Row label="Hazard" value={summary.hazard} />}
                 {summary.classification && (
                     <Row label="Classification" value={summary.classification} />
@@ -471,12 +471,12 @@ function SummaryBlock({ summary }: { summary: Summary }) {
             </dl>
 
             {lists.some(([, v]) => v && v.length > 0) && (
-                <dl className="mt-3 space-y-2 text-sm">
+                <dl className="mt-3 space-y-2 text-ui">
                     {lists.map(([label, values]) =>
                         values && values.length > 0 ? (
                             <div key={label}>
-                                <dt className="text-neutral-500">{label}</dt>
-                                <dd className="text-neutral-900">{values.join(', ')}</dd>
+                                <dt className="text-ash-gray">{label}</dt>
+                                <dd className="text-bone-white">{values.join(', ')}</dd>
                             </div>
                         ) : null
                     )}
@@ -501,7 +501,7 @@ function SummaryBlock({ summary }: { summary: Summary }) {
             </ul>
 
             {summary.redacted_fields && summary.redacted_fields.length > 0 && (
-                <p className="mt-3 text-xs text-neutral-600">
+                <p className="mt-3 text-caption text-ash-gray">
                     Withheld from the record: {summary.redacted_fields.join(', ')}. The hashes
                     are taken over the original payloads, so redaction does not weaken the
                     chain.
@@ -521,13 +521,13 @@ function Counter({
     caveat?: string | null
 }) {
     return (
-        <li className="rounded-lg border border-neutral-200 px-3 py-2">
-            <p className="text-xs text-neutral-500">{label}</p>
-            <p className="text-lg font-semibold tabular-nums text-neutral-900">
+        <li className="rounded-3xl border border-transparent px-3 py-2">
+            <p className="text-caption text-ash-gray">{label}</p>
+            <p className="text-heading-2xs font-normal tabular-nums text-bone-white">
                 {typeof value === 'number' ? value : '—'}
             </p>
             {caveat && (
-                <p className="mt-0.5 text-xs text-amber-800">Not instrumented. {caveat}</p>
+                <p className="mt-0.5 text-caption text-saffron-spark">Not instrumented. {caveat}</p>
             )}
         </li>
     )
@@ -536,29 +536,29 @@ function Counter({
 function TimelineBlock({ timeline }: { timeline: NonNullable<Dossier['timeline']> }) {
     return (
         <div className="mt-5">
-            <h3 className="text-sm font-semibold text-neutral-900">Timeline</h3>
+            <h3 className="text-ui font-normal text-bone-white">Timeline</h3>
             <ol className="mt-2 space-y-2">
                 {timeline.map((entry, i) => (
                     <li
                         key={`${entry.seq ?? i}-${entry.event ?? i}`}
-                        className="rounded-lg border border-neutral-200 p-3 text-sm"
+                        className="block text-ui"
                     >
                         <div className="flex flex-wrap items-baseline gap-x-3">
-                            <span className="font-mono text-xs text-neutral-500">
+                            <span className="font-mono text-caption text-ash-gray">
                                 {entry.seq ?? '—'}
                             </span>
-                            <span className="font-medium text-neutral-900">
+                            <span className="font-normal text-bone-white">
                                 {entry.event ?? 'unknown event'}
                             </span>
-                            <span className="ml-auto text-xs text-neutral-500">
+                            <span className="ml-auto text-caption text-ash-gray">
                                 {when(entry.at)}
                             </span>
                         </div>
                         {entry.detail && (
-                            <p className="mt-1 text-neutral-700">{entry.detail}</p>
+                            <p className="mt-1 text-silver-mist">{entry.detail}</p>
                         )}
                         {entry.actor && (
-                            <p className="mt-0.5 text-xs text-neutral-500">{entry.actor}</p>
+                            <p className="mt-0.5 text-caption text-ash-gray">{entry.actor}</p>
                         )}
                     </li>
                 ))}
