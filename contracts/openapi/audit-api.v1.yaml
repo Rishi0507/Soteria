@@ -15,7 +15,7 @@ info:
     Customer contact details are stripped before recording and the dossier
     declares what it withheld. Owner: audit-proof-service.
 servers:
-  - url: http://localhost:8084
+  - url: http://localhost:8085
     description: local
 paths:
   /healthz:

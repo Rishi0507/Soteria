@@ -150,7 +150,7 @@ stateDiagram-v2
 | `resolution-service` | 8081 | Resolves recall text to GTIN and lot codes, scores confidence with evidence, answers the Verified Safe Lot query | `contracts/openapi/resolution-api.v1.yaml` |
 | `containment-service` | 8082 | Applies the auto-hold threshold, writes the inventory hold, serves the review queue and live threshold tuning | `contracts/openapi/containment-api.v1.yaml` |
 | `order-rescue-service` | 8083 | Finds affected in-flight orders, proposes same-price allergen-safe substitutes, applies a swap only after customer consent | `contracts/openapi/order-rescue-api.v1.yaml` |
-| `audit-proof-service` | 8084 | Hash-chains every event of an incident, timestamps the chain head, renders the dossier | `contracts/openapi/audit-api.v1.yaml` |
+| `audit-proof-service` | 8085 | Hash-chains every event of an incident, timestamps the chain head, renders the dossier | `contracts/openapi/audit-api.v1.yaml` |
 
 ### resolution-service
 

@@ -7,7 +7,7 @@
 // storefront can develop against live APIs. It is a demo harness, not a
 // deployment target: state is in memory and dies with the process.
 //
-// Ports: 8081 resolution, 8082 containment, 8083 order rescue, 8084 audit,
+// Ports: 8081 resolution, 8082 containment, 8083 order rescue, 8085 audit,
 // 8090 harness.
 //
 //	POST /demo/notice   inject a recall.raw.received.v1 message (flat ingestion shape)
@@ -75,13 +75,13 @@ func main() {
 		serve(":8081", resolutionapi.New(h.resStore, nil).Routes(), "resolution-service", logger),
 		serve(":8082", containmentapi.New(h.contain, nil).Routes(), "containment-service", logger),
 		serve(":8083", rescueapi.New(h.rescue, nil).Routes(), "order-rescue-service", logger),
-		serve(":8084", auditapi.New(h.audit).Routes(), "audit-proof-service", logger),
+		serve(":8085", auditapi.New(h.audit).Routes(), "audit-proof-service", logger),
 		serve(":8090", h.routes(), "demo-harness", logger),
 	}
 
 	logger.Info("Soteria demo running",
 		"resolution", "http://localhost:8081", "containment", "http://localhost:8082",
-		"rescue", "http://localhost:8083", "audit", "http://localhost:8084",
+		"rescue", "http://localhost:8083", "audit", "http://localhost:8085",
 		"harness", "http://localhost:8090")
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)

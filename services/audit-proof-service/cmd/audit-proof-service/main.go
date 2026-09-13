@@ -8,7 +8,7 @@
 //	TSA_URL               RFC 3161 timestamp authority (default DigiCert's public one)
 //	TSA_DISABLED          set to 1 to skip timestamping entirely
 //	CORS_ALLOWED_ORIGINS  origins allowed to call this API from a browser
-//	PORT                  HTTP port (default 8084)
+//	PORT                  HTTP port (default 8085)
 package main
 
 import (
@@ -70,7 +70,7 @@ func main() {
 	}
 
 	srv := &http.Server{
-		Addr:              ":" + env("PORT", "8084"),
+		Addr:              ":" + env("PORT", "8085"),
 		Handler:           httpmw.CORS(os.Getenv("CORS_ALLOWED_ORIGINS"), api.New(svc).Routes()),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
