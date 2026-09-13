@@ -5,10 +5,10 @@ name: core-domain
 on:
   push:
     paths:
-      ["go.work", "libs/core/**", "services/resolution-service/**", "services/containment-service/**", "services/order-rescue-service/**", "tests/e2e/**", "contracts/**", ".github/workflows/core-domain.yml"]
+      ["go.work", "libs/core/**", "services/resolution-service/**", "services/containment-service/**", "services/order-rescue-service/**", "services/audit-proof-service/**", "tests/**", "infra/**", "contracts/**", ".github/workflows/core-domain.yml"]
   pull_request:
     paths:
-      ["go.work", "libs/core/**", "services/resolution-service/**", "services/containment-service/**", "services/order-rescue-service/**", "tests/e2e/**", "contracts/**", ".github/workflows/core-domain.yml"]
+      ["go.work", "libs/core/**", "services/resolution-service/**", "services/containment-service/**", "services/order-rescue-service/**", "services/audit-proof-service/**", "tests/**", "infra/**", "contracts/**", ".github/workflows/core-domain.yml"]
 
 jobs:
   test:
@@ -16,13 +16,13 @@ jobs:
     strategy:
       matrix:
         module:
-          [libs/core, services/resolution-service, services/containment-service, services/order-rescue-service, tests/e2e]
+          [libs/core, services/resolution-service, services/containment-service, services/order-rescue-service, services/audit-proof-service, tests/e2e, tests/integration, infra]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
           go-version-file: ${{ matrix.module }}/go.mod
-          cache-dependency-path: ${{ matrix.module }}/go.sum
+          cache-dependency-path: "**/go.sum"
       - name: gofmt
         run: test -z "$(gofmt -l ${{ matrix.module }})" || (gofmt -l ${{ matrix.module }}; exit 1)
       - name: vet + test
@@ -30,3 +30,48 @@ jobs:
         env:
           GOWORK: "off"
         run: go vet ./... && go test ./...
+
+  # The in-process bus implements the same routing rules, but only a real broker
+  # proves the queues get declared, the bindings match the keys services publish
+  # on, and a failing handler actually dead-letters.
+  broker:
+    runs-on: ubuntu-latest
+    services:
+      rabbitmq:
+        image: rabbitmq:4-management-alpine
+        env:
+          # Ephemeral: this broker exists for the length of one job and is not
+          # reachable from outside it.
+          RABBITMQ_DEFAULT_USER: ci
+          RABBITMQ_DEFAULT_PASS: ${{ github.run_id }}
+        ports:
+          - 5672:5672
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q check_running"
+          --health-interval 10s
+          --health-timeout 10s
+          --health-retries 12
+          --health-start-period 30s
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: tests/integration/go.mod
+          cache-dependency-path: "**/go.sum"
+      - name: integration tests against a real broker
+        working-directory: tests/integration
+        env:
+          GOWORK: "off"
+          RABBITMQ_URL: amqp://ci:${{ github.run_id }}@localhost:5672/
+        run: go test -v ./...
+
+  images:
+    runs-on: ubuntu-latest
+    needs: test
+    strategy:
+      matrix:
+        svc: [resolution-service, containment-service, order-rescue-service, audit-proof-service]
+    steps:
+      - uses: actions/checkout@v4
+      - name: build image
+        run: docker build -f services/${{ matrix.svc }}/Dockerfile -t soteria/${{ matrix.svc }}:ci .

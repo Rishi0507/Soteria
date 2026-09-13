@@ -88,7 +88,7 @@ Each queue also has a `<queue>.dlq` bound to its owning context's dead-letter ex
 | `rescue.order.proposed.v1` | [`events/order.rescue.proposed.v1.json`](events/order.rescue.proposed.v1.json) | `order-rescue-service` | live |
 | `rescue.order.confirmed.v1` | [`events/order.rescue.confirmed.v1.json`](events/order.rescue.confirmed.v1.json) | `order-rescue-service`, on behalf of the storefront | live |
 | `evasion.flagged.v1` | [`events/evasion.flagged.v1.json`](events/evasion.flagged.v1.json) | `anti-evasion-service` | proposed |
-| `audit.dossier.generated.v1` | [`events/audit.dossier.generated.v1.json`](events/audit.dossier.generated.v1.json) | `audit-proof-service` | proposed |
+| `audit.dossier.generated.v1` | [`events/audit.dossier.generated.v1.json`](events/audit.dossier.generated.v1.json) | `audit-proof-service` | live |
 | `notification.delivered.v1` | [`events/notification.delivered.v1.json`](events/notification.delivered.v1.json) | `notification-service` | live — on `notification.x`; proposed consumer binding: `audit.ledger` (add `notification.x` / `#`) so the dossier can cite deliveries |
 
 ## Message formats
@@ -118,7 +118,7 @@ Message properties on every publish: `content_type=application/json`, `delivery_
 | `containment.lot-resolved` | containment-service | `resolution.x` | `resolution.lot.resolved.v1` |
 | `rescue.containment-taken` | order-rescue-service | `containment.x` | `containment.action.taken.v1` |
 | `rescue.confirmations` | order-rescue-service | `rescue.x` | `rescue.order.confirmed.v1` |
-| `audit.ledger` | audit-proof-service | `resolution.x`, `containment.x`, `rescue.x`, `evasion.x` | `#` on each; the audit service records everything |
+| `audit.ledger` | audit-proof-service | `resolution.x`, `containment.x`, `rescue.x`, `evasion.x`, `notification.x` | `#` on each; the audit service records everything, including delivery receipts, so a dossier can show the customer was told |
 | `notification.outbound` | notification-service | `containment.x`, `rescue.x`, `evasion.x` | `containment.action.taken.v1`, `rescue.order.proposed.v1`, `evasion.flagged.v1` |
 | `storefront.projection` | storefront backend | `resolution.x`, `containment.x` | `resolution.lot.resolved.v1`, `containment.action.taken.v1` |
 | `ops.review` | ops console backend | `containment.x`, `audit.x` | `containment.action.proposed.v1`, `audit.dossier.generated.v1` |
@@ -133,6 +133,15 @@ Message properties on every publish: `content_type=application/json`, `delivery_
 - Retry budget: a failing handler is rejected with requeue until the `x-death` depth reaches
   `x-max-retries: 5`, after which the message is dead-lettered for good. Nothing is dropped silently,
   because the audit trail's completeness depends on it.
+
+## Keeping the three descriptions in step
+
+This registry, `infra/rabbitmq/definitions.json` and the subscriptions each service declares all
+describe the same topology and can drift apart silently: a queue bound in one place and not another
+means events vanish with nothing in any log to say so. `infra/rabbitmq/topology_test.go` compares all
+three on every CI run, and also enforces what the audit trail depends on: every consumer queue is
+durable, has a dead-letter exchange and a bound `.dlq`, and `audit.ledger` is bound to every exchange
+carrying incident events.
 
 ## Declaration order
 

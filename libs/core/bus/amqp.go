@@ -13,9 +13,12 @@ import (
 	"soteria/libs/core/events"
 )
 
-// maxRetries mirrors x-max-retries in /contracts/rabbitmq-topology.md. Past this
-// depth of x-death we stop requeueing and let the message dead-letter for good.
-const maxRetries = 5
+// MaxRetries is the delivery budget for one message, mirroring
+// /contracts/rabbitmq-topology.md. It is enforced by the broker through
+// x-delivery-limit on quorum queues rather than by counting here: a consumer
+// that tracked attempts in memory would forget them on restart, and a poison
+// message would then retry forever.
+const MaxRetries = 5
 
 // AMQP is the production bus. It declares the exchanges it publishes to and the
 // queues/DLQs its owner service consumes from, all idempotently on boot.
@@ -143,8 +146,14 @@ func (b *AMQP) Subscribe(sub Subscription, h Handler) error {
 	if err := ch.QueueBind(dlq, "#", dlx, false, nil); err != nil {
 		return fmt.Errorf("bus: bind dlq %s: %w", dlq, err)
 	}
+	// Quorum queues count deliveries themselves and dead-letter once the limit
+	// is reached. Classic queues have no such counter: rejecting with requeue
+	// leaves x-death unset, so the same message comes straight back and a
+	// handler that always fails spins forever.
 	if _, err := ch.QueueDeclare(sub.Queue, true, false, false, false, amqp.Table{
 		"x-dead-letter-exchange": dlx,
+		"x-queue-type":           "quorum",
+		"x-delivery-limit":       int32(MaxRetries),
 	}); err != nil {
 		return fmt.Errorf("bus: declare queue %s: %w", sub.Queue, err)
 	}
@@ -182,30 +191,30 @@ func (b *AMQP) pump(sub Subscription, h Handler, deliveries <-chan amqp.Delivery
 			_ = d.Ack(false)
 			continue
 		}
-		requeue := deathCount(d.Headers) < maxRetries
+		// Requeue and let the broker decide when enough is enough: after
+		// x-delivery-limit attempts it dead-letters the message for us, so a
+		// message is always either handled or somewhere we can find it.
 		b.logger.Error("handler failed",
 			"queue", sub.Queue, "event_type", env.EventType, "event_id", env.EventID,
-			"requeue", requeue, "err", err)
-		_ = d.Reject(requeue)
+			"deliveries", deliveryCount(d.Headers), "limit", MaxRetries, "err", err)
+		_ = d.Reject(true)
 	}
 }
 
-func deathCount(h amqp.Table) int {
-	deaths, ok := h["x-death"].([]any)
-	if !ok {
-		return 0
+// deliveryCount reports how many times the broker has delivered this message,
+// for logging only. Quorum queues set x-delivery-count; the value is absent on
+// the first delivery and on classic queues.
+func deliveryCount(h amqp.Table) int {
+	switch v := h["x-delivery-count"].(type) {
+	case int64:
+		return int(v) + 1
+	case int32:
+		return int(v) + 1
+	case int:
+		return v + 1
+	default:
+		return 1
 	}
-	total := 0
-	for _, d := range deaths {
-		entry, ok := d.(amqp.Table)
-		if !ok {
-			continue
-		}
-		if c, ok := entry["count"].(int64); ok {
-			total += int(c)
-		}
-	}
-	return total
 }
 
 // Start blocks until ctx is done; consumers are already pumping from Subscribe.
